@@ -33,7 +33,7 @@ Please report bugs via the Issues functionality of Bitbucket or email Florian Mu
 
 ### Development team ###
 
-v1 & v2 Developed by Florian Mueller (ENS Paris, Institut Pasteur) based on work of Hervé Marie-Nelly (Institut Pasteur). v3 developed by Florian Mueller and Aubin Samacoits (both Institut Pasteur)
+**v1 & v2** Developed by Florian Mueller (ENS Paris, Institut Pasteur) based on work of Hervé Marie-Nelly (Institut Pasteur). **v3** developed by Florian Mueller and Aubin Samacoits (both Institut Pasteur)
 
 Research was conducted in the group of Christophe Zimmer (Institut Pasteur), Xavier Darzacq (ENS Paris; Adrien Senecal and Nathalie Lao), and Edouard Bertrand (IGMM Montpellier; Eugenia Basyuk and Katjana Tantale).
 Depot at APP
