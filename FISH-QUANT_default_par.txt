@@ -1,0 +1,11 @@
+## FISH-QUANT
+version=v3a
+
+# EXPERIMENTAL PARAMETERS
+lambda_Ex=547
+lambda_EM=583
+NA=1.4
+RI=1.518
+Microscope=widefield
+Pixel_XY=160
+Pixel_Z=300
