@@ -689,6 +689,7 @@ classdef FQ_img < handle
        
         end
         
+        
         %% === Calculate predect quality score
         function spots_detected = spots_quality_score(img,ind_cell)
                 

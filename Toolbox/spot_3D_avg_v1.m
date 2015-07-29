@@ -129,8 +129,14 @@ function [spot_avg, spot_os_avg,pixel_size_os,img_sum] = avg_spots_cell(img,ind_
 
     end
 
-    spots_bgd = img.cell_prop(ind_cell).spots_fit(:,img.col_par.bgd);
-    par_spots = [spots_pos,spots_bgd];  
+    %- Get background only if bgd subtraction option is specified
+    if img.settings.avg_spots.flags.bgd
+        spots_bgd = img.cell_prop(ind_cell).spots_fit(:,img.col_par.bgd);
+    else
+        spots_bgd = zeros(size(spots_pos,1),1);
+    end
+    
+    par_spots = [spots_pos,spots_bgd];
     N_spots   = size(par_spots,1);
 
     %- Pixel size

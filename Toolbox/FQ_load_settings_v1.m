@@ -235,19 +235,19 @@ else
            
             %== Averaging of spots   
             case 'AVG_Region_XY'            
-                settings.avg_spots.crop.xy = str2double(str_val);            
+                img.settings.avg_spots.crop.xy = str2double(str_val);            
 
             case 'AVG_Region_Z'
-                settings.avg_spots.crop.z = str2double(str_val);            
+                img.settings.avg_spots.crop.z = str2double(str_val);            
 
             case 'AVG_OS_XY'
-                settings.avg_spots.fact_os.xy = str2double(str_val);   
+                img.settings.avg_spots.fact_os.xy = str2double(str_val);   
 
             case 'AVG_OS_Z'    
-                settings.avg_spots.fact_os.z = str2double(str_val);   
+                img.settings.avg_spots.fact_os.z = str2double(str_val);   
                 
             case 'AVG_bgd_sub'    
-                settings.avg_spots.bgd_sub = str2double(str_val);                                  
+                img.settings.avg_spots.flags.bgd = str2double(str_val);                                  
       
    
                 
