@@ -745,35 +745,37 @@ classdef FQ_img < handle
             [spots_fit, FIT_Result,thresh] = FQ_spots_fit_3D_v1(img,ind_cell);
             
             %- Set-up structure for thresholding
-            spots_detected  = img.cell_prop(ind_cell).spots_detected;
-           
-            thresh.sigmaxy.min   = min(spots_fit(:,img.col_par.sigmax));
-            thresh.sigmaxy.max   = max(spots_fit(:,img.col_par.sigmax));
-            thresh.sigmaxy.diff  = max(spots_fit(:,img.col_par.sigmax)) - min(spots_fit(:,img.col_par.sigmax));             
+            if ~isempty(spots_fit)
+                spots_detected  = img.cell_prop(ind_cell).spots_detected;
 
-            thresh.sigmaz.min    = min(spots_fit(:,img.col_par.sigmaz));
-            thresh.sigmaz.max    = max(spots_fit(:,img.col_par.sigmaz));
-            thresh.sigmaz.diff   = max(spots_fit(:,img.col_par.sigmaz)) - min(spots_fit(:,img.col_par.sigmaz));             
+                thresh.sigmaxy.min   = min(spots_fit(:,img.col_par.sigmax));
+                thresh.sigmaxy.max   = max(spots_fit(:,img.col_par.sigmax));
+                thresh.sigmaxy.diff  = max(spots_fit(:,img.col_par.sigmax)) - min(spots_fit(:,img.col_par.sigmax));             
 
-            thresh.amp.min      = min(spots_fit(:,img.col_par.amp));
-            thresh.amp.max      = max(spots_fit(:,img.col_par.amp));
-            thresh.amp.diff     = max(spots_fit(:,img.col_par.amp)) - min(spots_fit(:,img.col_par.amp));             
+                thresh.sigmaz.min    = min(spots_fit(:,img.col_par.sigmaz));
+                thresh.sigmaz.max    = max(spots_fit(:,img.col_par.sigmaz));
+                thresh.sigmaz.diff   = max(spots_fit(:,img.col_par.sigmaz)) - min(spots_fit(:,img.col_par.sigmaz));             
 
-            thresh.bgd.min      = min(spots_fit(:,img.col_par.bgd));
-            thresh.bgd.max      = max(spots_fit(:,img.col_par.bgd));
-            thresh.bgd.diff     = max(spots_fit(:,img.col_par.bgd)) - min(spots_fit(:,img.col_par.bgd));             
+                thresh.amp.min      = min(spots_fit(:,img.col_par.amp));
+                thresh.amp.max      = max(spots_fit(:,img.col_par.amp));
+                thresh.amp.diff     = max(spots_fit(:,img.col_par.amp)) - min(spots_fit(:,img.col_par.amp));             
 
-            thresh.int_raw.min  = min(spots_detected(:,img.col_par.int_raw));
-            thresh.int_raw.max  = max(spots_detected(:,img.col_par.int_raw));
-            thresh.int_raw.diff = max(spots_detected(:,img.col_par.int_raw)) - min(spots_detected(:,img.col_par.int_raw));             
+                thresh.bgd.min      = min(spots_fit(:,img.col_par.bgd));
+                thresh.bgd.max      = max(spots_fit(:,img.col_par.bgd));
+                thresh.bgd.diff     = max(spots_fit(:,img.col_par.bgd)) - min(spots_fit(:,img.col_par.bgd));             
 
-            thresh.int_filt.min   = min(spots_detected(:,img.col_par.int_filt));
-            thresh.int_filt.max   = max(spots_detected(:,img.col_par.int_filt));
-            thresh.int_filt.diff  = max(spots_detected(:,img.col_par.int_filt)) - min(spots_detected(:,img.col_par.int_filt));             
+                thresh.int_raw.min  = min(spots_detected(:,img.col_par.int_raw));
+                thresh.int_raw.max  = max(spots_detected(:,img.col_par.int_raw));
+                thresh.int_raw.diff = max(spots_detected(:,img.col_par.int_raw)) - min(spots_detected(:,img.col_par.int_raw));             
 
-            thresh.pos_z.min      = min(spots_fit(:,img.col_par.pos_z));
-            thresh.pos_z.max      = max(spots_fit(:,img.col_par.pos_z));
-            thresh.pos_z.diff     = max(spots_fit(:,img.col_par.pos_z)) - min(spots_fit(:,img.col_par.pos_z));             
+                thresh.int_filt.min   = min(spots_detected(:,img.col_par.int_filt));
+                thresh.int_filt.max   = max(spots_detected(:,img.col_par.int_filt));
+                thresh.int_filt.diff  = max(spots_detected(:,img.col_par.int_filt)) - min(spots_detected(:,img.col_par.int_filt));             
+
+                thresh.pos_z.min      = min(spots_fit(:,img.col_par.pos_z));
+                thresh.pos_z.max      = max(spots_fit(:,img.col_par.pos_z));
+                thresh.pos_z.diff     = max(spots_fit(:,img.col_par.pos_z)) - min(spots_fit(:,img.col_par.pos_z));             
+            end
             
             %- Assign parameters
             img.cell_prop(ind_cell).spots_fit  = spots_fit;
