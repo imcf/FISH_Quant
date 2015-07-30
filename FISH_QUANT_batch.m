@@ -2766,7 +2766,7 @@ if name_summary ~= 0
     parameters.TS_summary         = handles.TS_summary;
     parameters.path_save          = path_save;
     parameters.file_name_settings = handles.file_name_settings_new;
-    parameters.version            = handles.version;
+    parameters.version            = handles.img.version;
     
     FQ_batch_save_summary_all_v5(file_name_full,parameters)
 end
@@ -2989,6 +2989,8 @@ cd(path_save)
 [file_name_settings,path_name_settings] = uigetfile({'*.txt'},'Select file with settings');
 
 if file_name_settings ~= 0
+  
+     
     [handles.settings_TS_detect, file_ok] = FQ_TS_detect_settings_load_v2(fullfile(path_name_settings,file_name_settings),[]);
     
     
@@ -3327,9 +3329,6 @@ if file_name_settings_TS ~= 0
     %- Load settings
     [dum,file_ok] = handles.img.load_settings_TS(fullfile(path_name_settings_TS,file_name_settings_TS));
  
-%     %- Load settings
-%     [handles, file_ok] = FQ_TS_settings_load_v3(fullfile(path_name_settings_TS,file_name_settings_TS),handles); 
-%     
     
     %- Only if settings are ok
     if file_ok
@@ -3354,9 +3353,6 @@ if file_name_settings_TS ~= 0
 
                 if not(exist(PSF_name_full,'file') == 2)
                     [handles.img.mRNA_prop.file_name,handles.img.mRNA_prop.path_name] = uigetfile('.tif','Select averaged image of mRNA.','MultiSelect','off');
-%                 else
-%                     handles.PSF_path_name = handles.path_name_settings_TS;
-%                 end
                 end
             end
         end
@@ -3388,12 +3384,6 @@ if file_name_settings_TS ~= 0
              if isfield(handles.img.mRNA_prop,'AMP_path_name')       && isfield(handles.img.mRNA_prop,'AMP_file_name')                
                 
                  if not(isempty(handles.img.mRNA_prop.AMP_file_name))
-%                     if isempty(handles.img.mRNA_prop.AMP_path_name)
-%                         name_full_1 = fullfile(handles.path_name_settings_TS,handles.AMP_file_name );
-%                     else
-%                         name_full_1 = fullfile(handles.img.mRNA_prop.AMP_path_name,handles.img.mRNA_prop.AMP_file_name );
-%                     end
-
                     name_full = fullfile(handles.img.mRNA_prop.AMP_path_name,handles.img.mRNA_prop.AMP_file_name );
    
                     %- Check if one of the names exists
@@ -3529,10 +3519,21 @@ if not(strcmp(choice,''))
             handles.AMP_path_name = path_name_results;            
             
             if file_name_results ~= 0 
+                par.flag_identifier = 0;
+                par.col_par         = handles.img.col_par;
+                img_dum = FQ_img;
                 
-                cell_prop = FQ_load_results_WRAPPER_v1(fullfile(path_name_results,file_name_results));
-                spots_fit = cell_prop(1).spots_fit;
-                spots_detected = cell_prop(1).spots_detected;
+                status_open = img_dum.load_results(fullfile(path_name_results,file_name_results),-1);  % -1 means don't open image
+            
+                if status_open.outline
+                           
+                    spots_fit      = img_dum.cell_prop(1).spots_fit;
+                    spots_detected = img_dum.cell_prop(1).spots_detected;
+                
+                else
+                    warndlg('Could not open results file','mfilename')
+                    return
+                end
                 
                 %- Make sure that spots are loaded - empty otherwise
                 if not(isempty(spots_fit))

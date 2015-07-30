@@ -28,52 +28,51 @@ end
 status_file = 1;
 img.data    = [];
 
-
-%- Check if file is multi-stack
-r     = bfGetReader(file_name);
-N_img = r.getImageCount();
-N_Z   = r.getSizeZ();
-
-%- If number of z-stacks is larger than 1
-if N_Z>1 && N_Z<N_img
-    
-    dlg_title = ['Image appears to have ', num2str(N_img/N_Z),' z-stacks'];
-    prompt    = {'Specify which stack should be loaded (0 for all)                      :'};    
-    num_lines = 1; def = {'1'};
-    answer    = inputdlg(prompt,dlg_title,num_lines,def);
-    ind_load  = str2double(answer{1});
-    
-    if ind_load > 0
-        
-        %- Get start and end index of z-slice
-        par.range.start = (ind_load-1)*N_Z+1;
-        par.range.end   = ind_load*N_Z;
-    end
-    
-%- If number of images is very large    
-elseif N_img>500
-    
-    dlg_title = ['Image has many planes. Is it multi-stack?'];
-    
-    prompt{1}    = 'Number of planes per z-stack [0 for NO multi-stack]';
-    prompt{2}    = 'Specify which stack should be loaded                              :';    
-    num_lines = 1; def = {'6','1'};
-    answer    = inputdlg(prompt,dlg_title,num_lines,def);
-    N_Z       = str2double(answer{1});
-    ind_load  = str2double(answer{2});
-    
-    if N_Z > 0
-        
-        %- Get start and end index of z-slice
-        par.range.start = (ind_load-1)*N_Z+1;
-        par.range.end   = ind_load*N_Z;
-    end    
-    
-end
-
-
 %- Open files
 if exist(file_name,'file') == 2
+
+    %- Check if file is multi-stack
+    r     = bfGetReader(file_name);
+    N_img = r.getImageCount();
+    N_Z   = r.getSizeZ();
+
+    %- If number of z-stacks is larger than 1
+    if N_Z>1 && N_Z<N_img
+
+        dlg_title = ['Image appears to have ', num2str(N_img/N_Z),' z-stacks'];
+        prompt    = {'Specify which stack should be loaded (0 for all)                      :'};    
+        num_lines = 1; def = {'1'};
+        answer    = inputdlg(prompt,dlg_title,num_lines,def);
+        ind_load  = str2double(answer{1});
+
+        if ind_load > 0
+
+            %- Get start and end index of z-slice
+            par.range.start = (ind_load-1)*N_Z+1;
+            par.range.end   = ind_load*N_Z;
+        end
+
+    %- If number of images is very large    
+    elseif N_img>500
+
+        dlg_title = ['Image has many planes. Is it multi-stack?'];
+
+        prompt{1}    = 'Number of planes per z-stack [0 for NO multi-stack]';
+        prompt{2}    = 'Specify which stack should be loaded                              :';    
+        num_lines = 1; def = {'6','1'};
+        answer    = inputdlg(prompt,dlg_title,num_lines,def);
+        N_Z       = str2double(answer{1});
+        ind_load  = str2double(answer{2});
+
+        if N_Z > 0
+
+            %- Get start and end index of z-slice
+            par.range.start = (ind_load-1)*N_Z+1;
+            par.range.end   = ind_load*N_Z;
+        end    
+
+    end
+
 
     if isempty(par.range)
     

@@ -960,7 +960,6 @@ set(handles.h_FQ_TxSite,'Pointer','arrow');
 %== Test placements
 function handles = test_PSF_placements(hObject, eventdata, handles)
 
-global parameters_quant
 
 %- Get relevant parameters
 mRNA_prop      = handles.img.mRNA_prop;  
@@ -968,7 +967,7 @@ PSF_shift_all  = handles.img.mRNA_prop.PSF_shift;
 N_PSF_shift    = length(PSF_shift_all);
 
 %- Same cropping as for TS
-par_crop_TS                = parameters_quant.crop_image;
+par_crop_TS                = handles.img.settings.TS_quant.crop_image;
 pixel_size                 = handles.img.par_microscope.pixel_size;
 parameters_fit.par_crop.xy = ceil(par_crop_TS.xy_nm / pixel_size.xy);
 parameters_fit.par_crop.z  = ceil(par_crop_TS.z_nm / pixel_size.z);
@@ -1046,62 +1045,6 @@ else
     set(handles.txt_TS_bgd,'Enable','off');    
 end
 
-
-%=== Define parameters
-function menu_define_par_Callback(hObject, eventdata, handles)
-par_microscope = handles.par_microscope;
-fact_os        = handles.fact_os;
-
-dlgTitle = 'Experimental parameters';
-
-prompt(1) = {'Oversampling XY'};
-prompt(2) = {'Oversampling Z'};
-prompt(3) = {'Pixel-size xy [nm]'};
-prompt(4) = {'Pixel-size z [nm]'};
-prompt(5) = {'Refractive index'};
-prompt(6) = {'Numeric aperture NA'};
-prompt(7) = {'Emission wavelength'};
-prompt(8) = {'Excitation wavelength'};
-prompt(9) = {'Microscope'};
-
-
-defaultValue{1} = num2str(fact_os.xy);
-defaultValue{2} = num2str(fact_os.z);
-defaultValue{3} = num2str(par_microscope.pixel_size.xy);
-defaultValue{4} = num2str(par_microscope.pixel_size.z);
-defaultValue{5} = num2str(par_microscope.RI);
-defaultValue{6} = num2str(par_microscope.NA);
-defaultValue{7} = num2str(par_microscope.Em);
-defaultValue{8} = num2str(par_microscope.Ex);
-defaultValue{9} = num2str(par_microscope.type);
-
-userValue = inputdlg(prompt,dlgTitle,1,defaultValue);
-
-if( ~ isempty(userValue))
-    fact_os.xy                   = str2double(userValue{1});
-    fact_os.z                    = str2double(userValue{2});
-    par_microscope.pixel_size.xy = str2double(userValue{3});
-    par_microscope.pixel_size.z  = str2double(userValue{4});   
-    par_microscope.RI            = str2double(userValue{5});   
-    par_microscope.NA            = str2double(userValue{6});
-    par_microscope.Em            = str2double(userValue{7});   
-    par_microscope.Ex            = str2double(userValue{8});
-    par_microscope.type          = userValue{9}; 
-        
-    handles.par_microscope = par_microscope;
-    handles.fact_os         = fact_os;
-    
-    
-    %- Update status
-    set(handles.text_PSF_par,'String','PAR defined')
-    set(handles.text_PSF_par,'ForegroundColor','g')
-    handles.status_PAR = 1;        
-
-    %- Update status
-    text_update = {'  '; '## Parameters defined'};        
-    status_update(hObject, eventdata, handles,text_update);         
-    guidata(hObject, handles); 
-end
 
 
 %==========================================================================
