@@ -5,8 +5,8 @@ classdef FQ_img < handle
     properties 
         
         %- General image properties
-        file_names = struct('raw', '', 'filtered', '','DAPI', '', 'TS_label', '', 'settings', '', 'settings_TS', '');
-        path_names = struct('img', '', 'settings', '','results', '','outlines', '','root', '', 'settings_TS', '');
+        file_names = struct('raw', '', 'filtered', '','DAPI', '', 'TS_label', '', 'settings', '', 'settings_TS', '', 'settings_TS_detect', '');
+        path_names = struct('img', '', 'settings', '','results', '','outlines', '','root', '', 'settings_TS', '','settings_TS_detect', '');
         par_microscope = struct('pixel_size',struct('xy',160, 'z', 300),'RI',1.458, 'NA', 1.25,'Em', 547, 'Ex', 583, 'type', 'widefield');
         PSF_theo
         PSF_exp
@@ -138,22 +138,20 @@ classdef FQ_img < handle
             %==========================================================================
 
             %=====  SETTINGS FOR TS detection
-
             img.settings.TS_detect.conn     = 26;
             img.settings.TS_detect.min_dist = 10;         % Minimum distance between identified components
  
             %- Size of detection region
-            img.settings.TS_quant.size_detect.xy_nm     = 200;
-            img.settings.TS_quant.size_detect.z_nm      = 500;
-
+            img.settings.TS_detect.size_detect.xy_nm     = 200;
+            img.settings.TS_detect.size_detect.z_nm      = 500;
 
             %- Number of detected sites
-            img.settings.TS_quant.N_max_TS_total     = 100;  % Maximum number of detected TS per image
-            img.settings.TS_quant.N_max_TS_cell      = 4;    % Maximum number of detected TS per cell
+            img.settings.TS_detect.N_max_TS_total     = 100;  % Maximum number of detected TS per image
+            img.settings.TS_detect.N_max_TS_cell      = 4;    % Maximum number of detected TS per cell
 
             %- Offset between detected site (with TS label) and FISH
-            img.settings.TS_quant.dist_max_offset               = 0;       % Maximum offset [nm] around each TS to find brightest pixel (for LacI)
-            img.settings.TS_quant.dist_max_offset_FISH_min_int  = 100000;  % Minimum intensity the FISH signal must have to be considered                      
+            img.settings.TS_detect.dist_max_offset               = 0;       % Maximum offset [nm] around each TS to find brightest pixel (for LacI)
+            img.settings.TS_detect.dist_max_offset_FISH_min_int  = 100000;  % Minimum intensity the FISH signal must have to be considered                      
                        
             %=====  SETTINGS FOR TS QUANTIFICATION
 
@@ -168,7 +166,6 @@ classdef FQ_img < handle
             img.settings.TS_quant.crop_image.z_nm  = 1000;
             img.settings.TS_quant.factor_Q_ok      = 1.5;
             
-            
             %= Background auto calculation 
             img.settings.TS_quant.bgd_N_bins            = 10;
             img.settings.TS_quant.bgd_fact_min          = 3;
@@ -177,7 +174,6 @@ classdef FQ_img < handle
             %= Cropping
             img.settings.TS_quant.crop_image.xy_nm      = 500;
             img.settings.TS_quant.crop_image.z_nm       = 1000;
-
 
             %= Various flags to control detection
             img.settings.TS_quant.flags.posWeight   = 1;   % 1 to recalc position weighting vector after placement of each PSF, 0 to use only image of TS
@@ -498,7 +494,7 @@ classdef FQ_img < handle
                end
                    
                file_name_full = fullfile(path_save_settings,'_FQ_settings_MATURE.txt');
-               save_settings(img,file_name_full);clc
+               save_settings(img,file_name_full);
                
            end          
            
@@ -666,6 +662,89 @@ classdef FQ_img < handle
             img.cell_prop(ind_cell).pos_Nuc  = [];
         end
         
+   
+        %% === TS detection: change settings
+         function TS_detect_settings_change(img)
+            img.settings.TS_detect = FQ_TS_settings_detect_modify_v5(img.settings.TS_detect);
+         end
+        
+        
+        %% === TS detection: save settings
+        function TS_detect_settings_save(img)
+            
+
+            if ~isfield(img.settings.TS_detect,'img_det_type')
+                warndlg('No settings specified. TS detection has to be performed at least once.',mfilename)
+                
+            else
+
+                %- Get current directory and go to directory with results/settings
+                current_dir = cd;
+
+                if   not(isempty(img.path_names.outlines)); 
+                    path_save = img.path_names.outlines;
+                elseif  not(isempty(img.path_names.root)); 
+                    path_save = img.path_names.root;
+                else
+                    path_save = cd;
+                end
+
+                cd(path_save)
+
+                %- Save settings
+                img.settings.TS_detect.path_save = path_save;
+                img.settings.TS_detect.version   = img.version;
+
+                [img.file_names.settings_TS_detect, handles.path_names.settings_TS_detect] = FQ_TS_settings_detect_save_v2([],img);
+
+                %- Go back to original directory
+                cd(current_dir) 
+
+            end
+        end
+        
+        
+         %% === TS detection: save settings
+        function status_ok = TS_detect_settings_load(img)
+            
+            %- Get current directory and go to directory with results/settings
+            current_dir = cd;
+
+            if    not(isempty(img.path_names.results)); 
+                path_save = img.path_names.results;
+            elseif  not(isempty(img.path_names.root)); 
+                path_save = img.path_names.root;
+            else
+                path_save = cd;
+            end
+
+            cd(path_save)
+
+            %- Get settings
+            [file_name_settings,path_name_settings] = uigetfile({'*.txt'},'Select file with settings');
+
+            if file_name_settings ~= 0
+                [img.settings.TS_detect, status_ok] = FQ_TS_detect_settings_load_v2(fullfile(path_name_settings,file_name_settings),img.settings.TS_detect);
+
+                if status_ok
+
+                    %- Older version might not have this parameter
+                    if not(isfield(img.settings.TS_detect,'dist_max_offset_FISH_min_int'))
+                        img.settings.TS_detect = 0;
+                    end
+
+                end
+            end
+            
+            cd(current_dir)
+        end
+        
+        
+        %% === TS detection: apply
+        function TS_detect(img)
+            img.cell_prop = FQ3_TS_detect_v2(img);
+            
+        end
         
         %% === Predetect
         function [spots_detected, img_mask, CC_best, sub_spots, sub_spots_filt] = spots_predect(img,ind_cell)

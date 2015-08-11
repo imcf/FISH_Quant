@@ -410,8 +410,9 @@ if param.flags.save
     %- Create subfolder
     if get(handles.check_save_folder_sub,'Value');
         save_opt_specified = 1;
+        param.save.flag_folder   = 'sub';
         param.save.stats_folder_sub = 1;
-        param.save.name_sub         = get(handles.txt_save_folder_sub,'String');
+        param.save.name_sub         = get(handles.txt_save_folder_sub,'String');     
     else
         param.save.stats_folder_sub = 0;
     end

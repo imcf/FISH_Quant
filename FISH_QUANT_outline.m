@@ -376,7 +376,7 @@ set(handles.menu_save_outline,'Enable', 'on')
 
 
 %- Enable saving of TS autodetect settings
-if not(isempty(handles.parameters_TS_detect))
+if isfield(handles.img.settings.TS_detect,'img_det_type')
     set(handles.menu_save_settings_TS_detect,'Enable', 'on');
 else
     set(handles.menu_save_settings_TS_detect,'Enable', 'off');
@@ -1219,7 +1219,7 @@ if not(isempty(handles.img.file_names.DAPI))
    end 
 end
 
-%- Load DAPI if specified and user wants to
+%- Load TS label if specified and user wants to
 if not(isempty(handles.img.file_names.TS_label))
    button = questdlg('Load image with TS label as well?','FISH-QUANT outline');       
    if strcmp(button,'Yes')
@@ -1549,55 +1549,22 @@ function button_auto_detect_Callback(hObject, eventdata, handles)
 set(handles.h_fishquant_outline,'Pointer','watch'); %= Pointer to watch
 
 %- Get check-box in nucleus
-status_only_in_nuc = get(handles.checkbox_TS_only_nucleus,'Value');
 disp('Auto-detection of transcription sites ... please wait .... ')
 
 %- Check with image will be used
 str = get(handles.popupmenu_select_img_detect,'String');
 val = get(handles.popupmenu_select_img_detect,'Value');
+handles.img.settings.TS_detect.img_det_type       = str{val};
 
-switch str{val}
-    
-    case 'FISH_image'
-        img_TS_label = handles.img.raw;
-        img_2nd      = [];
-        
-    case 'TS_label'
-        
-        if isempty(handles.img_TS_plot)
-        	warndlg('No image with labeled TS present','FISH-QUANT')
-            return
-        else
-            img_TS_label = handles.img_TS_plot;
-            img_2nd      = handles.img.raw;
-        end       
-end
-        
-%- Parameters
-parameters.int_th             = str2double(get(handles.text_th_auto_detect,'String'));
-parameters.conn               = handles.parameters_quant.conn;
-parameters.flags.output       = 0;
-parameters.size_detect        = handles.parameters_quant.size_detect;
-parameters.pixel_size         = handles.par_microscope.pixel_size;
-parameters.cell_prop          = handles.img.cell_prop;
-parameters.min_dist           = handles.parameters_quant.min_dist;
-parameters.status_only_in_nuc = status_only_in_nuc;
-parameters.th_min_TS_DAPI     = str2double(get(handles.text_th_min_TS_DAPI,'String'));
+handles.img.settings.TS_detect.int_th             = str2double(get(handles.text_th_auto_detect,'String'));
+handles.img.settings.TS_detect.th_min_TS_DAPI     = str2double(get(handles.text_th_min_TS_DAPI,'String'));
+handles.img.settings.TS_detect.status_only_in_nuc = get(handles.checkbox_TS_only_nucleus,'Value');
 
-parameters.N_max_TS_total     = handles.parameters_quant.N_max_TS_total;
-parameters.N_max_TS_cell      = handles.parameters_quant.N_max_TS_cell;
+%- TS detection
+handles.img.TS_detect;
 
-parameters.dist_max_offset              = handles.parameters_quant.dist_max_offset;
-parameters.dist_max_offset_FISH_min_int = handles.parameters_quant.dist_max_offset_FISH_min_int;
-
-parameters.img_2nd            = img_2nd;
-parameters.img_DAPI           = handles.img_DAPI;
-
-%- Detect and analyse
-handles.img.cell_prop        = FQ3_TS_detect_v1(img_TS_label,parameters);
-handles                      = analyze_outline(hObject, eventdata, handles);
-
-%- Show plot
+%- Analyse and show results
+handles = analyze_outline(hObject, eventdata, handles);
 handles = plot_image(handles,handles.axes_image);
 
 fig_sep = get(handles.checkbox_sep_window,'Value');
@@ -1616,53 +1583,21 @@ disp('Auto-detection of transcription sites ... FINISHED .... ')
 set(handles.h_fishquant_outline,'Pointer','arrow'); %= Pointer to watch
 
 %- Save detection parameters
-parameters.img_det_type      = str{val};
-handles.parameters_TS_detect = parameters;
 GUI_enable(handles)
 guidata(hObject, handles); 
 
 
 %=== Options for quantification
 function menu_options_TS_Callback(hObject, eventdata, handles)
-handles.parameters_quant = FQ_TS_settings_detect_modify_v4(handles.parameters_quant);
+handles.img.TS_detect_settings_change;
 guidata(hObject, handles);
 
 
 %=== Save settings for TS detect
 function menu_save_settings_TS_detect_Callback(hObject, eventdata, handles)
+handles.img.TS_detect_settings_save;
+guidata(hObject, handles);
 
-parameters_TS_detect = handles.parameters_TS_detect;
-
-if isempty(parameters_TS_detect)
-    warndlg('No settings specified. TS detection has to be performed at least once.','FQ-outline')
-else
-    
-    %- Get current directory and go to directory with results/settings
-    current_dir = cd;
-
-    if    not(isempty(handles.img.path_names.outlines)); 
-        path_save = handles.img.path_names.outlines;
-    elseif  not(isempty(handles.img.path_names.root)); 
-        path_save = handles.img.path_names.root;
-    else
-        path_save = cd;
-    end
-
-    cd(path_save)
-
-    %- Save settings
-    parameters_TS_detect.path_save = path_save;
-    parameters_TS_detect.version   = handles.version;
-    
-    [handles.file_name_settings_TS handles.path_name_settings] = FQ_TS_settings_detect_save_v2([],parameters_TS_detect);
-    guidata(hObject, handles);
-
-    %- Go back to original directory
-    cd(current_dir) 
-    
-    
-end
-    
 
 
 % =========================================================================
@@ -1965,16 +1900,16 @@ if  status_second
    
     str = get(handles.select_second_stack,'String');
     val = get(handles.select_second_stack,'Value');
+    img2_type = str{val};
     
-    switch str{val}
-        case 'DAPI'
-            
+    switch img2_type
+        case 'DAPI'   
             if handles.status_DAPI
-                img2_plot   = handles.img_DAPI_plot;
-                img_2nd_min = handles.img_DAPI_min;
-                img_2nd_max = handles.img_DAPI_max;
+                img2_plot   =  handles.img_DAPI_plot;
+                img_2nd_min =  handles.img_DAPI_min;
+                img_2nd_max =  handles.img_DAPI_max;
                 img_2nd_diff = handles.img_DAPI_diff;
-                data2_norm  = handles.data_DAPI_norm;
+
             else
                 status_second = 0;
             end
@@ -1982,11 +1917,11 @@ if  status_second
             
         case 'TS_label'
             if handles.status_TS_label
-                img2_plot   = handles.img_TS_plot;
-                img_2nd_min = handles.img_TS_min;
+                img2_plot   =  handles.img_TS_plot;
+                img_2nd_min =  handles.img_TS_min;
                 img_2nd_max  = handles.img_TS_max;
                 img_2nd_diff = handles.img_TS_diff;
-                data2_norm  = handles.data_TS_norm;
+
             else
                 status_second = 0;
             end
@@ -2067,7 +2002,7 @@ switch str{val};
                     imshow(img2_plot,[contr_2nd_min contr_2nd_max])
                     colormap bone, axis off
                 else
-                   dum1 = uint32((img2_plot-contr_2nd_min) * (255/(contr_2nd_max-contr_2nd_min)));  
+                   dum1 = uint32(  (img2_plot-contr_2nd_min) * (255 / double(contr_2nd_max-contr_2nd_min) ) );  
                    dum2 = ind2rgb(dum1,handles.cMap2); 
                    h2   = subimage(dum2);
                    set(h2, 'AlphaData', img2_transp)  
@@ -2094,20 +2029,30 @@ switch str{val};
         
         %- Show second image
         if status_second
-            img2_plot =  data2_norm(:,:,ind_plot);
+            
+               switch img2_type
+                    case 'DAPI'         
+                        img2_disp =  handles.img.DAPI(:,:,ind_plot);
+            
+                    case 'TS_label'
+                        img2_disp =  handles.img.TS_label(:,:,ind_plot);
+            
+               end
+            
+
             hold on
                 if status_img_one
-                    imshow(img2_plot,[contr_2nd_min contr_2nd_max])
+                    imshow(img2_disp,[contr_2nd_min contr_2nd_max])
                     colormap bone, axis off
                 else
-                   dum1 = uint32((img2_plot-contr_2nd_min) * (255/(contr_2nd_max-contr_2nd_min)));  
+                   dum1 = uint32((img2_disp-contr_2nd_min) * (255/double(contr_2nd_max-contr_2nd_min)));  
                    dum2 = ind2rgb(dum1,handles.cMap2); 
                    h2   = subimage(dum2);
                    set(h2, 'AlphaData', img2_transp)  
                 end
             hold off
             
-            handles.img_2nd_disp = img2_plot;
+            handles.img_2nd_disp = img2_disp;
         end
 
         %- Update title
@@ -2586,15 +2531,6 @@ PSF_theo.z_pix  = PSF_theo.z_nm  / par_microscope.pixel_size.z ;
 handles.PSF_theo       = PSF_theo;
 handles.par_microscope = par_microscope;
 guidata(hObject, handles);
-
-
-
-% =========================================================================
-% Experimental parameters
-% =========================================================================
-
-%= Correct stack for photobleaching
-function menu_correct_stack_opb_Callback(hObject, eventdata, handles)
 
 
 % =========================================================================

@@ -2971,49 +2971,63 @@ guidata(hObject, handles);
 
 %== Load settings for TS detection
 function button_load_settings_TS_detect_Callback(hObject, eventdata, handles)
+status_ok = handles.img.TS_detect_settings_load;
 
-%- Get current directory and go to directory with results/settings
-current_dir = cd;
-
-if    not(isempty(handles.img.path_names.results)); 
-    path_save = handles.img.path_names.results;
-elseif  not(isempty(handles.img.path_names.root)); 
-    path_save = handles.img.path_names.root;
-else
-    path_save = cd;
-end
-
-cd(path_save)
-
-%- Get settings
-[file_name_settings,path_name_settings] = uigetfile({'*.txt'},'Select file with settings');
-
-if file_name_settings ~= 0
-  
-     
-    [handles.settings_TS_detect, file_ok] = FQ_TS_detect_settings_load_v2(fullfile(path_name_settings,file_name_settings),[]);
-    
-    
-    if file_ok
-    
-        if isfield(handles.settings_TS_detect,'int_th')
-            set(handles.text_th_auto_detect,'String',num2str(handles.settings_TS_detect.int_th));
-            handles.status_settings_TS_detect = 1;
-        else
-            handles.status_settings_TS_detect = 0;
-        end
-
-        %- Older version might not have this parameter
-        if not(isfield(handles.settings_TS_detect,'dist_max_offset_FISH_min_int'))
-            handles.settings_TS_detect.dist_max_offset_FISH_min_int = 0;
-        end
-
-
-        guidata(hObject, handles)
-
-        controls_enable(hObject, eventdata, handles)
+if status_ok
+    if isfield(handles.img.settings.TS_detect,'int_th')
+        set(handles.text_th_auto_detect,'String',num2str(handles.img.settings.TS_detect.int_th));
+        handles.status_settings_TS_detect = 1;
+    else
+        handles.status_settings_TS_detect = 0;
     end
 end
+
+%- Save and enable controls
+guidata(hObject, handles);
+controls_enable(hObject, eventdata, handles)
+
+% %- Get current directory and go to directory with results/settings
+% current_dir = cd;
+% 
+% if    not(isempty(handles.img.path_names.results)); 
+%     path_save = handles.img.path_names.results;
+% elseif  not(isempty(handles.img.path_names.root)); 
+%     path_save = handles.img.path_names.root;
+% else
+%     path_save = cd;
+% end
+% 
+% cd(path_save)
+% 
+% %- Get settings
+% [file_name_settings,path_name_settings] = uigetfile({'*.txt'},'Select file with settings');
+% 
+% if file_name_settings ~= 0
+%   
+%      
+%     [handles.settings_TS_detect, file_ok] = FQ_TS_detect_settings_load_v2(fullfile(path_name_settings,file_name_settings),[]);
+%     
+%     
+%     if file_ok
+%     
+%         if isfield(handles.settings_TS_detect,'int_th')
+%             set(handles.text_th_auto_detect,'String',num2str(handles.settings_TS_detect.int_th));
+%             handles.status_settings_TS_detect = 1;
+%         else
+%             handles.status_settings_TS_detect = 0;
+%         end
+% 
+%         %- Older version might not have this parameter
+%         if not(isfield(handles.settings_TS_detect,'dist_max_offset_FISH_min_int'))
+%             handles.settings_TS_detect.dist_max_offset_FISH_min_int = 0;
+%         end
+% 
+% 
+%         guidata(hObject, handles)
+% 
+%         controls_enable(hObject, eventdata, handles)
+%     end
+% end
 
 
 %== Detect transcription sites
@@ -3033,50 +3047,28 @@ else
     path_save_outline  = handles.path_name_list;
 end
 
-
-
 %- Create folder to save outlines
 path_save = fullfile(path_save_outline,'_TS_detect');
 if ~exist(path_save,'dir'); 
    mkdir(path_save)
 end
 
+% %-- Detection intensity
+handles.img.settings.TS_detect.int_th = str2double(get(handles.text_th_auto_detect, 'String'));
 
-
-%-- General parameters
-par_microscope   = handles.par_microscope;
- 
-%-- Get detection parameters
-parameters_auto_detect = handles.settings_TS_detect;
-parameters_auto_detect.int_th = str2double(get(handles.text_th_auto_detect, 'String'));
-parameters_auto_detect.flags.output       = 0;
-parameters_auto_detect.pixel_size         = handles.par_microscope.pixel_size;
 
 %=== Update status
 status_text = {' ';'== Transcription site detection: STARTED.' ; '   See Workspace for details.'};
 status_update(hObject, eventdata, handles,status_text); 
 
 file_list = get(handles.listbox_files,'String');
-
 N_file = size(file_list,1);
-TS_counter = handles.TS_counter;
-TS_summary = handles.TS_summary;
+
 
 %== Loop over all files: includes autosave options 
-i_start_file = handles.i_file_proc;
-i_end_file   = size(file_list,1);
-
-i_cell_proc     = handles.i_cell_proc;
-i_TS_proc       = handles.i_TS_proc;
-
-status_first_file = 1;  
-status_first_cell = 1;
-
-
-for i_file = i_start_file:i_end_file
+for i_file = 1:N_file
     
     file_name_load  = file_list{i_file};
-    
     
     disp(' '), disp(' ')
     disp('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
@@ -3098,36 +3090,24 @@ for i_file = i_start_file:i_end_file
         elseif not(isempty(handles.path_name_list))
             path_image = handles.path_name_list;
         end
-        file_name_load_full        = fullfile(handles.path_name_list,file_name_load);  
-        [cell_prop dum file_names] = FQ_load_results_WRAPPER_v1(file_name_load_full);        
-        [image_struct status_file] = load_stack_data_v7(fullfile(path_image,file_names.raw));
-        
-        if status_file == 0
-            disp('FISH image could not be loaded')    
+         
+        status_open = handles.img.load_results(fullfile(handles.path_name_list,file_name_load),path_image);
+                 
+        if status_open.outline == 0
+            disp('Outine could not be loaded') 
             flag_continue = 0;
         end
         
+        if status_open.img == 0
+            disp('Image could not be loaded') 
+            flag_continue = 0;
+        end
              
     %- Load image files 
     elseif strcmpi(ext,'.tif') || strcmpi(ext,'.stk')
-        file_name_load_full = fullfile(handles.path_name_list,file_name_load);
-        image_struct        = load_stack_data_v7(file_name_load_full);
-        file_names.raw      = file_name_load;
-        file_names.filtered = [];
-        file_names.settings = [];
-        file_names.DAPI     = [];
-        file_names.TS_label = [];
-        
-        %- Dimension of entire image
-        w = image_struct.w;
-        h = image_struct.h;
-        cell_prop(1).x      = [1 1 w w];
-        cell_prop(1).y      = [1 h h 1];
-
-        %- Other parameters
-        cell_prop(1).pos_TS = [];
-        cell_prop(1).label  = 'EntireImage';
-        cell_prop(1).pos_TS = [];
+        handles.img.load_img(fullfile(handles.path_name_list,file_name_load),'raw')
+        handles.img.make_one_cell;
+ 
     end
     
     %- Get settings file
@@ -3136,31 +3116,30 @@ for i_file = i_start_file:i_end_file
     end
     
     %- Name of image
-    [dum, name_image] = fileparts(file_names.raw);
-    
-    disp(['File-name (FISH): ', file_names.raw])
+    disp(['File-name (FISH): ', handles.img.file_names.raw])
     disp(' ');
+    
+    [dum, name_image] = fileparts(handles.img.file_names.raw);
+   
       
     %= Autodetection of TxSites 
-    parameters_detect           = parameters_auto_detect;
-    parameters_detect.cell_prop = cell_prop;
-        
-    
+            
     %- Define which files are passed to the routine
-    switch parameters_auto_detect.img_det_type
+    switch handles.img.settings.TS_detect.img_det_type
     
+        
+        %- Load TS label if necessary
         case 'TS_label'
             
-            if not(isempty(file_names.TS_label))
-                file_name_load_full  = fullfile(path_image,file_names.TS_label);
-                [image_TS_struct  status_file] = load_stack_data_v7(file_name_load_full);
+            if not(isempty(handles.img.file_names.TS_label))
                 
+                status_file = handles.img.load_img(fullfile(path_image,handles.img.file_names.TS_label),'TS_label');
+   
                 if status_file
-                    disp(['File-name (TS_label): ', file_names.TS_label, ' loaded'])             
-                    img_TS_label = image_TS_struct.data;
-                    img_2nd = image_struct.data;
+                    disp(['File-name (TS_label): ', handles.img.file_names.TS_label, ' loaded'])             
+
                 else
-                    disp(['File-name (TS_label): ', file_names.TS_label, ' NOT loaded.'])
+                    disp(['File-name (TS_label): ', handles.file_names.TS_label, ' NOT loaded.'])
                     disp(['Path (TS_label): ', path_image])
                     disp('NO DETECTION PERFORMED')
                     flag_continue = 0;
@@ -3173,65 +3152,56 @@ for i_file = i_start_file:i_end_file
                 flag_continue = 0;
             end
            
-            
-        case 'FISH_image' 
-            img_TS_label = image_struct.data;
-            img_2nd      = [];
     end
     
     %- Load DAPI file only if needed    
-    if parameters_auto_detect.th_min_TS_DAPI > 0
-        if not(isempty(file_names.DAPI))
-            file_name_load_full  = fullfile(path_image,file_names.DAPI);
-            [image_DAPI_struct, status_file] = load_stack_data_v7(file_name_load_full);
-
+    if handles.img.settings.TS_detect.th_min_TS_DAPI > 0
+        
+        if not(isempty(handles.img.file_names.DAPI))
+        
+            status_file = handles.img.load_img(fullfile(path_image,handles.img.file_names.DAPI),'DAPI');
+            
             if status_file
-                disp(['File-name (DAPI): ', file_names.DAPI, ' loaded'])            
-                img_DAPI = image_DAPI_struct.data;
+                disp(['File-name (DAPI): ', handles.img.file_names.DAPI, ' loaded'])            
             else
-                disp(['File-name (DAPI): ', file_names.TS_label, ' NOT loaded. WILL NOT CONTINUE!!!'])
+                disp(['File-name (DAPI): ', handles.img.file_names.DAPI, ' NOT loaded. WILL NOT CONTINUE!!!'])
                 disp(['Path (TS_label): ', path_image])
-                img_DAPI = [];
                 flag_continue = 0;
 
             end
-
         else
             disp('No file with DAPI defined')
-            img_DAPI = [];
         end
-    else
-        img_DAPI = [];
+
     end
     
     %- Continue only if files are specified that are needed
     if flag_continue
 
         %- Assign parameters
-        parameters_auto_detect.img_2nd    = img_2nd;
-        parameters_auto_detect.img_DAPI   = img_DAPI;
-        parameters_auto_detect.cell_prop  = cell_prop;   
-        
-        if not(isempty(cell_prop))
+       
+        if not(isempty(handles.img.cell_prop))
 
             %- Detect and analyse
-            cell_prop = TxSite_detect_v7(img_TS_label,parameters_auto_detect);
-
+            handles.img.TS_detect;
+         
             %=== Save new outline definition
-            file_name_OUTLINE      = [name_image,'_outline_TS_detect_AUTO_',num2str(round(parameters_auto_detect.int_th)),'.txt'];         
+            file_name_OUTLINE      = [name_image,'_outline_TS_detect_AUTO_',num2str(round(handles.img.settings.TS_detect.int_th)),'.txt'];         
             file_name_OUTLINE_full = fullfile(path_save,file_name_OUTLINE);
             disp(['Outline saved to: ',file_name_OUTLINE_full])
-
-            %- Parameters to save results
+            
             parameters.path_save           = path_save;
-            parameters.cell_prop           = cell_prop;
-            parameters.par_microscope      = par_microscope;
-            parameters.path_name_image     = handles.img.path_names.img;
-            parameters.file_names          = file_names;
-            parameters.version             = handles.version;
-            parameters.flag_type           = 'outline'; 
+%             parameters.cell_prop           = cell_prop;
+%             parameters.par_microscope      = par_microscope;
+%             parameters.path_name_image     = handles.img.path_names.img;
+%             parameters.file_names          = file_names;
+             parameters.version             = handles.img.version;
+             parameters.flag_type           = 'outline'; 
 
-            FQ_save_results_v1(file_name_OUTLINE_full,parameters);
+            
+            %- Parameters to save results
+            handles.img.save_results(file_name_OUTLINE_full,parameters);
+                   
         else
             disp('No cell defined in outline file.')
         end

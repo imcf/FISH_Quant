@@ -98,8 +98,7 @@ else
              
             case 'size_detect_z_nm'
                 settings.size_detect.z_nm = str2double(str_val);                  
-                
-                
+       
         end      
 
     end
