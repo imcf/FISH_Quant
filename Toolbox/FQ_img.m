@@ -365,8 +365,8 @@ classdef FQ_img < handle
                 img.settings.TS_quant.N_pix_sum.z = 1;
             end
             
-            %- Check if folder for AMP exists
-            if isempty(img.mRNA_prop.AMP_path_name)
+            %- Check if folder for AMP is defined
+            if ~isfield(img.mRNA_prop,'AMP_path_name') || isempty(img.mRNA_prop.AMP_path_name)
                 img.mRNA_prop.AMP_path_name = img.path_names.settings_TS;
             end
   

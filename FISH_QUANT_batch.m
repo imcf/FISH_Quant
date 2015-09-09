@@ -441,8 +441,6 @@ if strcmp(choice,'Yes')
     
     
     %=== Options for autosave
-    
-    
     handles.i_file_proc_mature = 1;
     handles.i_file_proc        = 1; % Index where the processing starts (used when autosaved data is loaded).
     handles.i_cell_proc        = 1;
@@ -460,7 +458,6 @@ if strcmp(choice,'Yes')
     handles.TS_counter     = 1;
 
     handles.spots_fit_all  = [];
-    handles.img.thresh_all     = [];
     handles.spots_range    = [];
 
     %- Status flags
@@ -478,22 +475,12 @@ if strcmp(choice,'Yes')
     handles.status_outline_unique_loaded = 0;
     handles.status_outline_unique_enable = 0;
     handles.status_settings_TS_detect    = 0;
-    
-    %- Set all threshold locks to zero - the ones which are locked will be changed to one 
-    handles.img.thresh_all.sigmaxy.lock  = 0;
-    handles.img.thresh_all.sigmaz.lock   = 0;
-    handles.img.thresh_all.amp.lock      = 0;
-    handles.img.thresh_all.bgd.lock      = 0;
-    handles.img.thresh_all.pos_z.lock    = 0;
-    handles.img.thresh_all.int_raw.lock  = 0;
-    handles.img.thresh_all.int_filt.lock = 0;
 
     %- Update status
     controls_enable(hObject, eventdata, handles)
     status_update(hObject, eventdata, handles,{' ';'## Analysis results cleared.'});    
 end
    
-
 
 %==========================================================================
 %==== Define folders 
@@ -1134,13 +1121,11 @@ if handles.i_file_proc_mature ~= 1
    end    
 end
 
-
 %=== LOOP OVER ALL FILES and ALL CELLS
 for i_file = handles.i_file_proc_mature:N_file
     
     %- Make new FQ object and reinitiate
     handles.img = handles.img.reinit;    
-    handles.img
 
     %- Get first outline
     file_name_outline = file_list{i_file};

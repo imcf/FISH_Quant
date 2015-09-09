@@ -33,18 +33,6 @@ function [spot_avg, spot_avg_os, pixel_size_os,img_sum] = spot_3D_avg_v1(img,ind
 %                  spot before averaging.
 
 
-
-%=== Get parameters
-%             parameters.pixel_size  = pixel_size;
-%             parameters.par_spots   = par_spots;
-%             parameters.par_crop    = handles.average.crop;
-%             parameters.fact_os     = handles.average.fact_os;
-%             parameters.offset      = offset;
-%             parameters.flag_os     = flag_os;
-%             parameters.flag_output = flag_output;
-%             parameters.flags.bgd    = flags.bgd;
-% 
-
     %=== If only one index is specified - average indicated cell
     if ~isempty(ind_cell)
 
@@ -54,7 +42,6 @@ function [spot_avg, spot_avg_os, pixel_size_os,img_sum] = spot_3D_avg_v1(img,ind
      
     %=== Average all cells   
     else
-
         img.settings.avg_spots.flags.output = 0; 
         N_cell  = length(img.cell_prop);
         
@@ -78,8 +65,6 @@ function [spot_avg, spot_avg_os, pixel_size_os,img_sum] = spot_3D_avg_v1(img,ind
                     spot_avg_os      = spot_avg_os(2*fact_os.xy:end-2*fact_os.xy,2*fact_os.xy:end-2*fact_os.xy,2*fact_os.z+1:end-2*fact_os.z);
                 end
 
-
-                
             else
                 disp('!!! NO spot was considered in averaging !!!!')
                 img.spot_avg     = [];
@@ -95,40 +80,52 @@ end
 
 
 
-
-
 %% FUNCTION TO AVERAGE SPOTS IN A CELL
 function [spot_avg, spot_os_avg,pixel_size_os,img_sum] = avg_spots_cell(img,ind_cell,img_sum)
 
-
-    %% Parameters for averaging
+    %=== Parameters for averaging
     par_crop   = img.settings.avg_spots.crop;
     fact_os    = img.settings.avg_spots.fact_os;
     flags      = img.settings.avg_spots.flags;
 
+    %- Pixel size
+    pixel_size       = img.par_microscope.pixel_size;
+    pixel_size_os.xy = pixel_size.xy / img.settings.avg_spots.fact_os.xy;
+    pixel_size_os.z  = pixel_size.z  / img.settings.avg_spots.fact_os.z;
+
+    
+    %=== Check if there are any spots to average
+    if sum(img.cell_prop(ind_cell).thresh.in) == 0   
+        spot_os_avg = [];
+        spot_avg    = [];
+        return
+    end
+    
     %==== Decide which positions to use 
 
     %- Fit
     if img.settings.avg_spots.fact_os.xy > 1 || img.settings.avg_spots.fact_os.z > 1
 
         status_os = 1;
-        spots_pos = img.cell_prop(ind_cell).spots_fit(:,[img.col_par.pos_y img.col_par.pos_x img.col_par.pos_z]);
+        spots_pos = img.cell_prop(ind_cell).spots_fit(img.cell_prop(ind_cell).thresh.in,[img.col_par.pos_y img.col_par.pos_x img.col_par.pos_z]);
 
         spots_pos(:,1) = spots_pos(:,1) + img.par_microscope.pixel_size.xy;
         spots_pos(:,2) = spots_pos(:,2) +  img.par_microscope.pixel_size.xy;
         spots_pos(:,3) = spots_pos(:,3) +  img.par_microscope.pixel_size.z;
 
-
     %- Detection    
     else
-
+        
         status_os = 0;
-        spots_pos(:,1) = (img.cell_prop(ind_cell).spots_detected(:,img.col_par.pos_y_det) -1) * img.par_microscope.pixel_size.xy;
-        spots_pos(:,2) = (img.cell_prop(ind_cell).spots_detected(:,img.col_par.pos_x_det) -1) * img.par_microscope.pixel_size.xy;
-        spots_pos(:,3) = (img.cell_prop(ind_cell).spots_detected(:,img.col_par.pos_z_det) -1) * img.par_microscope.pixel_size.z;
+        spots_pos(:,1) = (img.cell_prop(ind_cell).spots_detected(img.cell_prop(ind_cell).thresh.in,img.col_par.pos_y_det) -1) * img.par_microscope.pixel_size.xy;
+        spots_pos(:,2) = (img.cell_prop(ind_cell).spots_detected(img.cell_prop(ind_cell).thresh.in,img.col_par.pos_x_det) -1) * img.par_microscope.pixel_size.xy;
+        spots_pos(:,3) = (img.cell_prop(ind_cell).spots_detected(img.cell_prop(ind_cell).thresh.in,img.col_par.pos_z_det) -1) * img.par_microscope.pixel_size.z;
 
     end
 
+    N_spots   = size(spots_pos,1);
+    
+ 
     %- Get background only if bgd subtraction option is specified
     if img.settings.avg_spots.flags.bgd
         spots_bgd = img.cell_prop(ind_cell).spots_fit(:,img.col_par.bgd);
@@ -137,12 +134,8 @@ function [spot_avg, spot_os_avg,pixel_size_os,img_sum] = avg_spots_cell(img,ind_
     end
     
     par_spots = [spots_pos,spots_bgd];
-    N_spots   = size(par_spots,1);
+    
 
-    %- Pixel size
-    pixel_size       = img.par_microscope.pixel_size;
-    pixel_size_os.xy = pixel_size.xy / img.settings.avg_spots.fact_os.xy;
-    pixel_size_os.z  = pixel_size.z  / img.settings.avg_spots.fact_os.z;
 
 
     %=== Make sure that image is DOUBLE!!!! Otherwise you run into troubles when
