@@ -29,7 +29,9 @@ We provide several files to help new user getting used to FISH-quant. We recomme
 
 ### Bugs, other issues and suggestions for improvements ###
 
-Please report bugs via the Issues functionality of Bitbucket or email Florian Mueller (Contact see below). If you have problems with some of the processing steps or you have suggestions for improvements please also email Florian Mueller.
+Please report bugs via the Issues functionality of Bitbucket or email Florian Mueller (Contact see below). 
+
+If you have problems with some of the processing steps or you have suggestions for improvements please also email Florian Mueller.
 
 ### Development team ###
 
@@ -42,7 +44,7 @@ Research was conducted in the group of Christophe Zimmer (Institut Pasteur), Xav
 ### Depot at APP ###
 
 A depot of the software was issued at APP (http://www.app.asso.fr/en/) under the reference number IDDN.FR.001.090009.000.S.A.2013.000.10000
-Contact
+
 
 
 ### Contact ###
