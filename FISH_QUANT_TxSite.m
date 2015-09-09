@@ -1152,11 +1152,6 @@ status_update(hObject, eventdata, handles,status_text);
 %=== Options for quantification
 function menu_options_Callback(hObject, eventdata, handles)
 
-
-%global parameters_quant
-%parameters_quant = FQ_TS_settings_modify_v5(parameters_quant,handles.status_TS_simple_only);
-
-%global parameters_quant
 handles.img.settings.TS_quant = FQ_TS_settings_modify_v5(handles.img.settings.TS_quant,handles.status_TS_simple_only);
 
 handles.status_PSF = 0;

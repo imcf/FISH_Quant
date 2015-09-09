@@ -1,4 +1,4 @@
-function [file_save, path_save] = FQ_save_results_v1(file_name_full,parameters)
+function [name_save, path_save] = FQ_save_results_v1(file_name_full,parameters)
 
 %== Extract parameters
 path_save                = parameters.path_save; 
@@ -15,7 +15,6 @@ if isfield(parameters,'comment')
 else
     comment = '';    
 end
-
 
 
 %- Flag to indicate if only thresholded spots should be saved
@@ -44,10 +43,10 @@ if isempty(file_name_full)
     [dum, name_file] = fileparts(file_names.raw); 
     file_name_default = [name_file,'__',flag_type,'.txt'];
     
-    [file_save,path_save] = uiputfile(file_name_default,'Save outline / results of spot detection');
-    file_name_full = fullfile(path_save,file_save);
+    [name_save,path_save] = uiputfile(file_name_default,'Save outline / results of spot detection');
+    file_name_full        = fullfile(path_save,name_save);
     
-    if file_save ~= 0
+    if name_save ~= 0
         
         %- Ask user to specify comment
         prompt = {'Comment (cancel for no comment):'};
@@ -56,9 +55,12 @@ if isempty(file_name_full)
         def = {''};
         comment = inputdlg(prompt,dlg_title,num_lines,def);
     end
+    
 else   
-    file_save = 1;
-    path_save = fileparts(file_name_full); 
+    
+    [path_save, name_save,ext] = fileparts(file_name_full); 
+    name_save = [name_save,ext];
+
     if isempty(comment)
         comment = 'Automated outline definition (batch or quick-save)';
     end
@@ -66,7 +68,7 @@ end
 
 
 % Only write if FileName specified
-if file_save ~= 0
+if name_save ~= 0
     
     fid = fopen(file_name_full,'w');
     
@@ -96,10 +98,7 @@ if file_save ~= 0
         if ~isempty(size_img)
             fprintf(fid,'%s\t%g\t%g\t%g\n','IMG_size',size_img(1),size_img(2),size_img(3)); 
         end
-
-
-        %fprintf(fid,'ANALYSIS-SETTINGS \t%s\n', file_name_settings);   
-
+   
         %- Outline of cell and detected spots
         for i_cell = 1:size(cell_prop,2)
 

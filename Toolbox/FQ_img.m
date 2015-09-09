@@ -154,7 +154,8 @@ classdef FQ_img < handle
             img.settings.TS_detect.dist_max_offset_FISH_min_int  = 100000;  % Minimum intensity the FISH signal must have to be considered                      
                        
             %=====  SETTINGS FOR TS QUANTIFICATION
-
+            img.settings.TS_quant.flags.quant_simple_only = 1;  % By default only integrated intensity comparison
+            
             img.settings.TS_quant.flags.placement = 2;
             img.settings.TS_quant.flags.quality   = 2;
             img.settings.TS_quant.N_Run_analysis = 500;
@@ -186,6 +187,8 @@ classdef FQ_img < handle
             %= Control size of region to sum up pixel intensity
             img.settings.TS_quant.N_pix_sum.xy = 1;  % Size of region to sum pixel intensity for quantification
             img.settings.TS_quant.N_pix_sum.z = 1;  % Size of region to sum pixel intensity for quantification
+            
+            
             
             
             %==========================================================================
@@ -477,7 +480,7 @@ classdef FQ_img < handle
             
         
           %% ==== Save results file
-        function [file_save, path_save] = save_results(img,name_save,parameters)
+        function [file_save, path_save] = save_results(img,name_full,parameters)
             
            %- Parameters to save results
            parameters.file_names          = img.file_names;
@@ -498,7 +501,7 @@ classdef FQ_img < handle
                
            end          
            
-           [file_save, path_save] = FQ_save_results_v1(name_save,parameters);
+           [file_save, path_save] = FQ_save_results_v1(name_full,parameters);
 
         end      
         

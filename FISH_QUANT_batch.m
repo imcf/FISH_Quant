@@ -70,7 +70,7 @@ if not(isfield(handles,'img'))
     handles.status_QUANT            = 0;
     handles.status_settings_TS_proc = 0;
     handles.status_PSF_PROC         = 0;
-    handles.status_TS_simple_only   = 0;
+   % handles.status_TS_simple_only   = 0;
     handles.status_outline_unique_loaded = 0;
     handles.status_outline_unique_enable = 0;
     handles.status_settings_TS_detect    = 0;
@@ -314,7 +314,8 @@ else
 end
 
 %- Only simple quantifications
-if handles.status_TS_simple_only
+if  handles.img.settings.TS_quant.flags.quant_simple_only % handles.status_TS_simple_only
+        
 
     if handles.status_setting && handles.status_settings_TS 
        set(handles.button_process_TxSite,'Enable','on');     
@@ -387,7 +388,7 @@ end
     
     
 %== Restrict size
-if not(isempty(handles.TS_summary)) && not(handles.status_TS_simple_only)
+if not(isempty(handles.TS_summary)) && not(handles.img.settings.TS_quant.flags.quant_simple_only)
     set(handles.button_TS_restrict_size,'Enable','on');   
 else
     set(handles.button_TS_restrict_size,'Enable','off');      
@@ -471,7 +472,7 @@ if strcmp(choice,'Yes')
     handles.status_QUANT            = 0;
     handles.status_settings_TS_proc = 0;
     handles.status_PSF_PROC         = 0;
-    handles.status_TS_simple_only   = 0;
+    handles.img.settings.TS_quant.flags.quant_simple_only   = 0;
     handles.status_outline_unique_loaded = 0;
     handles.status_outline_unique_enable = 0;
     handles.status_settings_TS_detect    = 0;
@@ -2971,49 +2972,6 @@ end
 guidata(hObject, handles);
 controls_enable(hObject, eventdata, handles)
 
-% %- Get current directory and go to directory with results/settings
-% current_dir = cd;
-% 
-% if    not(isempty(handles.img.path_names.results)); 
-%     path_save = handles.img.path_names.results;
-% elseif  not(isempty(handles.img.path_names.root)); 
-%     path_save = handles.img.path_names.root;
-% else
-%     path_save = cd;
-% end
-% 
-% cd(path_save)
-% 
-% %- Get settings
-% [file_name_settings,path_name_settings] = uigetfile({'*.txt'},'Select file with settings');
-% 
-% if file_name_settings ~= 0
-%   
-%      
-%     [handles.settings_TS_detect, file_ok] = FQ_TS_detect_settings_load_v2(fullfile(path_name_settings,file_name_settings),[]);
-%     
-%     
-%     if file_ok
-%     
-%         if isfield(handles.settings_TS_detect,'int_th')
-%             set(handles.text_th_auto_detect,'String',num2str(handles.settings_TS_detect.int_th));
-%             handles.status_settings_TS_detect = 1;
-%         else
-%             handles.status_settings_TS_detect = 0;
-%         end
-% 
-%         %- Older version might not have this parameter
-%         if not(isfield(handles.settings_TS_detect,'dist_max_offset_FISH_min_int'))
-%             handles.settings_TS_detect.dist_max_offset_FISH_min_int = 0;
-%         end
-% 
-% 
-%         guidata(hObject, handles)
-% 
-%         controls_enable(hObject, eventdata, handles)
-%     end
-% end
-
 
 %== Detect transcription sites
 function button_TS_detect_Callback(hObject, eventdata, handles)
@@ -3246,11 +3204,7 @@ cd(current_dir)
 %== Settings of quantification
 function menu_settings_TS_Callback(hObject, eventdata, handles)
 
-if ~isfield(handles,status_TS_simple_only)
-    handles.status_TS_simple_only = 0;
-end
-
-handles.parameters_quant = FQ_TS_settings_modify_v5(handles.parameters_quant,handles.status_TS_simple_only);
+handles.parameters_quant = FQ_TS_settings_modify_v5(handles.img.settings.TS_quant,handles.img.settings.TS_quant.flags.quant_simple_only);
 status_update(hObject, eventdata, handles,{'  ';'## Options for transcription site quantification modified'});         
 guidata(hObject, handles);
 
@@ -3387,7 +3341,6 @@ if file_name_settings_TS ~= 0
          end
     end
 end
-
 
 %- Update status
 status_update(hObject, eventdata, handles,text_update_amp);  
@@ -3717,17 +3670,6 @@ function handles = process_TxSite(hObject, eventdata, handles)
 %===== GENERAL PREPARATION 
 current_dir = pwd;
 
-% %--- Path for saving outlines
-% if not(isempty(handles.img.path_names.outlines))
-%     path_save_outline  = handles.img.path_names.outlines;
-% elseif not(isempty(handles.img.path_names.img))
-%     path_save_outline  = handles.img.path_names.img;
-% elseif not(isempty(handles.img.path_names.root))
-%     path_save_outline  = handles.img.path_names.root;
-% else
-%     path_save_outline  = handles.path_name_list;
-% end
-
 %--- Path for saving results
 if not(isempty(handles.img.path_names.results))
     path_save_results  = handles.img.path_names.results;
@@ -3798,8 +3740,8 @@ parameters_quant.mRNA_prop           = handles.img.mRNA_prop;
 parameters_quant.flags.parallel      = get(handles.checkbox_parallel_computing,'Value');
 
 %=== Which quantification methods: simple or all
-parameters_quant.flags.quant_simple_only = handles.status_TS_simple_only; %not(get(handles.checkbox_flag_GaussMix,'Value'));
-handles.status_TS_simple_only            = parameters_quant.flags.quant_simple_only;
+parameters_quant.flags.quant_simple_only = handles.img.settings.TS_quant.flags.quant_simple_only;
+%handles.status_TS_simple_only            = parameters_quant.flags.quant_simple_only;
 
 %- BGD for fitting of TS is a free fitting paramter 
 parameters_quant.flags.IntegInt_bgd_free = 1;   

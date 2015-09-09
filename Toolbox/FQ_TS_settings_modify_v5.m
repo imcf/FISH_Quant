@@ -2,7 +2,6 @@ function parameters_quant = FQ_TS_settings_modify_v5(parameters_quant,flag_simpl
 % Function to modify the settings of TS quantification
 
 
-
 if flag_simple
         %- User-dialog
     dlgTitle = 'Options for TxSite quantification';  
