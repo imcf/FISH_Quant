@@ -1,4 +1,4 @@
-### FISH-quant overview ###
+### FISH-quant ###
 
 Matlab toolbox to analyze single molecule mRNA FISH data. Allows counting the number of mature and nascent transcripts in 3D images.
 
