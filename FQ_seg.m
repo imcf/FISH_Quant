@@ -46,20 +46,7 @@ if isfield(settings_load,  'par_microscope');
     handles.par_microscope    = settings_load.par_microscope;
     handles.par_microscope_c2 = settings_load.par_microscope;
 end
-
-%- Prepare interface for Ben
-[c,user_name] = system('whoami');
-
-if ~isempty(strfind(user_name,'bking')) || ~isempty(strfind(user_name,'BKing'))
-    set(handles.figure1,'Color',[1 0.6 0.784]);
     
-    %- Get installation folder
-    img_ben = imread(which('BKing_special.jpg'));
-    figure, imshow(img_ben); set(gcf, 'MenuBar', 'None'); set(gcf, 'Color', 'white'); axis image
-   
-end
-    
-
 %== Initialize Bioformats
 [status, ver_bf] = bfCheckJavaPath(1);
 disp(['Bio-Formats ',ver_bf,' will be used.'])
