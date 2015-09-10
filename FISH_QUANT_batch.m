@@ -35,16 +35,11 @@ if not(isfield(handles,'img'))
     set(h_font_8,'FontSize',10)
 
     
-    %- Get installation directory of FISH-QUANT and initiate 
-%     p = mfilename('fullpath');        
-%     handles.FQ_path = fileparts(p); 
-
     % == Fenerate FQ image object
     handles.img = FQ_img;
      
     %- Get folders from main interface
     menu_folder_FQ_main_Callback(hObject, eventdata, handles)
-    
     
     %- Parameters to save results
     handles.file_summary   = [];
@@ -2514,7 +2509,7 @@ if name_default ~= 0
         options.file_id_end           = handles.settings_save.file_id_end;
         
         options.flag_only_thresholded = flag_threshold; 
-        FISH_QUANT_save_results_all_v7(file_name_full,handles.file_summary,handles.cell_summary,handles.par_microscope,handles.img.path_names.img,handles.file_name_settings_new,handles.version,options);
+        FQ_save_results_all_v1(file_name_full,handles.file_summary,handles.cell_summary,handles.img.par_microscope,handles.img.path_names.img,handles.file_name_settings_new,handles.img.version,options);
     end
 end
 
@@ -2708,7 +2703,7 @@ handles = save_settings(hObject, eventdata, handles);
 %- User-dialog
 dlgTitle = 'File with counts of mature mRNA';
 default_name  = handles.file_name_summary;
-[name_summary path_name] = uiputfile(default_name,dlgTitle);
+[name_summary, path_name] = uiputfile(default_name,dlgTitle);
 
 %- Save results
 if name_summary ~= 0
@@ -2716,9 +2711,9 @@ if name_summary ~= 0
     parameters.cell_summary       = handles.cell_summary;
     parameters.path_save          = path_save;
     parameters.file_name_settings = handles.file_name_settings_new;
-    parameters.version            = handles.version;
+    parameters.version            = handles.img.version;
     
-    FISH_QUANT_batch_save_summary_v6(file_name_full,parameters)
+    FQ_batch_save_summary_v1(file_name_full,parameters)
 end
 
 %== Get back to original directory
