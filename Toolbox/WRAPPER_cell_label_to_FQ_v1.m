@@ -11,9 +11,10 @@ function WRAPPER_cell_label_to_FQ_v1(parameters)
 % one block with code after the other. 
 
 
-
 %% ======= Definition of parameters
 
+
+%- Check if microscope parameters are defined
 if  isfield(parameters,'par_microscope')
     
     par_microscope = parameters.par_microscope;
@@ -31,6 +32,7 @@ else
     
 end
 
+%- Check if structure with names is defined
 if isfield(parameters,'names_struct')
 
     names_struct = parameters.names_struct;

@@ -77,8 +77,7 @@ for i_plate = 1:length(path_plate)
    end
    
 end  
-   
-          
+    
       
 function [reg_prop,img] = label_to_region(file_name_full,options)
 % Function that opens mask with segmentation results and provides bounding

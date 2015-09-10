@@ -4,7 +4,7 @@ function varargout = FQ_seg(varargin)
 
 % Edit the above text to modify the response to help FQ_seg
 
-% Last Modified by GUIDE v2.5 25-Feb-2015 11:34:31
+% Last Modified by GUIDE v2.5 10-Sep-2015 12:12:28
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -88,6 +88,9 @@ varargout{1} = handles.output;
 %=== Enable controls
 function enable_controls(hObject, eventdata, handles) 
 
+
+%---------- PROJECTION
+
 %- Only one focus measurement can be enabled
 status_z_proj = get(handles.check_project_local,'Value');
 
@@ -130,37 +133,54 @@ else
     set(handles.show_result,'enable','off')
 end    
 
+
+
+%---------- FQ outlines from CP
+
+%- First parameters are defined
+if handles.status_par_def
+    set(handles.button_define_exp,'ForegroundColor','k');
+else
+    set(handles.button_define_exp,'ForegroundColor','r');
+end
+    
+
 %- What's going on with the second color
 check_2nd = get(handles.check_outline_2nd_color,'Value');
 
 if ~check_2nd
     status_2nd = 1;
+    set(handles.button_parameters_2nd,'ForegroundColor','k');
 else
     if handles.status_par2_def 
         status_2nd = 1;
+        set(handles.button_parameters_2nd,'ForegroundColor','k');
     else
         status_2nd = 0;
+        set(handles.button_parameters_2nd,'ForegroundColor','r');
     end
 end
 
-%= What's going on with first channel
+%- What's going on with first channel
 status_1st = 0;
 status_make_1st = ~get(handles.check_outline_not_1st,'Value');
 
-if  (~check_2nd && handles.status_par_def)      || ...         % Only 1st one and it's parameters are define
-    (check_2nd && status_make_1st && handles.status_par_def)   % First and second will be makde & parameters of first one are defined
+if  (~check_2nd && handles.status_par_def)      || ...         % Only 1st one and parameters are define
+    (check_2nd && status_make_1st && handles.status_par_def)   % First and second color are made & parameters of first one are defined
     status_1st = 1;
 end
     
     
 %- Stored results for inspection
-%  (i) Parameters have to be defined, (ii) status of 2nd color clarfied, 
+%  (i) Parameters have to be defined, 
+%  (ii) status of 2nd color clarfied, 
 %  (iii) images have to be defined
 if status_1st && status_2nd && handles.status_img_outline
     set(handles.button_create_FQ_outlines,'enable','on')
 else
     set(handles.button_create_FQ_outlines,'enable','off')
 end    
+
 
 %- Save handles
 guidata(hObject, handles);
@@ -459,12 +479,8 @@ function show_result_Callback(hObject, eventdata, handles)
  
 
 % ==========================================================================
-%  Create outlines for FISH-quant
+% ===== FQ outlines FROM  FROM CELL PROFILER RESULTS 
 % ==========================================================================
-
-% ==========================================================================
-% ===== FROM CELL PROFILER RESULTS 
-
 
 %== Modify the experimental settings
 function button_define_exp_Callback(hObject, eventdata, handles)
@@ -569,6 +585,9 @@ names_struct.suffix.FISH = get(handles.text_outline_img_FISH,'String');    %- Id
 names_struct.suffix.nuc  = get(handles.text_outline_seg_nuc,'String');     %- Suffix of CellProfiler for nucleus
 names_struct.suffix.cell = get(handles.text_outline_seg_cell,'String');    %- Suffix of CellProfiler for cells
 
+%- Extension of original images
+parameters.ext_orig = get(handles.text_CP_ext_orig,'String');
+
 %-  Where to save results
 if get(handles.check_save_folder_outline_replace,'Value');
     parameters.save.flag_folder = 'replace';
@@ -609,9 +628,9 @@ parameters.files_proc = handles.files_outline_proc;
 WRAPPER_cell_label_to_FQ_v1(parameters)
 
 
-% ==========================================================================
-% =====   FROM  CELL COGNITION RESULTS 
-
+% =========================================================================
+% =====   FQ outlines FROM  CELL COGNITION RESULTS 
+% =========================================================================
 
 %- Define experimental parameters
 function button_define_exp_cell_cog_Callback(hObject, eventdata, handles)
@@ -660,8 +679,6 @@ parameter.par_microscope               = handles.par_microscope;
 
 %== Call function
 cell_cognition_outline_v1(parameter)
-
-
 
 
 
@@ -912,141 +929,61 @@ function check_proj_ingnore_file_Callback(hObject, eventdata, handles)
 
 
 
-
 function Outline_folder_cell_cog_Callback(hObject, eventdata, handles)
-% hObject    handle to Outline_folder_cell_cog (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of Outline_folder_cell_cog as text
-%        str2double(get(hObject,'String')) returns contents of Outline_folder_cell_cog as a double
-
-
-% --- Executes during object creation, after setting all properties.
 function Outline_folder_cell_cog_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to Outline_folder_cell_cog (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function DAPI_image_identifier_cell_cog_Callback(hObject, eventdata, handles)
-% hObject    handle to DAPI_image_identifier_cell_cog (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of DAPI_image_identifier_cell_cog as text
-%        str2double(get(hObject,'String')) returns contents of DAPI_image_identifier_cell_cog as a double
 
 
-% --- Executes during object creation, after setting all properties.
 function DAPI_image_identifier_cell_cog_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to DAPI_image_identifier_cell_cog (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function FISH_image_identifier_cell_cog_Callback(hObject, eventdata, handles)
-% hObject    handle to FISH_image_identifier_cell_cog (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of FISH_image_identifier_cell_cog as text
-%        str2double(get(hObject,'String')) returns contents of FISH_image_identifier_cell_cog as a double
-
-
-% --- Executes during object creation, after setting all properties.
 function FISH_image_identifier_cell_cog_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to FISH_image_identifier_cell_cog (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function Nucleus_seg_method_Callback(hObject, eventdata, handles)
-% hObject    handle to Nucleus_seg_method (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of Nucleus_seg_method as text
-%        str2double(get(hObject,'String')) returns contents of Nucleus_seg_method as a double
-
-
-% --- Executes during object creation, after setting all properties.
 function Nucleus_seg_method_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to Nucleus_seg_method (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
 
 function Cell_seg_method_Callback(hObject, eventdata, handles)
-% hObject    handle to Cell_seg_method (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of Cell_seg_method as text
-%        str2double(get(hObject,'String')) returns contents of Cell_seg_method as a double
-
-
-% --- Executes during object creation, after setting all properties.
 function Cell_seg_method_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to Cell_seg_method (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-
-
-
-
 function Image_extension_Callback(hObject, eventdata, handles)
-% hObject    handle to Image_extension (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of Image_extension as text
-%        str2double(get(hObject,'String')) returns contents of Image_extension as a double
-
-
-% --- Executes during object creation, after setting all properties.
 function Image_extension_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to Image_extension (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function checkbox_CP_different_ext_Callback(hObject, eventdata, handles)
+
+function text_CP_ext_orig_Callback(hObject, eventdata, handles)
+
+function text_CP_ext_orig_CreateFcn(hObject, eventdata, handles)
+
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end

@@ -362,6 +362,7 @@ end
 function [file_name_outline, file_name_outline_full]  = save_outline(parameters,flag_second)
 
     %= Get relevant paramters
+    ext_orig         = parameters.ext_orig;
     names_struct     = parameters.names_struct;
     par_microscope   = parameters.par_microscope;
     version          = parameters.version;
@@ -369,7 +370,7 @@ function [file_name_outline, file_name_outline_full]  = save_outline(parameters,
     path_name        = parameters.path_name;
 
     %- Suffix and extension
-    ext_image = names_struct.ext_image;
+    %ext_image = names_struct.ext_image;
     suffix    = names_struct.suffix;
 
     %- Depending on how directories were scanned path_name might be empty
@@ -395,8 +396,8 @@ function [file_name_outline, file_name_outline_full]  = save_outline(parameters,
     ind_nuc_suffix    = strfind(file_name_nuc,str_suffix_nuc);
 
     name_FISH_no_ext = [file_name_cell(1:ind_cell_suffix-1),suffix.FISH];
-    name_FISH        = [name_FISH_no_ext,ext_image];
-    name_DAPI        = [file_name_nuc(1:ind_nuc_suffix-1),suffix.DAPI,ext_image];
+    name_FISH        = [name_FISH_no_ext,ext_orig];
+    name_DAPI        = [file_name_nuc(1:ind_nuc_suffix-1),suffix.DAPI,ext_orig];
 
     %- Remove parts of the file-name
     name_FISH_no_ext = strrep(name_FISH_no_ext, parameters.names_struct.name_remove, '');
@@ -408,7 +409,6 @@ function [file_name_outline, file_name_outline_full]  = save_outline(parameters,
         name_FISH        = strrep(name_FISH, suffix.FISH, parameters.save_2nd.suffix);
         name_FISH_no_ext = strrep(name_FISH_no_ext, suffix.FISH, parameters.save_2nd.suffix);
     end
-    
     
     %- Save file-names
     file_names.raw      = name_FISH;
@@ -441,10 +441,7 @@ function [file_name_outline, file_name_outline_full]  = save_outline(parameters,
 
    %- Make folder if it doesn't exist already & generate file-name
    if ~exist(folder_save,'dir'); mkdir(folder_save); end
-  
-   file_name_outline = [name_FISH_no_ext,'_outline.txt'];
-   file_name_outline_full = fullfile(folder_save,file_name_outline);
-   
+    
    %= Parameters to save results
    par_outline.path_save           = path_name;
    par_outline.cell_prop           = cell_prop;
@@ -453,18 +450,17 @@ function [file_name_outline, file_name_outline_full]  = save_outline(parameters,
    par_outline.flag_type           = 'outline';  
    
    if ~flag_second
-        par_outline.par_microscope      = par_microscope;
+        par_outline.par_microscope  = par_microscope;
    else
        par_outline.par_microscope = parameters.save_2nd.par_microscope_c2;
        folder_save = fullfile(folder_save,parameters.save_2nd.suffix);
    end
  
-      %- Make folder if it doesn't exist already & generate file-name
+   %- Make folder if it doesn't exist already & generate file-name
    if ~exist(folder_save,'dir'); mkdir(folder_save); end
   
    file_name_outline = [name_FISH_no_ext,'_outline.txt'];
    file_name_outline_full = fullfile(folder_save,file_name_outline);
-   
    
    FQ_save_results_v1(file_name_outline_full,par_outline);
 end
