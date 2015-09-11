@@ -34,18 +34,26 @@ end
 %-- Load data from outline definition file
 if strcmpi(ext,'.txt') 
     
-    status_open = img.load_results(fullfile(path_name_list,file_name_load),path_name_image);  
-    [dum, name_image_base,ext_img] = fileparts(file_name_load);
-   
+    %- Try to open file - catch corrupted files
+    try
+        status_open = img.load_results(fullfile(path_name_list,file_name_load),path_name_image);  
+        [dum, name_image_base,ext_img] = fileparts(file_name_load);
+    catch err
+        disp(err)
+        status_open.outline = 0;
+    end
+    
+    %- Outline file can't be opened
     if status_open.outline ~= 1
-       disp('=== Outline could not be opened');
+       disp('>>> Outline could not be opened');
        disp(['Folder: ',path_name_list])
        disp(['File  : ',file_name_load])  
        return
     end
 
+    %- Image can't be opened
     if status_open.img ~= 1
-       disp('=== Image could not be opened');       
+       disp('>>> Image could not be opened');       
        disp(['Folder: ',path_name_image])
        disp(['File  : ',img.file_names.raw]) 
        return

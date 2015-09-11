@@ -1128,7 +1128,8 @@ for i_file = handles.i_file_proc_mature:N_file
        
     disp(' ');
     disp(['=== Processing file ', num2str(i_file), ' of ', num2str(N_file)]);
-        
+    disp(['File: ', file_name_outline])    
+    
     %- Update status
     status_text = {['- Processing file ', num2str(i_file), ' of ', num2str(N_file)]};
     status_update(hObject, eventdata, handles,status_text);        
