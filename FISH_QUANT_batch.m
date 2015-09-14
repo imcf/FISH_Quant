@@ -1085,6 +1085,17 @@ else
     parameters.path_name_outline = handles.path_name_list;
 end
 
+%--- Path for saving results [for auto-save]
+if not(isempty(handles.img.path_names.results))
+    path_save_results  = handles.img.path_names.results;
+elseif not(isempty(handles.img.path_names.img))
+    path_save_results  = handles.img.path_names.img;
+elseif not(isempty(handles.img.path_names.img))
+    path_save_results  = handles.img.path_names.img;
+else
+    path_save_results  = handles.path_name_list;
+end
+
 %- Path to files in list
 parameters.path_name_list     = handles.path_name_list;
 
@@ -1231,7 +1242,7 @@ for i_file = handles.i_file_proc_mature:N_file
    if status_save_auto 
         file_name      = ['_FQ_analysis_AUTOSAVE_', datestr(date,'yymmdd'), '.mat'];
         file_name_full = fullfile(path_save_results,file_name);       
-        FQ_batch_save_handles_v3(file_name_full,handles);
+        FQ3_batch_save_handles_v1(file_name_full,handles);
    end   
     
 end
@@ -1260,7 +1271,7 @@ end
 if status_save_auto 
     file_name      = ['_FQ_analysis_AUTOSAVE_', datestr(date,'yymmdd'), '.mat'];
     file_name_full = fullfile(path_save_results,file_name);       
-    FQ_batch_save_handles_v3(file_name_full,handles);
+    FQ3_batch_save_handles_v1(file_name_full,handles);
 end  
 
 
@@ -2767,7 +2778,11 @@ FQ_batch_save_handles_v3([],handles)
 function menu_load_handles_Callback(hObject, eventdata, handles)
 
 
-handles = FQ_batch_load_handles_v7(handles);
+[handles status_load] = FQ3_batch_load_handles_v1(handles);
+
+if status_load == 0
+    return
+end
 
 %- Only if handles are not empty
 if not(isempty(handles))
@@ -2780,7 +2795,6 @@ if not(isempty(handles))
     set(handles.checkbox_save_filtered,'Value',handles.checkbox_filtered_save);
     set(handles.status_save_results_TxSite_quant,'Value', handles.checkbox_save_TS_results);    
     set(handles.status_save_figures_TxSite_quant,'Value',handles.checkbox_save_TS_figure ); 
-%    set(handles.checkbox_flag_GaussMix,'Value',handles.saved_checkbox_flag_GaussMix  ); 
     
     set(handles.text_th_auto_detect,'String', handles.string_TS_th_auto  );    
     
