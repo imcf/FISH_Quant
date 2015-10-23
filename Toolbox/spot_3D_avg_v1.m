@@ -102,7 +102,9 @@ function [spot_avg, spot_os_avg,pixel_size_os,img_sum] = avg_spots_cell(img,ind_
     end
     
     %==== Decide which positions to use 
-
+    img.cell_prop(ind_cell).thresh.in = logical(img.cell_prop(ind_cell).thresh.in);
+    
+    
     %- Fit
     if img.settings.avg_spots.fact_os.xy > 1 || img.settings.avg_spots.fact_os.z > 1
 
@@ -128,14 +130,13 @@ function [spot_avg, spot_os_avg,pixel_size_os,img_sum] = avg_spots_cell(img,ind_
  
     %- Get background only if bgd subtraction option is specified
     if img.settings.avg_spots.flags.bgd
-        spots_bgd = img.cell_prop(ind_cell).spots_fit(:,img.col_par.bgd);
+        spots_bgd = img.cell_prop(ind_cell).spots_fit(img.cell_prop(ind_cell).thresh.in,img.col_par.bgd);
     else
         spots_bgd = zeros(size(spots_pos,1),1);
     end
     
     par_spots = [spots_pos,spots_bgd];
     
-
 
 
     %=== Make sure that image is DOUBLE!!!! Otherwise you run into troubles when

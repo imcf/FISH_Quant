@@ -1283,7 +1283,7 @@ if not(isempty(spots_fit))
     
     %- Save results
     handles.img.cell_prop(ind_cell).thresh = thresh;
-    handles.PSF_exp                        = PSF_exp;
+    handles.img.PSF_exp                    = PSF_exp;
 
     %- Call functions to illustrate the fits
     handles = pop_up_threshold_Callback(hObject, eventdata, handles);
@@ -1515,7 +1515,7 @@ ind_cell        = get(handles.pop_up_outline_sel_cell,'Value');
 spots_fit       = handles.img.cell_prop(ind_cell).spots_fit;
 spots_detected  = handles.img.cell_prop(ind_cell).spots_detected;
 
-PSF_exp    = handles.PSF_exp;
+PSF_exp    = handles.img.PSF_exp;
 col_par    = handles.img.col_par;
 th_sett    = handles.img.settings.thresh;
 
@@ -1724,7 +1724,7 @@ if not(isempty(spots_fit))
 
     set(handles.pop_up_select_psf,'Value',2);
 
-    handles.PSF_exp = PSF_exp;
+    handles.img.PSF_exp = PSF_exp;
 
     %=== Save data
     guidata(hObject, handles); 
@@ -2865,46 +2865,46 @@ switch (popup_parameter)
     
     case 'All spots'           
 
-    set(handles.text_psf_fit_sigmaX,'String', num2str(PSF_exp.sigmax_all,'%.0f'));
-    set(handles.text_psf_fit_sigmaY,'String', num2str(PSF_exp.sigmay_all,'%.0f'));
-    set(handles.text_psf_fit_sigmaZ,'String', num2str(PSF_exp.sigmaz_all,'%.0f'));
-    set(handles.text_psf_fit_amp,'String',    num2str(PSF_exp.amp_all,'%.0f'));
-    set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_all,'%.0f'));
+        set(handles.text_psf_fit_sigmaX,'String', num2str(PSF_exp.sigmax_all,'%.0f'));
+        set(handles.text_psf_fit_sigmaY,'String', num2str(PSF_exp.sigmay_all,'%.0f'));
+        set(handles.text_psf_fit_sigmaZ,'String', num2str(PSF_exp.sigmaz_all,'%.0f'));
+        set(handles.text_psf_fit_amp,'String',    num2str(PSF_exp.amp_all,'%.0f'));
+        set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_all,'%.0f'));
 
-    disp(' ')
-    disp('FIT TO 3D GAUSSIAN: avg of ALL spots ')
-    disp(['Sigma (xy): ', num2str(round(PSF_exp.sigmax_all)), ' +/- ', num2str(round(PSF_exp.sigmax_all_std))])
-    disp(['Sigma (z) : ', num2str(round(PSF_exp.sigmaz_all)), ' +/- ', num2str(round(PSF_exp.sigmaz_all_std))])
-    disp(['Amplitude : ', num2str(round(PSF_exp.amp_all)), ' +/- ', num2str(round(PSF_exp.amp_all_std))])
-    disp(['BGD       : ', num2str(round(PSF_exp.bgd_all)), ' +/- ', num2str(round(PSF_exp.bgd_all_std))])
-    disp(' ')
-    
+        disp(' ')
+        disp('FIT TO 3D GAUSSIAN: avg of ALL spots ')
+        disp(['Sigma (xy): ', num2str(round(PSF_exp.sigmax_all)), ' +/- ', num2str(round(PSF_exp.sigmax_all_std))])
+        disp(['Sigma (z) : ', num2str(round(PSF_exp.sigmaz_all)), ' +/- ', num2str(round(PSF_exp.sigmaz_all_std))])
+        disp(['Amplitude : ', num2str(round(PSF_exp.amp_all)), ' +/- ', num2str(round(PSF_exp.amp_all_std))])
+        disp(['BGD       : ', num2str(round(PSF_exp.bgd_all)), ' +/- ', num2str(round(PSF_exp.bgd_all_std))])
+        disp(' ')
+
         
     case 'Thresholded spots'
                 
-    set(handles.text_psf_fit_sigmaX,'String', num2str(PSF_exp.sigmax_th,'%.0f'));
-    set(handles.text_psf_fit_sigmaY,'String', num2str(PSF_exp.sigmay_th,'%.0f'));
-    set(handles.text_psf_fit_sigmaZ,'String', num2str(PSF_exp.sigmaz_th,'%.0f'));
-    set(handles.text_psf_fit_amp,'String',    num2str(PSF_exp.amp_th,'%.0f'));
-    set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_th,'%.0f'));  
-    
-    disp(' ')
-    disp('FIT TO 3D GAUSSIAN: avg of ALL spots ')
-    disp(['Sigma (xy): ', num2str(round(PSF_exp.sigmax_th)), ' +/- ', num2str(round(PSF_exp.sigmax_th_std))])
-    disp(['Sigma (z) : ', num2str(round(PSF_exp.sigmaz_th)), ' +/- ', num2str(round(PSF_exp.sigmaz_th_std))])
-    disp(['Amplitude : ', num2str(round(PSF_exp.amp_th)), ' +/- ', num2str(round(PSF_exp.amp_th_std))])
-    disp(['BGD       : ', num2str(round(PSF_exp.bgd_th)), ' +/- ', num2str(round(PSF_exp.bgd_th_std))])
-    disp(' ')
-      
+        set(handles.text_psf_fit_sigmaX,'String', num2str(PSF_exp.sigmax_th,'%.0f'));
+        set(handles.text_psf_fit_sigmaY,'String', num2str(PSF_exp.sigmay_th,'%.0f'));
+        set(handles.text_psf_fit_sigmaZ,'String', num2str(PSF_exp.sigmaz_th,'%.0f'));
+        set(handles.text_psf_fit_amp,'String',    num2str(PSF_exp.amp_th,'%.0f'));
+        set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_th,'%.0f'));  
+
+        disp(' ')
+        disp('FIT TO 3D GAUSSIAN: avg of ALL spots ')
+        disp(['Sigma (xy): ', num2str(round(PSF_exp.sigmax_th)), ' +/- ', num2str(round(PSF_exp.sigmax_th_std))])
+        disp(['Sigma (z) : ', num2str(round(PSF_exp.sigmaz_th)), ' +/- ', num2str(round(PSF_exp.sigmaz_th_std))])
+        disp(['Amplitude : ', num2str(round(PSF_exp.amp_th)), ' +/- ', num2str(round(PSF_exp.amp_th_std))])
+        disp(['BGD       : ', num2str(round(PSF_exp.bgd_th)), ' +/- ', num2str(round(PSF_exp.bgd_th_std))])
+        disp(' ')
+
                 
     case 'Averaged spots'
         
-    set(handles.text_psf_fit_sigmaX,'String', num2str(PSF_exp.sigmax_avg,'%.0f'));
-    set(handles.text_psf_fit_sigmaY,'String', num2str(PSF_exp.sigmay_avg,'%.0f'));
-    set(handles.text_psf_fit_sigmaZ,'String', num2str(PSF_exp.sigmaz_avg,'%.0f'));
-    set(handles.text_psf_fit_amp,'String',    num2str(PSF_exp.amp_avg,'%.0f'));
-    set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_avg,'%.0f'));   
-    
+        set(handles.text_psf_fit_sigmaX,'String', num2str(PSF_exp.sigmax_avg,'%.0f'));
+        set(handles.text_psf_fit_sigmaY,'String', num2str(PSF_exp.sigmay_avg,'%.0f'));
+        set(handles.text_psf_fit_sigmaZ,'String', num2str(PSF_exp.sigmaz_avg,'%.0f'));
+        set(handles.text_psf_fit_amp,'String',    num2str(PSF_exp.amp_avg,'%.0f'));
+        set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_avg,'%.0f'));   
+
     case 'User defined'
         
     set(handles.text_psf_fit_sigmaX,'String', num2str(handles.par_fit.sigma_XY_fixed));
@@ -2912,10 +2912,7 @@ switch (popup_parameter)
     set(handles.text_psf_fit_sigmaZ,'String', num2str(handles.par_fit.sigma_Z_fixed));
     set(handles.text_psf_fit_amp,'String',    '');
     set(handles.text_psf_fit_bgd,'String',    ''); 
-    
-    
-    
-        
+     
 end
 
 

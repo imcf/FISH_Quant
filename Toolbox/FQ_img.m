@@ -342,7 +342,7 @@ classdef FQ_img < handle
             
         
         %% ==== Load settings
-        function load_settings(img,file_name_full)
+        function status = load_settings(img,file_name_full)
             [img, status] = FQ_load_settings_v1(file_name_full,img);
             
             if status
