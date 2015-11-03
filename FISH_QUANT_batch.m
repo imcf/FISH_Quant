@@ -54,7 +54,7 @@ if not(isfield(handles,'img'))
 
     %- Status flags
     handles.status_avg_settings = 0;  % AVG spots: settings defined
-    handles.status_avg_calc     = 1;  % AVG spots: calculated
+    handles.status_avg_calc     = 0;  % AVG spots: calculated
     handles.status_started = 1;
     handles.status_setting = 0;
     handles.status_files   = 0;
