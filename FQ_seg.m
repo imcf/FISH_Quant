@@ -244,10 +244,10 @@ if status_check
 end
 
 function check_save_folder_replace_Callback(hObject, eventdata, handles)
+
 status_check = get(handles.check_save_folder_replace,'Value');
 if status_check
-    set(handles.check_save_folder_same,'Value',0);
-    set(handles.check_save_folder_sub,'Value',0);      
+    set(handles.check_save_folder_same,'Value',0);     
 end
 
 
@@ -395,10 +395,9 @@ param.flags.store = get(handles.check_store_results,'Value');
 if param.flags.save
     param.save.flag_prefix = get(handles.check_save_name_prefix,'Value');
     param.save.prefix      = get(handles.txt_save_name_prefix,'String'); 
-    
-    
     param.save.flag_folder   = ''; % Create but don't assign a value --> will be populated only if a choice will be made
     save_opt_specified       = 0;  % Check if at least one optino has been specified
+    
     
     %- Same folder
     if get(handles.check_save_folder_same,'Value');
@@ -416,10 +415,10 @@ if param.flags.save
     
     %- Create subfolder
     if get(handles.check_save_folder_sub,'Value');
-        save_opt_specified = 1;
-        param.save.flag_folder   = 'sub';
+        save_opt_specified          = 1;
         param.save.stats_folder_sub = 1;
-        param.save.name_sub         = get(handles.txt_save_folder_sub,'String');     
+        param.save.name_sub         = get(handles.txt_save_folder_sub,'String');    
+        
     else
         param.save.stats_folder_sub = 0;
     end

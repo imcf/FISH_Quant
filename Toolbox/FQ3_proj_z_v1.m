@@ -226,8 +226,8 @@ function proj_struct = FQ3_proj_z_v1(files_proc,param)
                         return
                     end
 
-                case {'same','sub'}
-                    % Note for subfolder - will be generated next
+                case {'same',''}
+                    % Empty means that only sub folder has been specified
                     folder_save = path_img;
 
             end
