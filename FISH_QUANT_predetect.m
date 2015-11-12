@@ -98,7 +98,7 @@ if not(isempty(varargin))
             int_MIP_cell = handles.img_plot(mask_cell_2D);  %- Get all value of cell
             
             th_int_max      = 3*quantile(int_MIP_cell,0.99);
-            th_int_min      = 0.05*th_int_max;          
+            th_int_min      = 0.2*th_int_max;          
         
         else
             th_int_min  = handles.img.settings.detect.th_int_min;
@@ -116,12 +116,14 @@ if not(isempty(varargin))
         prompt_avg(3) = {'Number of intensity values to test'};
         prompt_avg(4) = {'Analysis region: 0-cell; 1-cyto; 2-nuc' };
         prompt_avg(5) = {'Detection method: 1-local max; 2-conn comp'};
+        prompt_avg(6) = {'Propose automatically calculated threshold'};
       
         defaultValue_avg{1} = num2str(th_int_min);
         defaultValue_avg{2} = num2str(th_int_max);
         defaultValue_avg{3} = num2str(nTH);
         defaultValue_avg{4} = num2str(flag_detect_region);
         defaultValue_avg{5} = num2str(get(handles.popupmenu_predetect_mode,'Value'));
+        defaultValue_avg{6} = num2str(handles.img.settings.detect.flags.auto_th);
         
         options.Resize='on';
         userValue = inputdlg(prompt_avg,dlgTitle,1,defaultValue_avg,options);
@@ -132,6 +134,7 @@ if not(isempty(varargin))
             nTH                = str2double(userValue{3});
             flag_detect_region = str2double(userValue{4});
             flag_detect_method = str2double(userValue{5});
+            flag_auto_th       = str2double(userValue{6});
             
             if flag_detect_method ==1 || flag_detect_method == 2
                 set(handles.popupmenu_predetect_mode,'Value',flag_detect_method)
@@ -153,7 +156,8 @@ if not(isempty(varargin))
             handles.img.settings.detect.th_int_min          = th_int_min;
             handles.img.settings.detect.th_int_max          = th_int_max;
             handles.img.settings.detect.flags.detect_region = flag_detect_region;
-
+            handles.img.settings.detect.flags.auto_th       = flag_auto_th;
+            
             %- Set parameters
             set(handles.text_par_plot_N,'String',num2str(handles.img.settings.detect.nTH));
             set(handles.text_par_plot_int_min,'String',num2str(handles.img.settings.detect.th_int_min));
@@ -192,31 +196,6 @@ if not(isempty(varargin))
             
             %- Set selection for regions to analyze
             set(handles.popupmenu_region,'Value',flag_detect_region+1);
-            
-%             %- Calculate masks on all cells
-%             if flag_detect_region == 3
-%                 mask_cell_2D = zeros(dim.Y, dim.X);
-%                 for i_cell = 1:length(handles.img.cell_prop)
-%                     
-%                     %= Get masks for nucleus and cytoplasm    
-%                     cell_X = handles.img.cell_prop(i_cell).x;
-%                     cell_Y = handles.img.cell_prop(i_cell).y;
-% 
-%                     mask_cell_2D_loop     = poly2mask(cell_X, cell_Y, dim.Y, dim.X);
-%                     mask_cell_2D(mask_cell_2D_loop) = 1;
-%                     
-%                 end      
-%                 
-%                 %- Make 3D Masks
-%                 mask_cell_3D = logical(repmat(mask_cell_2D,[1,1,dim.Z])); 
-% 
-%                 %- Save the masks
-%                 handles.mask_cell_3D = mask_cell_3D;
-% 
-%             end
-               
-               
-
 
             %- Plot results
             handles = popupmenu_region_Callback(hObject, eventdata, handles);
@@ -522,6 +501,11 @@ switch str{val}
             handles.locmax_counts     = counts;
             handles.status_nonMaxSupr = 1;
             
+            %- Save calculated thresholds
+            data_th(:,1) = thresholds;
+            data_th(:,2) = counts;
+            
+            
             set(handles.h_fishquant_predetect,'Pointer','arrow');
             status_text = {' ';'   Connected components DETECTED!'};
             status_update(hObject, eventdata, handles,status_text);
@@ -542,6 +526,11 @@ switch str{val}
             parameters.thresholds  = [];
             [thresholdfn, thresholds] = multithreshstack_v4(handles.image_filt_mask,parameters);
             
+            
+            %- Save calculated thresholds
+            data_th(:,1) = thresholds;
+            data_th(:,2) = thresholdfn;
+            
             %- Save results
             handles.thresholdfn = thresholdfn;
             handles.thresholds  = thresholds;
@@ -553,6 +542,14 @@ switch str{val}
             status_update(hObject, eventdata, handles,status_text);
   
         end
+end
+
+%= Automatically calculate thresholds
+if handles.img.settings.detect.flags.auto_th 
+    par.flag_plot = 100;
+    [int_th, count_th] = handles.img.calc_auto_det_th(data_th,par);
+    handles.int_th     = int_th;
+    set(handles.text_detection_threshold,'String',num2str(round(handles.int_th.mean)));
 end
 
 
@@ -651,6 +648,7 @@ int_value = round(th_int_min + th_int_diff*slider_value);
 set(handles.text_detection_threshold,'String',num2str(int_value));
 
 %- Plot
+handles.img.settings.detect.flags.auto_th = 0;
 plot_hist_int(hObject, eventdata, handles)
 guidata(hObject, handles);
 
@@ -678,6 +676,7 @@ end
 set(handles.slider_hist_int,'Value',slider_value);
 
 %- Plot
+handles.img.settings.detect.flags.auto_th = 0;
 plot_hist_int(hObject, eventdata, handles)
 guidata(hObject, handles);
 
@@ -957,7 +956,7 @@ status_sep_ccc = 0;
 if isempty(axes_select)
     figure
     
-    if strcmpi(handles.mode_predetect,'connectcomp')
+    if strcmpi(handles.img.settings.detect.method,'connectcomp')
         ax(2) = subplot(1,2,2);
         status_sep_ccc = 1;
     end

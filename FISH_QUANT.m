@@ -420,7 +420,19 @@ if file_name_settings ~= 0
     
     handles.img.load_settings(fullfile(path_name_settings,file_name_settings));
     handles = FQ_populate_v1(handles);  
+    
+    %- Set filter
+    switch handles.img.settings.filter.method
+        case '3D_2xGauss'
+            set(handles.popup_filter_type,'Value',2);
+            
+        case '3D_LoG'
+            set(handles.popup_filter_type,'Value',1);
+    end
+            
     popup_filter_type_Callback(hObject, eventdata, handles); % Adjust GUI for default filter
+    
+    %- Save data
     guidata(hObject, handles);
 end
 

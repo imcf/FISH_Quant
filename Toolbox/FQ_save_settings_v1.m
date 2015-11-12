@@ -118,9 +118,11 @@ if file_save ~= 0
             fprintf(fid,'SPOTS_TH_amp_max=%g\n',   thresh.amp.max_th); 
         end
 
-        if thresh.bgd.lock       
-            fprintf(fid,'SPOTS_TH_bgd_min=%g\n',   thresh.bgd.min_th);
-            fprintf(fid,'SPOTS_TH_bgd_max=%g\n',   thresh.bgd.max_th); 
+        if isfield(thresh,'bgd')
+            if thresh.bgd.lock       
+                fprintf(fid,'SPOTS_TH_bgd_min=%g\n',   thresh.bgd.min_th);
+                fprintf(fid,'SPOTS_TH_bgd_max=%g\n',   thresh.bgd.max_th); 
+            end
         end
         
         if isfield(thresh,'pos_z')

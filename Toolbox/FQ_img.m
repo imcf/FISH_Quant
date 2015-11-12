@@ -108,7 +108,9 @@ classdef FQ_img < handle
             img.settings.detect.flags.reg_pos_sep    = 0;
             img.settings.detect.flags.output         = 0;  % Show output
             img.settings.detect.flags.parallel       = 0;  % Parallel computing (0 - no; 1 - GPU)
-
+            img.settings.detect.flags.auto_th        = 1;  % Automatically calculate threshold
+            
+            
             %=== Options for mature mRNA detection
             img.settings.detect.nTH         = 50;
             img.settings.detect.th_int_min  = 5;
@@ -748,6 +750,13 @@ classdef FQ_img < handle
             img.cell_prop = FQ3_TS_detect_v2(img);
             
         end
+        
+        
+        %% === Automated threshold calculation
+        function [int_th, count_th,h_fig] = calc_auto_det_th(img,data_th,par)
+            [int_th, count_th,h_fig] = FQ_th_detect_auto_v1(data_th,par);
+        end
+        
         
         %% === Predetect
         function [spots_detected, img_mask, CC_best, sub_spots, sub_spots_filt] = spots_predect(img,ind_cell)
