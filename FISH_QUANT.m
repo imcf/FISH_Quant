@@ -59,6 +59,14 @@ if isempty(FQ_open) || FQ_open == 0
     [status, ver_bf] = bfCheckJavaPath(1);
     disp(['Bio-Formats ',ver_bf,' will be used.'])
     
+    %- Initializes Bio-Formats and its logging level
+    try
+        bfInitLogging();
+    catch 
+        disp('FQ-startup: problems with bfInitlogging!')
+    end
+        
+    
     %== Populate GUI
     handles         = FQ_populate_v1(handles);
     popup_filter_type_Callback(hObject, eventdata, handles); % Adjust GUI for default filter
