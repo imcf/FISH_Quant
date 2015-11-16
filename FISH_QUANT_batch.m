@@ -2771,14 +2771,14 @@ cd(current_dir)
 
 %== Save GUI handles structure
 function menu_save_handles_Callback(hObject, eventdata, handles)
-FQ_batch_save_handles_v3([],handles)
+FQ3_batch_save_handles_v1([],handles)
 
 
 %== LOAD GUI handles structure
 function menu_load_handles_Callback(hObject, eventdata, handles)
 
 
-[handles status_load] = FQ3_batch_load_handles_v1(handles);
+[handles, status_load] = FQ3_batch_load_handles_v1(handles);
 
 if status_load == 0
     return
@@ -3980,7 +3980,7 @@ for i_file = i_start_file:i_end_file
                     if status_save_auto 
                         file_name      = ['_FQ_analysis_AUTOSAVE_', datestr(date,'yymmdd'), '.mat'];
                         file_name_full = fullfile(path_save_results,file_name);       
-                        FQ_batch_save_handles_v3(file_name_full,handles);
+                        FQ3_batch_save_handles_v1(file_name_full,handles);
                     end                
 
                 end

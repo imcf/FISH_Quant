@@ -448,9 +448,7 @@ classdef FQ_img < handle
                        img.range.start = str2num(range.start);
                        img.range.end   = str2num(range.end);
                    end
-                       
-                       
-                       
+   
                end
                 
             end

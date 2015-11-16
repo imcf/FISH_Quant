@@ -27,21 +27,15 @@ if file_load ~= 0
     
     %== Folders
     handles_GUI.path_name_list                     = handles.path_name_list; 
-
-%     handles_GUI.path_name_root          = handles.path_name_root;
-%     handles_GUI.path_name_image         = handles.path_name_image;
-%     handles_GUI.path_name_outline       = handles.path_name_outline;
-%     handles_GUI.path_name_results       = handles.path_name_results;
-%     handles_GUI.path_name_settings      = handles.path_name_settings;
-%     
+     
     %- Parameters to save results
     handles_GUI.file_summary        = handles.file_summary; 
     handles_GUI.cell_summary        = handles.cell_summary;
     handles_GUI.TS_summary          = handles.TS_summary;
     
     handles_GUI.spots_fit_all       = handles.spots_fit_all; 
-   % handles_GUI.thresh_all          = handles.thresh_all;     
-    handles_GUI.spots_range          = handles.spots_range;     
+    handles_GUI.spots_detected_all  = handles.spots_detected_all; 
+    handles_GUI.spots_range         = handles.spots_range;     
        
     %== Status
     handles_GUI.status_setting               = handles.status_setting;
@@ -61,17 +55,10 @@ if file_load ~= 0
         handles_GUI.status_AMP_PROC = handles_GUI.status_PSF_PROC;
     end
 
-    
     %- Other parameters
-   % handles_GUI.par_microscope    = handles.par_microscope; 
     handles_GUI.PSF               = handles.PSF;
-    handles_GUI.flag_fit          = handles.flag_fit; 
-    
-    
-    %== Columns where parameters are stored
-  %  handles_GUI.col_par               = handles.col_par;
+    handles_GUI.flag_fit          = handles.flag_fit;
 
-    
     %=== Options for autosave of mRNA quantification (new in v2b)
     if isfield(handles,'i_file_proc_mature')
         handles_GUI.i_file_proc_mature =  handles.i_file_proc_mature;
@@ -94,8 +81,7 @@ if file_load ~= 0
     handles_GUI.i_TS_proc            = handles.i_TS_proc;
     
     handles_GUI.TS_counter           = handles.TS_counter;        
-    %handles_GUI.parameters_quant     = handles.parameters_quant; 
-        
+
     %- Options for autodetect   
     if isfield(handles,'parameters_auto_detect')
     	handles_GUI.parameters_auto_detect = handles.parameters_auto_detect; 
@@ -145,27 +131,9 @@ if file_load ~= 0
         handles_GUI.settings_save.file_id_end   = handles_GUI.settings_save.file_id_end; 
     end
     
-    
-  %  handles_GUI.settings_save.file_id_start = 4;
-  %  handles_GUI.settings_save.file_id_end   = 0;
-    
-    
     %- Plot rendering
     handles_GUI.settings_rendering           = handles.settings_rendering;
-    
-    %=== Get ImageJ directories
- %   handles_GUI.imagej_macro_name            = handles.imagej_macro_name;
-        
-    
-    %======================================================================
-    % === Other parameters that are important for GUI
-       
-        
-    %= Detection parameters
-   % handles_GUI.fit_limits = handles.fit_limits;
-   % handles_GUI.detect     = handles.detect;
-    %handles_GUI.filter     = handles.filter;   
-   % handles_GUI.average    = handles.average;   
+   
         
     %=== Other parameters
     handles_GUI.str_list = handles.str_list;
@@ -183,8 +151,7 @@ if file_load ~= 0
     else
         handles_GUI.saved_checkbox_flag_GaussMix = 1;
     end
-
-    
+ 
 else
     handles_GUI = {};
 end

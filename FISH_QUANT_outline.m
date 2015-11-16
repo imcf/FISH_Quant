@@ -1078,20 +1078,20 @@ end
 %- Parameters to save results
 parameters.path_save           = path_save;
 parameters.path_name_image     = handles.img.path_names.img;
-parameters.version             = handles.version;
+parameters.version             = handles.img.version;
 parameters.flag_type           = 'outline';
 
 if not(isempty(handles.outline_name_load))
-    [file_save,path_save] = uiputfile(handles.outline_name_load,'Save outline / results of spot detection');
+    [file_save,path_save] = uiputfile(handles.outline_name_load,'Save FQ outline');
 
     if file_save ~= 0
        name_save = fullfile( path_save,file_save);
        handles.outline_name_load = name_save;
-       handles.img.save_outline(name_save,parameters);
+       handles.img.save_results(name_save,parameters);
        guidata(hObject, handles);
     end
 else
-    FQ_save_results_v1([],parameters);
+    handles.img.save_results([],parameters);
 end
 
 
