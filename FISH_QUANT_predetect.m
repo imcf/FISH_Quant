@@ -76,7 +76,6 @@ if not(isempty(varargin))
             handles.cell_ind_main = get(handles_MAIN.pop_up_outline_sel_cell,'Value');  
         end  
         
-
         %- Analyze cells
         handles = analyze_cellprop(hObject, eventdata, handles);
         
@@ -257,8 +256,8 @@ if  ~isfield(handles.img.cell_prop(ind_cell),'mask_cell_3D') || isempty(handles.
     if dim_cell.min_X < 1; dim_cell.min_X = 1; end
     if dim_cell.min_Y < 1; dim_cell.min_Y = 1; end
 
-    if dim_cell.max_X > handles.img.dim.X; dim_cell.max_X = dim.X; end
-    if dim_cell.max_Y > handles.img.dim.Y; dim_cell.max_Y = dim.Y; end
+    if dim_cell.max_X > handles.img.dim.X; dim_cell.max_X = handles.img.dim.X; end
+    if dim_cell.max_Y > handles.img.dim.Y; dim_cell.max_Y = handles.img.dim.Y; end
 
     handles.img.cell_prop(ind_cell).dim_cell = dim_cell;
 
@@ -477,6 +476,10 @@ switch str{val}
                 rad_detect = round([size_detect.xy_sep size_detect.xy_sep size_detect.z_sep]);
             end
 
+            %- Check if 2D & then use only 2D parameters
+            if ~handles.img.status_3D
+                rad_detect = rad_detect(1:2);
+            end
             
             %- Number of thresholds to compute
             set(handles.h_fishquant_predetect,'Pointer','watch');
@@ -754,10 +757,6 @@ handles.img.settings.detect.thresh_int                = str2double(get(handles.t
 %- Detection and other things
 ind_analyze = get(handles.pop_up_cell_select,'Value');
 handles.img.spots_predect(ind_analyze);
-
-%[spots_detected, handles.img_mask, handles.CC_best] = handles.img.spots_predect(ind_analyze);
-%handles.img.cell_prop(ind_analyze).spots_detected_all = spots_detected;
-%handles.img.cell_prop(ind_analyze).spots_detected     = spots_detected;
 
 %- Update status
 N_spots     = size(handles.img.cell_prop(ind_analyze).spots_detected,1);

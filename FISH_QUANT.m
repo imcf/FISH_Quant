@@ -1,7 +1,7 @@
 function varargout = FISH_QUANT(varargin)
 % FISH_QUANT M-file for FISH_QUANT.fig
 
-% Last Modified by GUIDE v2.5 15-Jun-2015 11:32:40
+% Last Modified by GUIDE v2.5 24-Nov-2015 15:30:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -283,7 +283,7 @@ if strcmp(button,'Yes')
         handles.img.project_Z('raw','max');
 
         %- Check image is 3D        
-        if handles.img.dim.Z == 1
+        if handles.img.dim.Z == 1  && handles.img.status_3D
             warndlg('FISH images have to be 3D stacks!','FISH-quant')
             handles.img = FQ_img;
         else        
@@ -626,7 +626,6 @@ if file_name_results ~= 0
         path_img                    = path_name_results;     
     end
     
-    
     %- Generate new FQ object
     handles.img = handles.img.reinit;
     status_open = handles.img.load_results(fullfile(path_name_results,file_name_results),path_img);       
@@ -650,7 +649,7 @@ if file_name_results ~= 0
     else
         
         %- Check if image is 2D
-        if handles.img.dim.Z == 1
+        if handles.img.dim.Z == 1  && handles.img.status_3D
                 warndlg('FISH images have to be 3D stacks!','FISH-quant')
                 img = FQ_img;
                 fprintf('\nName of image: %s\n', img.file_names.raw);   
@@ -684,18 +683,17 @@ if file_name_results ~= 0
             handles.img.settings.thresh.int_filt.lock  = 0;
             handles.detect.flag_detect_region = 0;
 
-            if isempty(handles.img.path_names.results)
-                path_settings = handles.img.path_names.root;
-            else
-                path_settings = handles.img.path_names.results; 
-            end
+%             if isempty(handles.img.path_names.results)
+%                 path_settings = handles.img.path_names.root;
+%             else
+%                 path_settings = handles.img.path_names.results; 
+%             end
 
-            if not(isempty(handles.img.file_names.settings))
-                handles.img.load_settings(fullfile(path_settings,handles.img.file_names.settings));                
+           % if not(isempty(handles.img.file_names.settings))
+             %   handles.img.load_settings(fullfile(path_settings,handles.img.file_names.settings));                
                 handles = FQ_populate_v1(handles); 
                 popup_filter_type_Callback(hObject, eventdata, handles); % Adjust GUI for default filter
- 
-            end    
+          %  end    
 
             set(handles.text_psf_theo_xy,'String',num2str(round(handles.img.PSF_theo.xy_nm)));
             set(handles.text_psf_theo_z, 'String',num2str(round(handles.img.PSF_theo.z_nm)));
@@ -1523,8 +1521,6 @@ if not(isempty(spots_fit))
     guidata(hObject, handles);  
 
 end
-
-
 
 
 %=== Threshold data based on selection
@@ -3019,11 +3015,36 @@ else
     set(handles.menu_save_spots_th,'Enable','off')
 end
 
-
 %== Display help file
 function menu_help_show_help_file_Callback(hObject, eventdata, handles)
 file_name_pdf = ['FISH_QUANT_', handles.version,'.pdf'];
 open(file_name_pdf)
+
+
+%== Change between 2D and 3D detection
+function menu_sett_2D_Callback(hObject, eventdata, handles)
+
+%- Get current status
+if handles.img.status_3D 
+    text_status = '3D';
+else
+    text_status = '2D';
+end
+
+% Construct a questdlg with three options
+choice = questdlg('Should the analysis be performed in 2D or 3D?', 'FISH-quant','2D', '3D',text_status);
+
+switch choice
+    case '2D'
+        handles.img.status_3D = 0;
+        handles.img.settings.detect.flags.region_smaller = 1;
+        display('FISH-quant - analysis will be performed in 2D');
+            
+    case '3D'
+        handles.img.status_3D = 1;
+        display('FISH-quant - analysis will be performed in 3D');
+end
+guidata(hObject, handles); 
 
 
 % ===== CREATE FUNCTIONS and CALL BACKS with no additional code
@@ -3347,3 +3368,4 @@ function popup_filter_type_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+

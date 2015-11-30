@@ -923,8 +923,8 @@ guidata(hObject, handles);
 set(handles.h_img, 'ButtonDownFcn', @axes_main_ButtonDownFcn)
 if not(isempty(spots_fit)) && flag_show_spots
     set(handles.h_spots_in, 'ButtonDownFcn', @axes_main_ButtonDownFcn)
-    set(handles.h_spots_out, 'ButtonDownFcn', @axes_main_ButtonDownFcn)
-    set(handles.h_spots_out_man, 'ButtonDownFcn', @axes_main_ButtonDownFcn)
+    if handles.h_spots_out ~= 0 ;    set(handles.h_spots_out, 'ButtonDownFcn', @axes_main_ButtonDownFcn); end
+    if handles.h_spots_out_man ~= 0  ;set(handles.h_spots_out_man, 'ButtonDownFcn', @axes_main_ButtonDownFcn); end
 end
 
 

@@ -40,6 +40,8 @@ if file_save ~= 0
     fprintf(fid,'PSF_THEO_XY=%g\n', img.PSF_theo.xy_nm);
     fprintf(fid,'PSF_THEO_Z=%g\n',  img.PSF_theo.z_nm);
 
+    fprintf(fid,'status_3D=%g\n',  img.status_3D);
+    
     %- Settings for filtering
     fprintf(fid,'\n# FILTERING\n');
     fprintf(fid,'Filter_method=%s\n',  img.settings.filter.method);

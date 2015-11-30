@@ -13,6 +13,7 @@ function [img, status_file] = img_load_stack_v1(file_name,par)
 if nargin == 1
     par.flag_output = 0;
     par.range  = [];
+    par.status_3D = 1;
 end
 
 % If only some additional parameters are defined
@@ -23,7 +24,12 @@ end
 if ~isfield(par,'range')
     par.range = [];
 end
-    
+   
+if ~isfield(par,'status_3D')
+    par.status_3D = 1;
+end
+
+
 %- Default output-parameters
 status_file = 1;
 img.data    = [];
@@ -36,11 +42,29 @@ if exist(file_name,'file') == 2
     N_img = r.getImageCount();
     N_Z   = r.getSizeZ();
 
-    
+
     %- If not loading range is specified and the z-stack is too large
     if isempty(par.range)
+        
+        %- For 2D images
+        if ~par.status_3D && N_img > 1
+
+            dlg_title = ['Image has ', num2str(N_img),' frames'];
+            prompt    = {'Specify which stack should be loaded                       :'};    
+            num_lines = 1; def = {'1'};
+            answer    = inputdlg(prompt,dlg_title,num_lines,def,'on');
+            ind_load  = str2double(answer{1});
+
+            if ind_load > 0
+
+                %- Get start and end index of z-slice
+                par.range.start = ind_load;
+                par.range.end   = ind_load;
+            end
+        
+   
         %- If number of z-stacks is larger than 1
-        if N_Z>1 && N_Z<N_img
+        elseif par.status_3D && N_Z>1 && N_Z<N_img
 
             dlg_title = ['Image appears to have ', num2str(N_img/N_Z),' z-stacks'];
             prompt    = {'Specify which stack should be loaded (0 for all)                      :'};    
@@ -56,7 +80,7 @@ if exist(file_name,'file') == 2
             end
 
         %- If number of images is very large    
-        elseif N_img>500
+        elseif par.status_3D && N_img>500
 
             dlg_title = ['Image has many planes. Is it multi-stack?'];
 

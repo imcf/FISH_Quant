@@ -169,10 +169,20 @@ switch mode_predetect
         fprintf('... local maximum: ');
            
         %- Define filter
-        rad_detect = [size_detect.xy size_detect.xy size_detect.z];  
+        if img.status_3D
+            rad_detect = [size_detect.xy size_detect.xy size_detect.z];  
+        else
+            rad_detect = [size_detect.xy size_detect.xy];
+        end
+        
+        %- Pre-detection
         pos_dum    = nonMaxSupr(double(image_filt_mask), rad_detect,thresh_int);
         
+        if ~img.status_3D
+            pos_dum(:,3) = 1;
+        end
         
+        %- Check quality of detection
         if size(pos_dum,1) > 1
         
             %- Remove spots that are within half the detection radius
@@ -215,8 +225,15 @@ switch mode_predetect
         N_spots = CC_best.NumObjects;
 
         centroid_linear  = [S.Centroid]';
-        centroid_matrix  = round(reshape(centroid_linear,3,N_spots))';
         
+        %- Check if detection is 2D or 3D
+        if img.status_3D
+            centroid_matrix  = round(reshape(centroid_linear,3,N_spots))';
+        else
+            centroid_matrix      = round(reshape(centroid_linear,2,N_spots))';
+            centroid_matrix(:,3) = 1;
+        end
+            
         pos_pre_detect(:,1) = centroid_matrix(:,2);
         pos_pre_detect(:,2) = centroid_matrix(:,1);
         pos_pre_detect(:,3) = centroid_matrix(:,3);
@@ -288,7 +305,7 @@ end
 ind_spots_GOOD_logic = ind_in_cell & ind_good_TS;
 
 %- Get coordinates of good spots
-pos_spots_GOOD     = pos_pre_detect(ind_spots_GOOD_logic,:);   
+pos_spots_GOOD     = pos_pre_detect(ind_spots_GOOD_logic,:);  
 pos_spots_GOOD_lin = sub2ind(size(img.filt), pos_spots_GOOD(:,1),pos_spots_GOOD(:,2),pos_spots_GOOD(:,3));
 
 
@@ -299,62 +316,6 @@ spots_detected(:,1:3)  = pos_spots_GOOD;
 
 % %===  Extract immediate environment for each spot in 3d
 [sub_spots, sub_spots_filt, spots_detected] = FQ_spots_moscaic_v1(img,spots_detected);
-
-% 
-% %- Pre-allocate memory
-% N_Spots        = size(spots_detected,1);
-% sub_spots      = {};
-% sub_spots_filt = {};
-% y_min_spots = zeros(N_Spots,1);
-% y_max_spots = zeros(N_Spots,1);
-% x_min_spots = zeros(N_Spots,1);
-% x_max_spots = zeros(N_Spots,1);
-% z_min_spots = zeros(N_Spots,1);
-% z_max_spots = zeros(N_Spots,1);
-% 
-% if flags.calc_mosaic
-% 
-%     size_crop  = img.settings.detect.reg_size;  
-%     
-%     disp('... sub-spot mosaicing...');    
-% 
-%     for i = 1:N_Spots    
-% 
-%         y_min = spots_detected(i,1)-size_crop.xy;
-%         y_max = spots_detected(i,1)+size_crop.xy;
-% 
-%         x_min = spots_detected(i,2)-size_crop.xy;
-%         x_max = spots_detected(i,2)+size_crop.xy;
-% 
-%         z_min = spots_detected(i,3)-size_crop.z;
-%         z_max = spots_detected(i,3)+size_crop.z;
-% 
-%         if z_min < 1;     z_min = 1;     end
-%         if z_max > dim.Z; z_max = dim.Z; end        
-% 
-%         %- For raw data
-%         sub_spots{i} = double(img.raw(y_min:y_max,x_min:x_max,z_min:z_max));
-% 
-%         %- For filtered data                        
-%         sub_spots_filt{i} = double(img.filt(y_min:y_max,x_min:x_max,z_min:z_max));  
-% 
-%         y_min_spots(i) = y_min;
-%         y_max_spots(i) = y_max;     
-%         x_min_spots(i) = x_min;  
-%         x_max_spots(i) = x_max;
-%         z_min_spots(i) = z_min;
-%         z_max_spots(i) = z_max;
-%     end
-% end
-% 
-% %- Assign values
-% spots_detected(:,4)   = y_min_spots;
-% spots_detected(:,5)   = y_max_spots;
-% spots_detected(:,6)   = x_min_spots;             
-% spots_detected(:,7)   = x_max_spots;
-% spots_detected(:,8)   = z_min_spots;
-% spots_detected(:,9)   = z_max_spots; 
-
 spots_detected(:,10)   = img.raw(pos_spots_GOOD_lin);
 spots_detected(:,11)   = img.filt(pos_spots_GOOD_lin);
 

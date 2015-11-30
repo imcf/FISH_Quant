@@ -70,7 +70,9 @@ else
             case 'Pixel_Z' 
                 img.par_microscope.pixel_size.z = str2double(str_val); 
 
-                        
+            case 'status_3D' 
+                img.status_3D = str2double(str_val); 
+              
              % === Filtering: 2XGauss      
              case 'Filter_method'            
                 img.settings.filter.method            = str_val;

@@ -33,9 +33,11 @@ classdef FQ_img < handle
         
         %- Dimensions
         dim
+        status_3D              = 1;  % Analysis is 3D
         
         %- mRNA 
         mRNA_prop
+        
         
         %- Status updates
         status_filter          = 0;
@@ -219,6 +221,7 @@ classdef FQ_img < handle
             img.settings       = img_old.settings; 
             img.version        = img_old.version; 
             img.path_names     = img_old.path_names; 
+            img.status_3D      = img_old.status_3D;
         end
         
         
@@ -239,23 +242,41 @@ classdef FQ_img < handle
             
             %- Open file
             par.range = img.range;
+            par.status_3D = img.status_3D;
             [img_struct, status_file] = img_load_stack_v1(file_name,par);
 
             %- Continue if status is ok
             if status_file
-                
+                                                    
                 %- Display results
                 fprintf('\nName of loaded image: %s\n', file_name);
+                
+                %- Get path
+                [img.path_names.img, file_name_only,ext] = fileparts(file_name);
                 
                 %- Dimensions
                 img.dim.X             = img_struct.NX;
                 img.dim.Y             = img_struct.NY;
                 img.dim.Z             = img_struct.NZ;
                 
-                %- Get path
-                [img.path_names.img, file_name_only,ext] = fileparts(file_name);
                 
-                %- Which type of image?
+%                 %- 2D image
+%                 if ~img.status_3D && img.dim.Z > 1
+% 
+%                     dlg_title = ['Processing in 2D. Image has ', num2str(img.dim.Z),' frames. '];
+%                     prompt    = {'Specify which image should be loaded                            :'};    
+%                     num_lines = 1; def = {'1'};
+%                     answer    = inputdlg(prompt,dlg_title,num_lines,def);
+%                     ind_load  = str2double(answer{1});
+%                     img_struct.data = img_struct.data(:,:,ind_load);
+%                     img.dim.Z = 1;
+%                     
+%                     if ind_load < 0
+%                         return
+%                     end           
+%                 end
+                    
+               %- Which type of image?
                 switch img_type
                 
                     case {'raw','RAW'}
@@ -424,6 +445,8 @@ classdef FQ_img < handle
                     exit
                     
                 end
+            else
+                path_name = fileparts(file_name_open);
             end
     
             %- Load outline file and microscope parameters
@@ -432,6 +455,12 @@ classdef FQ_img < handle
             
             [img.cell_prop, img.par_microscope, img.file_names, status_open.outline,dum,dum,img.comment] = FQ_load_results_WRAPPER_v2(file_name_open,par); 
                
+            %==== Load settings
+            if (isfield(img.file_names,'settings')) && ~isempty(img.file_names.settings)
+                file_name_open = fullfile(path_name,img.file_names.settings);
+                img.load_settings(file_name_open);
+            end
+            
             %==== Analyze comment
             
             if ~isempty(img.comment)
@@ -624,9 +653,15 @@ classdef FQ_img < handle
                %- 3D LoG (From Battich et al., Nature Methods)           
                case '3D_LoG'
                    fprintf('3D LoG filter ...')
-                   filt_log = fspecialCP3D('3D LoG, Raj', img.settings.filter.LoG_H, img.settings.filter.LoG_sigma);
-                   img.filt = imfilter(double(img.raw), filt_log, 'replicate') *(-1);   %- Picture is inversed & has  negative elements;
-               
+                   
+                   % If both values are zero, don't filter
+                   if img.settings.filter.LoG_H == 0 && img.settings.filter.LoG_sigma == 0
+                        img.filt = img.raw;
+                   else
+                        filt_log = fspecialCP3D('3D LoG, Raj', img.settings.filter.LoG_H, img.settings.filter.LoG_sigma);
+                        img.filt = imfilter(double(img.raw), filt_log, 'replicate') *(-1);   %- Picture is inversed & has  negative elements;
+                   end
+                   
                %- No valid filter found
                otherwise 
                     
@@ -827,11 +862,18 @@ classdef FQ_img < handle
          end
         
         
-        %% === Fit spots in 3D
+        %% === Fit spots
         function [spots_fit, FIT_Result,thresh] = spots_fit_3D(img,ind_cell)
             
             
-            [spots_fit, FIT_Result,thresh] = FQ_spots_fit_3D_v1(img,ind_cell);
+            %- 2D or 3D fitting
+            if img.status_3D
+                [spots_fit, FIT_Result,thresh] = FQ_spots_fit_3D_v1(img,ind_cell);
+            else
+                [spots_fit, FIT_Result,thresh] = FQ_spots_fit_2D_v1(img,ind_cell);    
+            end
+
+            
             
             %- Set-up structure for thresholding
             if ~isempty(spots_fit)
