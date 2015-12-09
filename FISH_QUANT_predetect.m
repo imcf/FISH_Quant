@@ -108,7 +108,7 @@ if not(isempty(varargin))
         nTH                = handles.img.settings.detect.nTH;
         flag_detect_region = handles.img.settings.detect.flags.detect_region;
         
-        dlgTitle = 'Parameters to calculate pre-detection thresholds         ';
+        dlgTitle = 'Calculate pre-detection threshold         ';
 
         prompt_avg(1) = {'Minimum intensity threshold to test'};
         prompt_avg(2) = {'Maximum intensity threshold to test'};

@@ -298,8 +298,6 @@ else
 end
 
 
-
-
 %= Function to analyze detected regions
 function handles = analyze_image(hObject, eventdata, handles)
 
@@ -492,7 +490,7 @@ end
 % Plot
 % =========================================================================
 
-%=== Plot cell
+%=== Plot image
 function handles = plot_image(hObject, eventdata, handles)
 datacursormode off
 

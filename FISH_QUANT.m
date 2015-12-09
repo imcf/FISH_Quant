@@ -1,7 +1,7 @@
 function varargout = FISH_QUANT(varargin)
 % FISH_QUANT M-file for FISH_QUANT.fig
 
-% Last Modified by GUIDE v2.5 24-Nov-2015 15:30:40
+% Last Modified by GUIDE v2.5 03-Dec-2015 17:44:46
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -3368,4 +3368,3 @@ function popup_filter_type_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-

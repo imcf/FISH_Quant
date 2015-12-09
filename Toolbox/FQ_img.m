@@ -110,7 +110,7 @@ classdef FQ_img < handle
             img.settings.detect.flags.reg_pos_sep    = 0;
             img.settings.detect.flags.output         = 0;  % Show output
             img.settings.detect.flags.parallel       = 0;  % Parallel computing (0 - no; 1 - GPU)
-            img.settings.detect.flags.auto_th        = 1;  % Automatically calculate threshold
+            img.settings.detect.flags.auto_th        = 0;  % Automatically calculate threshold
             
             
             %=== Options for mature mRNA detection

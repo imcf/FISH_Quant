@@ -64,8 +64,6 @@ img_raw.dim.X             = N_X;
 img_raw.dim.Y             = N_Y;
 img_raw.dim.Z             = N_Z;
          
-
-
 %- Number of cells per image
 N_cell = size(img_raw.cell_prop,2);
 if N_cell > 1
@@ -148,10 +146,10 @@ for iT = 1: N_img
     
     %- Use fit
     if flag_fit 
-        movieInfo(iT).xCoord(:,1) = img_raw.cell_prop.spots_fit(:,2) / img_raw.par_microscope.pixel_size.xy;
+        movieInfo(iT).xCoord(:,1) = img_raw.cell_prop.spots_fit(:,2) / img_raw.par_microscope.pixel_size.xy +1 ;
         movieInfo(iT).xCoord(:,2) = 0;
     
-        movieInfo(iT).yCoord(:,1) = img_raw.cell_prop.spots_fit(:,1)/ img_raw.par_microscope.pixel_size.xy;
+        movieInfo(iT).yCoord(:,1) = img_raw.cell_prop.spots_fit(:,1)/ img_raw.par_microscope.pixel_size.xy +1;
         movieInfo(iT).yCoord(:,2) = 0;
     
         movieInfo(iT).amp(:,1) = img_raw.cell_prop.spots_fit(:,4);

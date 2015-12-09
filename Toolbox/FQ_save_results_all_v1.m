@@ -55,8 +55,6 @@ if file_save ~= 0
             spots_fit       = cell_summary(i_abs,1).spots_fit; 
             spots_detected  = cell_summary(i_abs,1).spots_detected; 
             thresh.in       = cell_summary(i_abs,1).thresh.in;
-            name_image      = cell_summary(i_abs,1).name_image;
-            name_cell       = cell_summary(i_abs,1).label;       
             
             cell_label = {};
             
@@ -83,7 +81,10 @@ if file_save ~= 0
                 
                 %- Each row is labeled with the image name followed by the name of the cell
                 N_spots                   = size(spots_output,1);
-                if      flag_label == 1                                    
+                if      flag_label == 1 
+                     name_image      = cell_summary(i_abs,1).name_image;
+                     name_cell       = cell_summary(i_abs,1).label;       
+                    
                     [cell_label{1:N_spots,1}] = deal(name_image);
                     [cell_label{1:N_spots,2}] = deal(name_cell);                    
                     
@@ -93,6 +94,7 @@ if file_save ~= 0
                 elseif flag_label == 2
                     
                     %- Get number of file 
+                    name_image      = cell_summary(i_abs,1).name_image;
                     [dum name_only] = fileparts(name_image);   
                    
                     file_ident      = name_only(end-file_id_start+1:end-file_id_end);    
@@ -103,7 +105,13 @@ if file_save ~= 0
                 %- No label - results can be read-in again 
                 elseif flag_label == 3
                     cell_write      = cell_data;
+                    
+                %- Label from index variable in file_summary    
+                elseif flag_label == 4
+                    file_index = num2str(file_summary(i_file).index);
+                    [cell_label{1:N_spots,1}] = deal(file_index);
                 
+                     cell_write      = [cell_label,cell_data];
                 end
                 
                 %- Save entire structure
@@ -167,7 +175,12 @@ if file_save ~= 0
             string_write   = ['%g', repmat('\t%g',1,N_par-1),'\n']; 
 
             cell_write_all = sortrows(cell_write_all,1);    %- Sort by column 1 
+            
+        elseif  flag_label == 4
+            fprintf(fid,'File_Index#\tPos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit\n');
+            string_write   = ['%s',repmat('\t%g',1,N_par),'\n']; 
 
+            cell_write_all = sortrows(cell_write_all,1);    %- Sort by column 1 
         end
 
 

@@ -6,9 +6,6 @@ function [img, status_file] = load_stack_data_v7(file_name,parameters)
 %   img.w     : the width of the images
 %   img.size  : the number of images in the stack 
 
-% v3 
-% - based on bfopen_v1 rather than tiff-read. Allows reading in
-% deltavision files as well.
 
 %- Get parameters - set default if parameters is not defined (backward compatible)
 if nargin == 1
@@ -27,11 +24,6 @@ img.data    = [];
 
 if exist(file_name,'file') == 2
 
-    if 0 % strcmpi(ext,'.tif') || strcmpi(ext,'.stk')
-%         img = tiffread29(file_name);
-%         img = dat2mat3d_v1(img);
-        
-    else
         if flag.bfopen
 
             data = bfopen(file_name);
@@ -59,8 +51,6 @@ if exist(file_name,'file') == 2
             
             status_file = 0;
         end
-
-    end
     
 else
     if flag.output

@@ -1943,8 +1943,7 @@ if isempty(axes_select)
 else
     axes(axes_select)
     v = axis;
-    cla
-    
+    cla    
 end
 
 
