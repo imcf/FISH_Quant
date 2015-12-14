@@ -11,20 +11,28 @@ Program was developed and tested in Matlab R2014a on Mac OS 10.9.5. Some functio
 
 The following toolboxes are required
 
-    Optimization toolbox
-    Statistics toolbox
-    Image processing toolbox
-    (Optional) Parallel processing toolbox 
+* Optimization toolbox
+* Statistics toolbox
+* Image processing toolbox
+* (Optional) Parallel processing toolbox 
 
 Program is provided as an ZIP archive. On rare occasions problems might occur when unzipping under Windows 7 with the built-in unzipper. Here the folders are encrypted and are shown in green. This can be avoided by using the free program 7-Zip (http://www.7-zip.org/). 
 
-### Contribution guidelines ###
+### Getting started ###
+We provide several files to help new user getting used to FISH-quant. We recommend working with the example data and using either step-by-step tutorial or the video tutorials to familiarize yourself with the basic functionality. The more detailed user manual can then be used to adjust more advanced options.
 
-* Writing tests
-* Code review
-* Other guidelines
+* Example data. This zip archive contains already processed FISH data. For these data the entire analysis has been performed and the different results files are provided.
+* Tutorial PDF. In this PDF we explain in detail the basic workflow for the analysis of FISH data. This is done based on the example data.
+* User manual. A PDF containing with a detailed user manual describing the entire functionality of FISH-quant. 
 
-### Who do I talk to? ###
+### Development team ###
+Developed by Florian MUELLER (Institut Pasteur,ENS Paris) and Aubin SAMACOITS (Institut Pasteur) based on work of Hervé Marie-Nelly (Institut Pasteur). 
 
-* Repo owner or admin
-* Other community or team contact
+###  Depot at APP ### 
+A depot of the software was issued at APP (http://www.app.asso.fr/en/) under the reference number IDDN.FR.001.090009.000.S.A.2013.000.10000 
+
+###  Contact ###  
+
+Florian Mueller: muellerf.research@gmail.com
+
+Institut Pasteur, Computational Imaging and Modeling Unit, 25-28 rue du Docteur Roux, 75015 Paris, France 
