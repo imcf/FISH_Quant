@@ -20,9 +20,9 @@ Program is provided as an ZIP archive. On rare occasions problems might occur wh
 
 ### Installation instructions ###
 
-1.	Download code from Bitbucket in the downloads section (Select Download repository)
-https://bitbucket.org/muellerflorian/fish_quant/overview
-2.	The code is provided in an zip archive with a name like muellerflorian-fish_quant-b4177b99dc53.zip. The last part of the name will change over time reflecting new version.  To avoid updating the path-definition each time you download a new version of FISH-quant (see next), we recommend copying the content of this archive to a folder called FISH_quant in the user folder of Matlab. 
+
+# Download code from the Downloads section (Select Download repository) https://bitbucket.org/muellerflorian/fish_quant/overview
+# The code is provided in an zip archive with a name like muellerflorian-fish_quant-b4177b99dc53.zip. The last part of the name will change over time reflecting new version.  To avoid updating the path-definition each time you download a new version of FISH-quant (see next), we recommend copying the content of this archive to a folder called FISH_quant in the user folder of Matlab. 
 3.	Under windows this folder is usually C:\Users\usr_name\Documents\MATLAB, where usr_name is the user name. This path can be found with the Matlab command userpath. 
 4.	Create a folder FISH-quant, and copy the content of the downloaded archive in this folder. In the example above, you will have a folder C:\Users\muellerf\Documents\MATLAB\FISH_QUANT with all the source code.
 5.	Update Matlab path definition. This can be done with a few simple steps in Matlab.
@@ -31,6 +31,7 @@ b.	This will open a dialog box. In this box select Add with subfolders …
 c.	This will open another dialog. Here select the folder of FISH_QUANT from step 1, e.g. C:\Users\muellerf\Documents\MATLAB\FISH_QUANT. Click OK.
 d.	To save this settings press Save. Depending on the settings of the installation of Matlab this might results in a warning saying that the changes to path cannot be saved. Matlab proposes to save the path-definition file pathdef.m to another location. Click Yes. Select a directory of choice, e.g. the Matlab work directory of the user.
 
+For more details, we refer to the FQ manual.
 
 ### Getting started ###
 We provide several files to help new user getting used to FISH-quant. We recommend working with the example data and using either step-by-step tutorial or the video tutorials to familiarize yourself with the basic functionality. The more detailed user manual can then be used to adjust more advanced options.
