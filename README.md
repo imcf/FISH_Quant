@@ -18,6 +18,7 @@ The following toolboxes are required
 
 Program is provided as an ZIP archive. On rare occasions problems might occur when unzipping under Windows 7 with the built-in unzipper. Here the folders are encrypted and are shown in green. This can be avoided by using the free program 7-Zip (http://www.7-zip.org/). 
 
+
 ### Getting started ###
 We provide several files to help new user getting used to FISH-quant. We recommend working with the example data and using either step-by-step tutorial or the video tutorials to familiarize yourself with the basic functionality. The more detailed user manual can then be used to adjust more advanced options.
 
