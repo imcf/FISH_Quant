@@ -32,7 +32,6 @@ Developed by Florian MUELLER (Institut Pasteur,ENS Paris) and Aubin SAMACOITS (I
 A depot of the software was issued at APP (http://www.app.asso.fr/en/) under the reference number IDDN.FR.001.090009.000.S.A.2013.000.10000 
 
 ###  Contact ###  
-
 Florian Mueller: muellerf.research@gmail.com
 
-Institut Pasteur, Computational Imaging and Modeling Unit, 25-28 rue du Docteur Roux, 75015 Paris, France 
+Institut Pasteur, Computational Imaging and Modeling Unit, 25-28 rue du Docteur Roux, 75015 Paris, France
