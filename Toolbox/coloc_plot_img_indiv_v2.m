@@ -29,10 +29,11 @@ for i = 1:length(ind_close_ch1)
     spot_ch1 = data_ch1_th(ind_close_ch1(i),:);
     spot_ch2 = data_ch2_th(ind_close_ch2(i),:);
     
-    %- Calculate distance (raw data and corrected for shift)
-    dist_loop_corr = round(distance_spots(ind_close_ch1(i)));
-    dist_loop_raw  = sqrt(sum((spot_ch1-spot_ch2).^2));
     
+    %- Calculate distance (raw data and corrected for shift)
+    dist_loop_corr = round(distance_spots(i));
+    dist_loop_raw  = round(sqrt(sum((spot_ch1-spot_ch2).^2)));
+
     %- Crop image
     pos_y_mean = round(mean([spot_ch1(1),spot_ch2(1)]) /  pixel_size.xy) +1;
     pos_x_mean = round(mean([spot_ch1(2),spot_ch2(2)]) /  pixel_size.xy) +1;
@@ -50,11 +51,13 @@ for i = 1:length(ind_close_ch1)
     if x_min < 1;  x_min = 1; end
     if y_min < 1;  y_min = 1; end
     if z_min < 1;  z_min = 1; end
-
+    if z_min > dim.Z; z_min = dim.Z; end  % Fitting in z can yields spots far outside
+    
     if x_max > dim.X; x_max = dim.X; end
     if y_max > dim.Y; y_max = dim.Y; end
     if z_max > dim.Z; z_max = dim.Z; end        
-
+    if z_max < 1;     z_max = 1; end      % Fitting in z can yields spots far outside
+   
     ch1_crop = img_ch1(y_min:y_max,x_min:x_max,z_min:z_max);
     ch2_crop = img_ch2(y_min:y_max,x_min:x_max,z_min:z_max);
 
@@ -136,31 +139,36 @@ for i = 1:length(ind_close_ch1)
 end
 
 
-%=== PLOT NOT colocalized spots (for the the channel with fewer spots)
-if N_ch1 <= N_ch2
-   ind_plot = setdiff(1:N_ch1,ind_close_ch1);
-   pos_plot = data_ch2_th(ind_plot,1:3);
-   flag.which_ch = 1;
-   img_text      = file_ch1_open;
+%% === PLOT NOT colocalized spots (for the the channel with fewer spots)
+ind_not_ch1 = setdiff(1:N_ch1,ind_close_ch1);
+ind_not_ch2 = setdiff(1:N_ch2,ind_close_ch2);
 
-   data_other_ch = data_ch2_th;
+if N_ch1 <= N_ch2
+   
+    flag.which_ch = 1;
+    img_text      = file_ch1_open;
+    
+    ind_plot      = ind_not_ch1;
+    pos_plot      = data_ch1_th(ind_not_ch1,1:3);
+    data_other_ch = data_ch2_th(ind_not_ch2,1:3);
 
 else
-   ind_plot = setdiff(1:N_ch2,ind_close_ch2);
-   pos_plot = data_ch2_th(ind_plot,1:3);
+
    flag.which_ch = 2;
    img_text      = file_ch2_open;
 
-   data_other_ch = data_ch1_th;
+   ind_plot      = ind_not_ch2;
+   pos_plot      = data_ch2_th(ind_not_ch2,1:3);
+   data_other_ch = data_ch1_th(ind_not_ch1,1:3);
 
 end
 
-for i = 1:length(ind_plot)
+for i = 1:size(pos_plot,1)
 
-    %- Index of spot
-    ind_spot_loop = ind_plot(i);
+   %- Index of spot
+   ind_spot_loop = ind_plot(i);
 
-    %- Found close spots
+   %- Find close spots within the shown pixel grid
    diff_pos_nm = abs(data_other_ch(:,1:3) - repmat(pos_plot(i,:),size(data_other_ch,1),1));
 
    clearvars diff_pos_pix
@@ -171,10 +179,9 @@ for i = 1:length(ind_plot)
    pos_plot_close = data_other_ch(ind_close,1:3);
 
    %- Find closest spots
-    diff_pos_nm_sel           = diff_pos_nm(ind_close,:);
-    dist_3d                   = sqrt(sum(diff_pos_nm_sel.^2,2));
+    dist_3d                   = sqrt(sum(diff_pos_nm(ind_close,:).^2,2));
     [dist_3d_min,ind_min_dum] = min(dist_3d);
-    ind_min = ind_close(ind_min_dum);
+    ind_min                   = ind_close(ind_min_dum);
     
     %- Crop image
     pos_y_mean = round(pos_plot(i,1) /  pixel_size.xy) +1;
@@ -193,12 +200,13 @@ for i = 1:length(ind_plot)
     if x_min < 1;  x_min = 1; end
     if y_min < 1;  y_min = 1; end
     if z_min < 1;  z_min = 1; end
+    if z_min > dim.Z; z_min = dim.Z; end  % Fitting in z can yields spots far outside
 
     if x_max > dim.X; x_max = dim.X; end
     if y_max > dim.Y; y_max = dim.Y; end
     if z_max > dim.Z; z_max = dim.Z; end
-
-
+    if z_max < 1;     z_max = 1; end      % Fitting in z can yields spots far outside
+     
     ch1_crop = img_ch1(y_min:y_max,x_min:x_max,z_min:z_max);
     ch2_crop = img_ch2(y_min:y_max,x_min:x_max,z_min:z_max);
 
@@ -212,6 +220,7 @@ for i = 1:length(ind_plot)
     spot_z_close = pos_plot_close(:,3) - (z_min-1)*pixel_size.z;
 
     %- Plot figure
+try
     figure, set(gcf,'color','w'), set(gcf,'visible','off')
 
     subplot(2,3,1)
@@ -219,16 +228,16 @@ for i = 1:length(ind_plot)
     imshow(im_disp,[],'XData',[0 (size(im_disp,2)-1)*pixel_size.xy],'YData',[0 (size(im_disp,1)-1)*pixel_size.xy]) 
     colormap('hot'); colorbar;
     title('CH1 - XY [green]')
-
+    
     % Decide what to plot & save handles to copy later
     hold on
-    if flag.which_ch == 2
-        h_close = plot(spot_x_close,spot_y_close,'+g','LineWidth',4);
-        h_spots = plot(spot_x,spot_y,'+b','LineWidth',4);                  
+    if flag.which_ch == 1
+        h_spots = plot(spot_x,spot_y,'+g','LineWidth',2);  
+        h_close = plot(spot_x_close,spot_y_close,'ob','LineWidth',2);
 
     elseif flag.which_ch == 2
-        h_close = plot(spot_x_close,spot_y_close,'+b','LineWidth',4);
-        h_spots = plot(spot_x,spot_y,'+g','LineWidth',4);   
+        h_spots = plot(spot_x,spot_y,'+b','LineWidth',2);  
+        h_close = plot(spot_x_close,spot_y_close,'og','LineWidth',4);
     else
          h_close = [];
          h_spots = [];
@@ -253,20 +262,20 @@ for i = 1:length(ind_plot)
 
     % Decide what to plot & save handles to copy later
     hold on
-    if flag.which_ch == 2
-        h_close = plot(spot_x_close,spot_z_close,'+g','LineWidth',4);
-        h_spots = plot(spot_x,spot_z,'+b','LineWidth',4);                  
-
+    if flag.which_ch == 1
+        h_spots = plot(spot_x,spot_z,'+g','LineWidth',2);
+        h_close = plot(spot_x_close,spot_z_close,'ob','LineWidth',2);
+       
     elseif flag.which_ch == 2
-        h_close = plot(spot_x_close,spot_z_close,'+b','LineWidth',4);
-        h_spots = plot(spot_x,spot_z,'+g','LineWidth',4); 
+        h_spots = plot(spot_x,spot_z,'+b','LineWidth',2); 
+        h_close = plot(spot_x_close,spot_z_close,'+g','LineWidth',2);     
    else
          h_close = [];
          h_spots = [];          
     end
     hold off
 
-     subplot(2,3,5)
+    subplot(2,3,5)
     im_disp = squeeze(max(ch2_crop,[],1))'; 
     imshow(im_disp,[],'XData',[0 (size(im_disp,2)-1)*pixel_size.xy],'YData',[0 (size(im_disp,1)-1)*pixel_size.z])
     colormap('hot'); colorbar;
@@ -280,7 +289,9 @@ for i = 1:length(ind_plot)
     subplot(2,3,3)
     axis off
     
-    
+ catch err
+    disp(err)
+end   
     
     text(0,0.8,['Dist to closest: ',num2str(round(dist_3d_min)),' nm'],'Interpreter','none');
     text(0,0.7,['IMG: ',img_text],'Interpreter','none');

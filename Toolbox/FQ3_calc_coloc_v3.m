@@ -385,7 +385,7 @@ if flags.save_results
 
     fprintf(fid,'\nDrift-correction: \t%g\n',flags.drift_apply);
     fprintf(fid,'Dist_threshold: \t%g\n\n',dist_th);
-
+    fprintf(fid,'Maximum number of spots: \t%g\n\n',N_spots_max);
     fprintf(fid,'CH1: perc-coloc, total, coloc : \t%g\t%g\t%g\n', round(100*N_ch1_coloc/N_ch1_total),N_ch1_total,N_ch1_coloc);
     fprintf(fid,'CH2: perc-coloc, total, coloc : \t%g\t%g\t%g\n\n', round(100*N_ch2_coloc/N_ch2_total),N_ch2_total,N_ch2_coloc);
 
@@ -405,7 +405,6 @@ if 0
     
     N_plot = length(x);
     color_maps = distinguishable_colors(N_plot);
-
 
     figure, set(gcf,'color','w')
     subplot(2,1,1)
