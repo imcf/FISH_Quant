@@ -660,6 +660,8 @@ classdef FQ_img < handle
                    else
                         filt_log = fspecialCP3D('3D LoG, Raj', img.settings.filter.LoG_H, img.settings.filter.LoG_sigma);
                         img.filt = imfilter(double(img.raw), filt_log, 'replicate') *(-1);   %- Picture is inversed & has  negative elements;
+                                                
+                        
                    end
                    
                %- No valid filter found

@@ -34,6 +34,9 @@ end
 %-- Load data from outline definition file
 if strcmpi(ext,'.txt') 
     
+    %- Keep settings
+    settings_old = img.settings;
+    
     %- Try to open file - catch corrupted files
     try
         status_open = img.load_results(fullfile(path_name_list,file_name_load),path_name_image);  
@@ -42,6 +45,10 @@ if strcmpi(ext,'.txt')
         disp(err)
         status_open.outline = 0;
     end
+    
+    %- Reassign settings in case they were changes
+    img.settings = settings_old;
+    
     
     %- Outline file can't be opened
     if status_open.outline ~= 1

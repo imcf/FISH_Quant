@@ -137,7 +137,7 @@ else
                 img.settings.fit.N_spots_fit_max = str2double(str_val); 
                 
             case 'Spots_min_dist'    
-                settings.thresh.Spots_min_dist = str2double(str_val);      
+                img.settings.thresh.Spots_min_dist = str2double(str_val);      
                 
                 
             case 'sigma_xy_min'

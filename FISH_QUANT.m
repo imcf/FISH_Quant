@@ -123,7 +123,7 @@ end
 %== Define folder for images
 function menu_folder_image_Callback(hObject, eventdata, handles)
 
-if isempty(handles.img.path_names.img)
+if isempty(handles.img.path_names.img) || ~exist(handles.img.path_names.img)
    dir_default =  handles.img.path_names.root;
 else
     dir_default = handles.img.path_names.img;
@@ -139,7 +139,7 @@ end
 
 %== Define folder for outines
 function menu_folder_outline_Callback(hObject, eventdata, handles)
-if isempty(handles.img.path_names.outlines)
+if isempty(handles.img.path_names.outlines) || ~exist(handles.img.path_names.outlines)
    dir_default =  handles.img.path_names.root;
 else
     dir_default =  handles.img.path_names.outlines;
@@ -155,7 +155,7 @@ end
 
 %== Define folder for outines
 function menu_folder_results_Callback(hObject, eventdata, handles)
-if isempty(handles.img.path_names.results)
+if isempty(handles.img.path_names.results) || ~exist(handles.img.path_names.results)
    dir_default =  handles.img.path_names.root;
 else
     dir_default =  handles.img.path_names.results;
@@ -2749,7 +2749,7 @@ FISH_QUANT_list_folder(par_main,path_name);
 
 %== Batch processing - folders
 function menu_batch_folders_Callback(hObject, eventdata, handles)
-FISH_QUANT_batch_folder
+%FISH_QUANT_batch_folder
 
 
 %==========================================================================

@@ -65,7 +65,6 @@ if not(isfield(handles,'img'))
     handles.status_QUANT            = 0;
     handles.status_settings_TS_proc = 0;
     handles.status_PSF_PROC         = 0;
-   % handles.status_TS_simple_only   = 0;
     handles.status_outline_unique_loaded = 0;
     handles.status_outline_unique_enable = 0;
     handles.status_settings_TS_detect    = 0;
@@ -97,9 +96,6 @@ if not(isfield(handles,'img'))
     handles.AMP_file_name = [];    
     handles.fact_os       = [];  
 
-    
-   % handles.settings_TS_detect = [];
-
     %- File-names
     handles.file_name_settings_new = [];
     handles.file_name_settings     = [];
@@ -115,7 +111,6 @@ if not(isfield(handles,'img'))
     handles.file_name_settings_nascent_save = ['_FQ_batch_settings_NASCENT_', datestr(date,'yymmdd'), '.txt'];
 
     %- Settings for saving
-    %handles.settings_save.N_ident = 4;  
     handles.settings_save.file_id_start = 4;
     handles.settings_save.file_id_end   = 0;
 
@@ -132,11 +127,6 @@ if not(isfield(handles,'img'))
     handles.settings_rendering.factor_int = 1;
     handles.settings_rendering.flag_crop  = 1;
     handles.settings_rendering.opacity    = 0.5;
-
-%     %=== Get ImageJ directories
-%     FQ_path       = handles.FQ_path;
-%     ij_macro_name = handles.ij_macro_name;                              
-%     handles.imagej_macro_name = fullfile(FQ_path,'java',ij_macro_name);
 
     %- Export figure handle to workspace - will be used in Close All button of
     % main Interface
@@ -472,6 +462,11 @@ if strcmp(choice,'Yes')
     handles.status_outline_unique_enable = 0;
     handles.status_settings_TS_detect    = 0;
 
+    %- File-names for settings
+    handles.file_name_settings_new = [];
+    handles.file_name_settings     = [];
+    handles.file_name_settings_TS  = [];
+    
     %- Update status
     controls_enable(hObject, eventdata, handles)
     status_update(hObject, eventdata, handles,{' ';'## Analysis results cleared.'});    
@@ -1103,7 +1098,7 @@ parameters.path_name_list     = handles.path_name_list;
 parameters.name_filtered       = handles.name_filtered;
 
 %- Some options that might not be defined in older versions
-if isfield(handles.img.settings.fit,'N_spots_fit_max')
+if ~isfield(handles.img.settings.fit,'N_spots_fit_max')
     handles.img.settings.fit.N_spots_fit_max = -1;
 end
 

@@ -112,12 +112,12 @@ if isempty(FQ_outline_open) || FQ_outline_open == 0
 
     set(handles.h_fishquant_outline,'WindowStyle','normal')
 
-    %==== Path-names
-    handles.path_name_root          = [];
-    handles.path_name_image         = [];
-    handles.path_name_outline       = [];
-    handles.path_name_results       = [];
-    handles.path_name_settings      = [];
+%     %==== Path-names
+%     handles.path_name_root          = [];
+%     handles.path_name_image         = [];
+%     handles.path_name_outline       = [];
+%     handles.path_name_results       = [];
+%     handles.path_name_settings      = [];
 
     %==== Name of loaded outline file
     handles.outline_name_load   = [];
@@ -594,38 +594,6 @@ global file_ident
 
 %- Get file-identifier
 get_file_ident;
-
-%- Get identifier of DAPI & TS-ident
-% if file_ident.status == -1;
-% 
-%     %- Load image
-%     button = questdlg('Do you want to use identifiers to find DAPI / TS-label  images based on FISH file name? If yes, you have to specify unique parts of the file names that set apart the FISH and DAPI image. This has to be done only once.','Load DAPI','Yes','No','No');
-% 
-%     if strcmp(button,'Yes')
-%         
-%     
-%         prompt = {'FISH','DAPI','TxSite'};
-%         dlg_title = 'Unique identifiers for different images';
-%         num_lines = 1;
-%         def = {file_ident.FISH,file_ident.DAPI,file_ident.TS};
-%         answer = inputdlg(prompt,dlg_title,num_lines,def);
-%         
-%         if ~isempty(answer)
-%                           
-%             file_ident.FISH = answer{1};
-%             file_ident.DAPI = answer{2};
-%             file_ident.TS   = answer{3};
-%             
-%             status_file_id = 1;            
-%         else
-%             status_file_id = -1;
-%             
-%         end
-%     else
-%         status_file_id = 0;
-%     end
-% end
-
 
 %- Get current directory and go to directory with images
 current_dir = pwd;
@@ -1137,7 +1105,6 @@ end
 %== Load outline
 function menu_load_outline_Callback(hObject, eventdata, handles)
 
-
 %- Get directory with outlines
 current_dir = pwd;
 if  not(isempty(handles.img.path_names.outlines)); 
@@ -1178,7 +1145,7 @@ else
     path_image = cd;
 end
 
-handles.img = FQ_img;
+handles.img.reinit;
 handles.img.load_results(name_load,path_image);
        
 handles.img_plot      =  handles.img.raw_proj_z;

@@ -764,7 +764,7 @@ if not(isempty(spots_fit))
     end
     
 %- Check if there are detected spots    
-elseif ~isempty(spots_detected)
+elseif ~isempty(spots_detected) & flag_show_spots
     hold on
         plot(spots_detected(:,2),spots_detected(:,1),'og','MarkerSize',handles.marker_size_spot);
     hold off
