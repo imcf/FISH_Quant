@@ -78,8 +78,10 @@ if exist('gcp')
         parpool;
     end
 else
-    disp('== GCP not found')
-    disp('Old Matlab version or parallel computing toolbox not available')
+    disp('== GCP function not found')
+    disp('Old Matlab version or parallel computing toolbox not available.')
+    disp(' ')
+    ver
 end
 
 %% Read each of the z-stacks

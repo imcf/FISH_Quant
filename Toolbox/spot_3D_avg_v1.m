@@ -105,7 +105,7 @@ function [spot_avg, spot_os_avg,pixel_size_os,img_sum] = avg_spots_cell(img,ind_
     img.cell_prop(ind_cell).thresh.in = logical(img.cell_prop(ind_cell).thresh.in);
     
     
-    %- Fit
+    %- Based on fit
     if img.settings.avg_spots.fact_os.xy > 1 || img.settings.avg_spots.fact_os.z > 1
 
         status_os = 1;
@@ -115,7 +115,7 @@ function [spot_avg, spot_os_avg,pixel_size_os,img_sum] = avg_spots_cell(img,ind_
         spots_pos(:,2) = spots_pos(:,2) +  img.par_microscope.pixel_size.xy;
         spots_pos(:,3) = spots_pos(:,3) +  img.par_microscope.pixel_size.z;
 
-    %- Detection    
+    %- Based on detection    
     else
         
         status_os = 0;

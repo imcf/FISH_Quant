@@ -104,7 +104,7 @@ else
                 img.settings.detect.thresh_int = str2double(str_val);      
                 
             case 'Detect_Score'    
-                settings.detect.score = str_val; 
+                img.settings.detect.score = str_val; 
             
             case 'Detect_Thresh_score'
                 img.settings.detect.thresh_score = str2double(str_val); 
@@ -137,9 +137,10 @@ else
                 img.settings.fit.N_spots_fit_max = str2double(str_val); 
                 
             case 'Spots_min_dist'    
-                img.settings.thresh.Spots_min_dist = str2double(str_val);      
+                img.settings.thresh.Spots_min_dist = str2double(str_val);               
+            
                 
-                
+            % === Restriction of fitted parameters    
             case 'sigma_xy_min'
                 img.settings.fit.limits.sigma_xy_min = str2double(str_val);
 
@@ -153,7 +154,7 @@ else
                 img.settings.fit.limits.sigma_z_max = str2double(str_val);    
                             
 
-            %== Thresholding
+            %== Thresholding - after fitting
             case 'SPOTS_TH_sigmaXY_min'
                 img.settings.thresh.sigmaxy.min_th = str2double(str_val);
                 img.settings.thresh.sigmaxy.lock      = 1;
@@ -251,7 +252,6 @@ else
             case 'AVG_bgd_sub'    
                 img.settings.avg_spots.flags.bgd = str2double(str_val);                                  
       
-   
                 
         end      
 

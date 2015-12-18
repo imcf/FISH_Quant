@@ -149,19 +149,14 @@ if file_save ~= 0
             end
         end
         
-        
+
         %- Settings for Averaging
         fprintf(fid,'\n# AVERAGING\n');
         fprintf(fid,'AVG_Region_XY=%g\n',   img.settings.avg_spots.crop.xy);
         fprintf(fid,'AVG_Region_Z=%g\n',    img.settings.avg_spots.crop.z);
         fprintf(fid,'AVG_OS_XY=%g\n',       img.settings.avg_spots.fact_os.xy );
         fprintf(fid,'AVG_OS_Z=%g\n',        img.settings.avg_spots.fact_os.z);    
-
-        if isfield(img.settings.avg_spots,'bgd_sub')
-            fprintf(fid,'AVG_bgd_sub=%g\n',img.settings.avg_spots.bgd_sub);
-        else
-            fprintf(fid,'AVG_bgd_sub=%g\n',1); 
-        end
+        fprintf(fid,'AVG_bgd_sub=%g\n',     img.settings.avg_spots.flags.bgd);
 
     end
 

@@ -2896,7 +2896,7 @@ switch (popup_parameter)
         disp(' ')
 
         
-    case 'Thresholded spots'
+    case 'Thresholded'
                 
         set(handles.text_psf_fit_sigmaX,'String', num2str(PSF_exp.sigmax_th,'%.0f'));
         set(handles.text_psf_fit_sigmaY,'String', num2str(PSF_exp.sigmay_th,'%.0f'));
@@ -2913,21 +2913,13 @@ switch (popup_parameter)
         disp(' ')
 
                 
-    case 'Averaged spots'
+    case 'Averaged spot'
         
         set(handles.text_psf_fit_sigmaX,'String', num2str(PSF_exp.sigmax_avg,'%.0f'));
         set(handles.text_psf_fit_sigmaY,'String', num2str(PSF_exp.sigmay_avg,'%.0f'));
         set(handles.text_psf_fit_sigmaZ,'String', num2str(PSF_exp.sigmaz_avg,'%.0f'));
         set(handles.text_psf_fit_amp,'String',    num2str(PSF_exp.amp_avg,'%.0f'));
         set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_avg,'%.0f'));   
-
-    case 'User defined'
-        
-    set(handles.text_psf_fit_sigmaX,'String', num2str(handles.par_fit.sigma_XY_fixed));
-    set(handles.text_psf_fit_sigmaY,'String', num2str(handles.par_fit.sigma_XY_fixed));
-    set(handles.text_psf_fit_sigmaZ,'String', num2str(handles.par_fit.sigma_Z_fixed));
-    set(handles.text_psf_fit_amp,'String',    '');
-    set(handles.text_psf_fit_bgd,'String',    ''); 
      
 end
 
