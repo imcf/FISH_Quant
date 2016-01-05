@@ -14,6 +14,7 @@ if nargin == 1
     par.flag_output = 0;
     par.range  = [];
     par.status_3D = 1;
+    par.load_2D_all = 1;
 end
 
 % If only some additional parameters are defined
@@ -27,6 +28,10 @@ end
    
 if ~isfield(par,'status_3D')
     par.status_3D = 1;
+end
+
+if ~isfield(par,'load_2D_all')
+    par.load_2D_all = 1;
 end
 
 
@@ -47,7 +52,7 @@ if exist(file_name,'file') == 2
     if isempty(par.range)
         
         %- For 2D images
-        if ~par.status_3D && N_img > 1
+        if ~par.status_3D &&  ~par.load_2D_all &&  N_img > 1
 
             dlg_title = ['Image has ', num2str(N_img),' frames'];
             prompt    = {'Specify which stack should be loaded                       :'};    
