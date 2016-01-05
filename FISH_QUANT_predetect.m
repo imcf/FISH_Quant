@@ -82,8 +82,8 @@ if not(isempty(varargin))
         %- Image data        
         handles.img_lin = handles.img.filt(:);
 
-        handles.img_min = min(handles.img_lin);
-        handles.img_max = max(handles.img_lin);
+        handles.img_min  = min(handles.img_lin);
+        handles.img_max  = max(handles.img_lin);
         handles.img_diff = handles.img_max - handles.img_min;
         handles.img_plot = handles.img.filt_proj_z;  
 
@@ -96,12 +96,12 @@ if not(isempty(varargin))
             mask_cell_2D = handles.img.cell_prop(handles.cell_ind_main).mask_cell_2D;       
             int_MIP_cell = handles.img_plot(mask_cell_2D);  %- Get all value of cell
             
-            th_int_max      = 3*quantile(int_MIP_cell,0.99);
-            th_int_min      = 0.2*th_int_max;          
+            th_int_max      = ceil(3*quantile(int_MIP_cell,0.99));
+            th_int_min      = floor(0.2*th_int_max);          
         
         else
-            th_int_min  = handles.img.settings.detect.th_int_min;
-            th_int_max  = handles.img.settings.detect.th_int_max;
+            th_int_min  = floor(handles.img.settings.detect.th_int_min);
+            th_int_max  = ceil(handles.img.settings.detect.th_int_max);
         end
            
         %=== Range to calculate plateau  
@@ -707,16 +707,13 @@ switch handles.img.settings.detect.method
         data_predetect(:,1) = handles.locmax_thresholds;
         data_predetect(:,2) = handles.locmax_counts;
         
-        mean_val = mean(handles.locmax_counts);
-        
         %- Plot histogram
         plot(handles.locmax_thresholds,handles.locmax_counts) 
-        ylim([0 3*mean_val]); % Zoom in on important area
         v = axis;
         hold on
         plot([detect_th, detect_th], [0.1, 1e5],'-r')
         hold off
-        axis([detect.th_int_min detect.th_int_max 0 3*mean_val])
+        axis([min(handles.locmax_thresholds) max(handles.locmax_thresholds) v(3) 1.05*v(4)])
         xlabel('Threshold [intensity]');
         ylabel('Number of detected spots')
         title('Histogram of all pixel intensities [filtered image]')
@@ -1114,8 +1111,6 @@ function text_detect_region_z_sep_Callback(hObject, eventdata, handles)
 size_z = str2double(get(handles.text_detect_region_z_sep,'String'));
 handles.img.settings.detect.reg_size.z_sep = size_z; %handles.size_detect.z = size_z; 
 guidata(hObject, handles);
-
-
 
 
 

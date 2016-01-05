@@ -19,6 +19,15 @@ cd(path_save)
 
 
 %% Get the channel filler for raw image
+
+%- Initializes Bio-Formats and its logging level
+try
+    bfInitLogging();
+catch 
+    disp('FQ-startup: problems with bfInitlogging!')
+end
+
+%- Open pointer to image
 r_raw = bfGetReader(fullfile(path_img,file_raw));
 
 %=== Get the total number of images;
@@ -37,6 +46,11 @@ N_Z = r_raw.getSizeZ();
 img_raw=FQ_img;
 img_raw.file_names.raw = [name_base,ext];
 
+%- Dimensions
+img_raw.dim.X             = N_X;
+img_raw.dim.Y             = N_Y;
+img_raw.dim.Z             = N_Z;
+
 %- Check if their is an outline file
 file_outline  = fullfile(path_save,'_FQ_outline.txt');
 if exist(file_outline,'file')
@@ -44,6 +58,7 @@ if exist(file_outline,'file')
     disp('== Found outline')
 else
     img_raw.make_one_cell(1);
+    disp('== No outline found - will use entire image for spot detection')
 end
 
 %- Load settings
@@ -54,16 +69,14 @@ img_raw.file_names.settings = file_sett;
 
 if status_sett == 0
     disp('== No FQ settings file found.')
+    fprintf('Expected folder: %s\n',path_save)
+    fprintf('Expected file  : %s\n',file_sett)
     return
 else
     disp('== FQ settings loaded.')
 end
 
-%- Dimensions
-img_raw.dim.X             = N_X;
-img_raw.dim.Y             = N_Y;
-img_raw.dim.Z             = N_Z;
-         
+
 %- Number of cells per image
 N_cell = size(img_raw.cell_prop,2);
 if N_cell > 1
@@ -71,18 +84,18 @@ if N_cell > 1
     return
 end
 
-
-%% Start parallel pool
-if exist('gcp')
-    if isempty(gcp('nocreate'))
-        parpool;
-    end
-else
-    disp('== GCP function not found')
-    disp('Old Matlab version or parallel computing toolbox not available.')
-    disp(' ')
-    ver
-end
+% 
+% %% Start parallel pool
+% if exist('gcp')
+%     if isempty(gcp('nocreate'))
+%         parpool;
+%     end
+% else
+%     disp('== GCP function not found')
+%     disp('Old Matlab version or parallel computing toolbox not available.')
+%     disp(' ')
+%     ver
+% end
 
 %% Read each of the z-stacks
 tic
@@ -91,7 +104,6 @@ spots_max = 1;
 figure, set(gcf,'color','w')
 title('Number of detected (blue) and fit (red) spots per time-point')
 axis([0 N_img 0 1.05*spots_max])
-
 
 clear movieInfo
 
