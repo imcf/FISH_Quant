@@ -5,7 +5,7 @@ classdef FQ_img < handle
     properties 
         
         %- General image properties
-        file_names = struct('raw', '', 'filtered', '','DAPI', '', 'TS_label', '', 'settings', '', 'settings_TS', '', 'settings_TS_detect', '');
+        file_names = struct('raw', '', 'filt', '','DAPI', '', 'TS_label', '', 'settings', '', 'settings_TS', '', 'settings_TS_detect', '');
         path_names = struct('img', '', 'settings', '','results', '','outlines', '','root', '', 'settings_TS', '','settings_TS_detect', '');
         par_microscope = struct('pixel_size',struct('xy',160, 'z', 300),'RI',1.458, 'NA', 1.25,'Em', 547, 'Ex', 583, 'type', 'widefield');
         PSF_theo
@@ -259,22 +259,6 @@ classdef FQ_img < handle
                 img.dim.Y             = img_struct.NY;
                 img.dim.Z             = img_struct.NZ;
                 
-                
-%                 %- 2D image
-%                 if ~img.status_3D && img.dim.Z > 1
-% 
-%                     dlg_title = ['Processing in 2D. Image has ', num2str(img.dim.Z),' frames. '];
-%                     prompt    = {'Specify which image should be loaded                            :'};    
-%                     num_lines = 1; def = {'1'};
-%                     answer    = inputdlg(prompt,dlg_title,num_lines,def);
-%                     ind_load  = str2double(answer{1});
-%                     img_struct.data = img_struct.data(:,:,ind_load);
-%                     img.dim.Z = 1;
-%                     
-%                     if ind_load < 0
-%                         return
-%                     end           
-%                 end
                     
                %- Which type of image?
                 switch img_type
@@ -297,7 +281,7 @@ classdef FQ_img < handle
                 end
                 
             else
-                disp('Image not found')
+                disp('Image not found/opened')
                 disp(file_name)
             end
        

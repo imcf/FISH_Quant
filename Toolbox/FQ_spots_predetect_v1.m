@@ -313,7 +313,6 @@ pos_spots_GOOD_lin = sub2ind(size(img.filt), pos_spots_GOOD(:,1),pos_spots_GOOD(
 spots_detected(:,1:3)  = pos_spots_GOOD;
 
 
-
 % %===  Extract immediate environment for each spot in 3d
 [sub_spots, sub_spots_filt, spots_detected] = FQ_spots_moscaic_v1(img,spots_detected);
 spots_detected(:,10)   = img.raw(pos_spots_GOOD_lin);

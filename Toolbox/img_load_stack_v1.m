@@ -31,12 +31,12 @@ if ~isfield(par,'status_3D')
 end
 
 if ~isfield(par,'load_2D_all')
-    par.load_2D_all = 1;
+    par.load_2D_all = 0;
 end
 
 
 %- Default output-parameters
-status_file = 1;
+status_file = 0;
 img.data    = [];
 
 %- Open files
@@ -58,6 +58,9 @@ if exist(file_name,'file') == 2
             prompt    = {'Specify which stack should be loaded                       :'};    
             num_lines = 1; def = {'1'};
             answer    = inputdlg(prompt,dlg_title,num_lines,def,'on');
+            
+            if isempty(answer); return; end
+            
             ind_load  = str2double(answer{1});
 
             if ind_load > 0
@@ -75,6 +78,7 @@ if exist(file_name,'file') == 2
             prompt    = {'Specify which stack should be loaded (0 for all)                      :'};    
             num_lines = 1; def = {'1'};
             answer    = inputdlg(prompt,dlg_title,num_lines,def);
+            if isempty(answer); return; end
             ind_load  = str2double(answer{1});
 
             if ind_load > 0
@@ -93,6 +97,7 @@ if exist(file_name,'file') == 2
             prompt{2}    = 'Specify which stack should be loaded                              :';    
             num_lines = 1; def = {'6','1'};
             answer    = inputdlg(prompt,dlg_title,num_lines,def);
+            if isempty(answer); return; end
             N_Z       = str2double(answer{1});
             ind_load  = str2double(answer{2});
 
@@ -147,6 +152,7 @@ if exist(file_name,'file') == 2
 
     %- Save image data
     img.data = data_mat;
+    status_file = 1;
 
 else
     if par.flag_output

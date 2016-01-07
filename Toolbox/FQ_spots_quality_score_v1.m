@@ -67,6 +67,6 @@ if N_Spots
 
     spots_detected(:,12)   = quality_score;
     spots_detected(:,13)   = quality_score_norm;
-    spots_detected(:,14)   = 0;                      %- Thresholded or not (based on quality score)   
+    spots_detected(:,14)   = 1;                      %- Thresholded or not (based on quality score)   
 
 end      

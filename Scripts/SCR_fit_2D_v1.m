@@ -42,7 +42,7 @@ N_Y = r_raw.getSizeY;
 N_X = r_raw.getSizeX;
 
 %=== Get the number of Z slices;
-N_Z = r_raw.getSizeZ();
+N_Z = 1;%;r_raw.getSizeZ();
 
 %% Get detection settings
 
@@ -87,22 +87,12 @@ if N_cell > 1
     return
 end
 
-% 
-% %% Start parallel pool
-% if exist('gcp')
-%     if isempty(gcp('nocreate'))
-%         parpool;
-%     end
-% else
-%     disp('== GCP function not found')
-%     disp('Old Matlab version or parallel computing toolbox not available.')
-%     disp(' ')
-%     ver
-% end
+
 
 %% Read each of the z-stacks
 tic
 
+summary_img_raw = [];
 spots_max = 1;
 h_fig = figure; set(gcf,'color','w')
 title('Number of detected (blue) and fit (red) spots per time-point')
@@ -126,7 +116,6 @@ for iT = 1: N_img
     
     %=== Detect and fit spots in OPB corrected image
 
- 
         %- Pre-detect
         img_raw.spots_predect(1);
 
@@ -218,13 +207,6 @@ end
 
 toc
 
-
-%% Save figure with number of detections
-name_save = fullfile(folder_plots,'FQ_number_detections');
-save2pdf(name_save,h_fig,300)
-saveas(h_fig,name_save,'fig')
-
-
 %% Save summary for utrack
 
 %- Check if folder exists, create if not
@@ -234,6 +216,12 @@ if not(exist(path_save)); mkdir(path_save); end
 %- Save detection
 save(fullfile(path_save,'Detection_result'),'movieInfo')
     
+
+%% Save figure with number of detections
+name_save = fullfile(folder_plots,'FQ_number_detections');
+save2pdf(name_save,h_fig,300)
+saveas(h_fig,name_save,'fig')
+
 
 %% Plot summary figure of spot detection
 N_plot = size(summary_img_raw,1);

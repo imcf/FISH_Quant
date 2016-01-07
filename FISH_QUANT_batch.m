@@ -1,7 +1,7 @@
 function varargout = FISH_QUANT_batch(varargin)
 % FISH_QUANT_BATCH M-file for FISH_QUANT_batch.fig
 
-% Last Modified by GUIDE v2.5 05-Mar-2015 18:01:33
+% Last Modified by GUIDE v2.5 07-Jan-2016 15:34:02
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -174,13 +174,14 @@ if handles.status_fit
    set(handles.button_files_delete,'Enable','off');
    set(handles.button_files_delete_all,'Enable','off'); 
    set(handles.button_files_add,'Enable','off');
+   set(handles.button_files_add_images,'Enable','off');
    set(handles.text_status_files,'String','Select New analysis from menu to analyse different files.')
    set(handles.text_status_files,'ForegroundColor','b')
    
 else
     
    set(handles.button_files_add,'Enable','on');
-   
+   set(handles.button_files_add_images,'Enable','on');
     
     if not(isempty(str_list))
         set(handles.text_status_files,'String','Files listed')
@@ -463,6 +464,7 @@ if strcmp(choice,'Yes')
     handles.status_settings_TS_detect    = 0;
 
     %- File-names for settings
+    handles.path_name_list         = []
     handles.file_name_settings_new = [];
     handles.file_name_settings     = [];
     handles.file_name_settings_TS  = [];
@@ -720,8 +722,22 @@ status_update(hObject, eventdata, handles,{'  ';'## Settings loaded'});
 controls_enable(hObject, eventdata, handles)
 
 
-%== Add files
+%== Add image files
 function button_files_add_Callback(hObject, eventdata, handles)
+filter_spec = {'*.txt';'*.tif';'*.stk'};
+handles = button_files_add_(hObject, eventdata, handles,filter_spec);
+guidata(hObject, handles);
+
+
+%== Add outline files
+function button_files_add_images_Callback(hObject, eventdata, handles)
+filter_spec = {'*.tif';'*.stk';'.txt'};
+handles = button_files_add_(hObject, eventdata, handles,filter_spec);
+guidata(hObject, handles);
+
+
+%== Add file
+function handles = button_files_add_(hObject, eventdata, handles,filter_spec)
 
 %- Get current directory and go to directory with images
 current_dir = pwd;
@@ -734,7 +750,7 @@ elseif not(isempty(handles.img.path_names.root))
 end
 
 %- Get file names
-[file_name_outline,path_name_list] = uigetfile({'*.txt';'*.tif';'*.stk'},'Select files with outline definition or image files','MultiSelect', 'on');
+[file_name_outline,path_name_list] = uigetfile(filter_spec,'Select files with outline definition or image files','MultiSelect', 'on');
 
 if ~iscell(file_name_outline)
     dum =file_name_outline; 
@@ -743,6 +759,17 @@ end
     
 if file_name_outline{1} ~= 0 
     
+    %- Make sure that files are in the same folder
+    if isempty(handles.path_name_list)
+        handles.path_name_list = path_name_list;
+    else
+        if ~strcmp(handles.path_name_list,path_name_list)
+            errordlg('Files HAVE to be in the same folder',mfilename)
+            return
+        end
+    end
+    
+    %- Add files
     str_list_old = get(handles.listbox_files,'String');
     
     if isempty(str_list_old)
@@ -757,8 +784,8 @@ if file_name_outline{1} ~= 0
     end
     
     set(handles.listbox_files,'String',str_list_new);
-    handles.path_name_list = path_name_list;
     
+   
     %- Update status
     controls_enable(hObject, eventdata, handles)    
     status_text = { ' ';'## Outline definition files specified'; [num2str(size(str_list_new,1)) ' files will be processed']};
@@ -810,6 +837,7 @@ if strcmp(choice,'Yes')
     
     set(handles.listbox_files,'String',{})
     set(handles.listbox_files,'Value',1)
+    handles.path_name_list = [];
     
     %- Update status
     controls_enable(hObject, eventdata, handles)
@@ -2772,7 +2800,6 @@ FQ3_batch_save_handles_v1([],handles)
 %== LOAD GUI handles structure
 function menu_load_handles_Callback(hObject, eventdata, handles)
 
-
 [handles, status_load] = FQ3_batch_load_handles_v1(handles);
 
 if status_load == 0
@@ -2830,7 +2857,7 @@ end
 % Average spots
 % =========================================================================
 
-% === SETTINGS of spot averaging --------------------------------------------------------------------
+% === SETTINGS of spot averaging
 function menu_settings_avg_Callback(hObject, eventdata, handles)
 status_change = handles.img.define_par_avg;
 

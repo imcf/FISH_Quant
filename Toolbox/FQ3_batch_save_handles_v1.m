@@ -48,6 +48,10 @@ if file_save ~= 0
     handles.val_auto_save_mature = get(handles.checkbox_auto_save_mature,'Value'); 
        
     %- Save handles
+    handles.img.raw = [];
+    handles.img.filt = [];
+    handles.img.DAPI = [];
+    handles.img.TS_label = [];
     eval('save(file_name_full,''handles'',''-v6'')')
 end
 

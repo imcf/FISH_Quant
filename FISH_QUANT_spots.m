@@ -115,8 +115,7 @@ if not(isempty(varargin))
         if isfield(handles_MAIN,'ind_cell_sel')
             set(handles.pop_up_cell_select,'Value',handles_MAIN.ind_cell_sel);
         end
-        
-        
+       
         
         %- Set selector of plot-type accordingly 
         handles.ident_caller = varargin{1};   
@@ -764,9 +763,14 @@ if not(isempty(spots_fit))
     end
     
 %- Check if there are detected spots    
-elseif ~isempty(spots_detected) & flag_show_spots
+elseif ~isempty(spots_detected) && flag_show_spots
+    
+    ind_good =   logical(spots_detected(:,14));
+    ind_bad  = ~ spots_detected(:,14);
+    
     hold on
-        plot(spots_detected(:,2),spots_detected(:,1),'og','MarkerSize',handles.marker_size_spot);
+        plot(spots_detected(ind_good,2),spots_detected(ind_good,1),'og','MarkerSize',handles.marker_size_spot);
+        plot(spots_detected(ind_bad,2),spots_detected(ind_bad,1),'or','MarkerSize',handles.marker_size_spot);
     hold off
     
 end

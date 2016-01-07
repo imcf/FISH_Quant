@@ -1,11 +1,20 @@
 function [handles_GUI, status_load] = FQ3_batch_load_handles_v1(handles_GUI)
 % Function to read analysis results from .mat file
 
-    
-status_load = 1;
+status_load = 0;
+
+%== Get current directory and go to directory with results
+if  not(isempty(handles_GUI.img.path_names.results)); 
+    path_save = handles_GUI.img.path_names.results;
+elseif not(isempty(handles_GUI.img.path_names.root)); 
+    path_save = handles_GUI.img.path_names.root;
+else
+    path_save = pwd;
+end
+
 
 %- Ask user for file-name for spot results
-[file_load,path_load] =  uigetfile('*.mat','Results of analysis [.mat file]');
+[file_load,path_load] =  uigetfile('*.mat','Results of analysis [.mat file]',path_save);
 
 if file_load ~= 0
 
@@ -156,4 +165,4 @@ else
     handles_GUI = {};
 end
 
-
+status_load = 1;

@@ -774,6 +774,9 @@ plot_image(handles,handles.axes_img,[])
 pop_up_detect_quality_Callback(hObject, eventdata, handles)
 
 
+
+
+
 %== Show detected spots
 function button_show_detected_spots_Callback(hObject, eventdata, handles)
   
@@ -806,8 +809,7 @@ if ~isempty(spots_detected)
     [handles.qual_count,handles.qual_bin] = hist(spots_detected(:,12),30);
     handles.thresh.qual_max               = max(spots_detected(:,12));
     handles.status_quality_score          = 1;
-    %handles.img.cell_prop(handles.cell_ind_main).spots_detected_all = spots_detected;
-
+   
     %- Save, plot and give some information
     guidata(hObject, handles);
     plot_qualityscore(hObject, eventdata, handles)
