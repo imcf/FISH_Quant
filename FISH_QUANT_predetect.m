@@ -367,7 +367,8 @@ handles.img.settings.detect.score        = str{val};
 handles.img.settings.detect.thresh_score = str2double(get(handles.text_detect_th_qual,'String'));
 
 %- Used to compensate for spots that were close the edge 
-dim_sub_z = 2*handles.img.settings.detect.reg_size.z+1;
+dim_sub_xy = 2*handles.img.settings.detect.reg_size.xy+1;
+dim_sub_z  = 2*handles.img.settings.detect.reg_size.z+1;
 
 %- Loop over all cells
 for ind_cell = 1:N_cells
@@ -384,19 +385,34 @@ for ind_cell = 1:N_cells
         %- Calculate projections for plot with montage function
         for k=1:N_spots
 
-            %- MIP in XY
+            %- MIP in XY, padd if necessary
             MIP_xy =  max(handles.img.cell_prop(ind_cell).sub_spots{k},[],3);
+            [dim_MIP_1,dim_MIP_2] = size(MIP_xy);
+            MIP_xy = padarray(MIP_xy,[dim_sub_xy-dim_MIP_1 dim_sub_xy-dim_MIP_2],'post'); 
             spots_proj.xy(:,:,1,k) = MIP_xy;
             
-            %- MIP in XZ
+            %- MIP in XZ, padd if necessary
             MIP_xz = squeeze(max(handles.img.cell_prop(ind_cell).sub_spots{k},[],1))';
-            dim_MIP_z = size(MIP_xz,1); 
-            
-            %- Add zeros if not enough planes (for incomplete spots)
-            if dim_MIP_z < dim_sub_z
-               MIP_xz(dim_MIP_z+1:dim_sub_z,:) = 0;
+            [dim_MIP_1,dim_MIP_2] = size(MIP_xz);
+            MIP_xz = padarray(MIP_xz,[dim_sub_z-dim_MIP_1 dim_sub_xy-dim_MIP_2],'post'); 
+            try
+                spots_proj.xz(:,:,1,k) = MIP_xz;
+            catch
+                1
             end
-            spots_proj.xz(:,:,1,k) = MIP_xz;
+%             
+%             dim_MIP_z = size(MIP_xz,1); 
+%             
+%             %- Add zeros if not enough planes (for incomplete spots)
+%             if dim_MIP_z < dim_sub_z
+%                MIP_xz(dim_MIP_z+1:dim_sub_z,:) = 0;
+%             end
+%             try
+%                 spots_proj.xz(:,:,1,k) = MIP_xz;
+%             catch
+%                 1
+%                 
+%             end
         end
 
          %- Save results
@@ -598,7 +614,7 @@ switch flag_detect_region
        
     %- All cells 
     case 3
-       image_filt_mask(not(handles.mask_cell_3D)) = 0;     
+      % image_filt_mask(not(handles.mask_cell_3D)) = 0;     
        handles.image_filt_mask = image_filt_mask;
         
     otherwise

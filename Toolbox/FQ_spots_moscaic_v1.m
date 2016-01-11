@@ -32,6 +32,12 @@ for i = 1:N_Spots
     z_min = spots_detected(i,3)-size_crop.z;
     z_max = spots_detected(i,3)+size_crop.z;
 
+    if y_min < 1;     y_min = 1;     end
+    if y_max > dim.Y; y_max = dim.Y; end  
+    
+    if x_min < 1;     x_min = 1;     end
+    if x_max > dim.X; x_max = dim.X; end  
+    
     if z_min < 1;     z_min = 1;     end
     if z_max > dim.Z; z_max = dim.Z; end        
 

@@ -4,7 +4,7 @@ function cell_prop = FQ3_TS_detect_v2(img)
 
 
 %= Get parameters for TS detection
-pixel_size    = img.par_microscope.pixel_size;
+pixel_size         = img.par_microscope.pixel_size;
 int_th             = img.settings.TS_detect.int_th;
 conn               = img.settings.TS_detect.conn;
 min_dist           = img.settings.TS_detect.min_dist;

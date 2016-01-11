@@ -2,7 +2,7 @@ function [cell_prop] = FQ3_segment_nuclei_v1(img,par)
 
 %% == Information about cell and image
 cell_prop = img.cell_prop;
-DAPI_XY       = uint16(img.DAPI_proj_z);
+DAPI_XY   = uint16(img.DAPI_proj_z);
 
 %% Parameters for segmentation
 nuc_N_pix_min = par.N_pix_min;

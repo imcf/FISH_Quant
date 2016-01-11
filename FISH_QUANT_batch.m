@@ -42,6 +42,7 @@ if not(isfield(handles,'img'))
     menu_folder_FQ_main_Callback(hObject, eventdata, handles)
     
     %- Parameters to save results
+    handles.path_name_list = [];
     handles.file_summary   = [];
     handles.cell_summary   = {};
     handles.cell_counter   = 1;
@@ -160,8 +161,8 @@ end
 
 %- Settings for mature mRNA define
 if handles.status_setting
-    set(handles.text_status_settings,'String','Settings defined')
-    set(handles.text_status_settings,'ForegroundColor','g')
+    set(handles.text_status_settings,'String',handles.file_name_settings)
+    set(handles.text_status_settings,'ForegroundColor','k')
 else
     set(handles.text_status_settings,'String','NOT defined')
     set(handles.text_status_settings,'ForegroundColor','r') 

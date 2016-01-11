@@ -478,20 +478,10 @@ elseif not(isempty(handles.img.path_names.root))
    cd(handles.img.path_names.root) 
 end
 
-
-%- Get image
-[file_name_image,path_name_image] = uigetfile({'*.tif';'*.dv';'*.stk';'*.TIF'},'Select file');
-
-if file_name_image ~= 0
-    
-    %- Save results
-    handles.file_names.raw = file_name_image;
-    handles.img.path_names.img = path_name_image;
-    
-    handles = img_load_FISH(hObject, eventdata, handles);
-    status_plot_first = 1;
-    guidata(hObject, handles);
-end
+%- Load image
+handles = img_load_FISH(hObject, eventdata, handles);
+status_plot_first = 1;
+guidata(hObject, handles);
 
 %- Go back to original path
 cd(current_dir);
@@ -588,9 +578,7 @@ cd(current_dir);
 %=== Load TS_label image
 function menu_load_TS_label_Callback(hObject, eventdata, handles)
 
-
 global file_ident
-
 
 %- Get file-identifier
 get_file_ident;
@@ -619,6 +607,7 @@ end
 
 
 [file_name_image,path_name_image] = uigetfile({'*.tif';'*.dv';'*.stk';'*.TIF'},'Select file',default_name);
+
 if file_name_image ~= 0
 
     %- Save results
@@ -642,9 +631,8 @@ function handles = img_load_FISH(hObject, eventdata, handles)
 global status_plot_first    
 
 %- Load image and plot
-name_img    = handles.img.file_names.raw;
 handles.img = handles.img.reinit;
-status_file = handles.img.load_img(fullfile(handles.img.path_names.img,name_img),'raw');
+status_file = handles.img.load_img([],'raw');
 
 if status_file
 
@@ -1791,6 +1779,17 @@ if strcmp(choice,'Yes')
     guidata(hObject, handles);
 end
 
+
+%== Delete ALL Transcription sites
+function button_TS_delete_all_Callback(hObject, eventdata, handles)
+
+for i_cell = 1:length(handles.img.cell_prop)
+    handles.img.cell_prop(i_cell).pos_TS = {};
+     handles.img.cell_prop(i_cell).str_list_TS = {};
+end
+
+handles = plot_image(handles,handles.axes_image); 
+guidata(hObject, handles);
 
 %== Listbox TS
 function listbox_TS_Callback(hObject, eventdata, handles)

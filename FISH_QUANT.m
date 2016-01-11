@@ -1087,6 +1087,11 @@ status_update(hObject, eventdata, handles,{'Fitting: STARTED ... '})
 %- Some parameters
 handles.img.settings.fit.flags.parallel = get(handles.checkbox_parallel_computing, 'Value');
 
+%- Used to compensate for spots that were close the edge 
+dim_sub_xy = 2*handles.img.settings.detect.reg_size.xy+1;
+dim_sub_z  = 2*handles.img.settings.detect.reg_size.z+1;
+
+
 %== Loop over cells
 tic
 for ind_cell = 1:length(handles.img.cell_prop);
@@ -1105,8 +1110,10 @@ for ind_cell = 1:length(handles.img.cell_prop);
 
     for k=1:N_spots
         if not(isempty(FIT_Result))
-            spots_proj.res_xy(:,:,1,k) =  max(FIT_Result{k}.im_residual,[],3);   
-
+            MIP_xy = max(FIT_Result{k}.im_residual,[],3);   
+            [dim_MIP_1,dim_MIP_2] = size(MIP_xy);
+            MIP_xy = padarray(MIP_xy,[dim_sub_xy-dim_MIP_1 dim_sub_xy-dim_MIP_2],'post'); 
+            spots_proj.res_xy(:,:,1,k) = MIP_xy;
         %- Loaded results have sub-spots but not fits and residuals
         elseif not(isempty(spots_proj))
             spots_proj.res_xy(:,:,1,k) =  0;        
