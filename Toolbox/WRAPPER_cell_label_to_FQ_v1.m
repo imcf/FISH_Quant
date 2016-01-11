@@ -29,7 +29,6 @@ else
     par_microscope.Ex            = 650;             % Excitation wavelength    
     par_microscope.type          = 'widefield';  
    
-    
 end
 
 %- Check if structure with names is defined
