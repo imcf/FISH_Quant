@@ -26,49 +26,96 @@ for i_plate = 1:length(path_plate)
    is_well     = cellfun(@(x) ~isempty(regexp(x,'^w+[0-9]_*')), fold);    % String starts (^) with a w, followed by one or more (+) numbers ([0-9], followed by a _
    well_folder = fold(is_well);
    
+   for i_well = 1:size(well_folder,1)
+       
+       well_split            = strsplit(well_folder{i_well},'_');
+       ind_well              = well_split{1}(2:end);
+       well_folder{i_well,2} = str2num(ind_well);
+       
+   end
+     
+   
    %- 
    file = dir(strcat(path_plate{i_plate},'/analyzed/images/_labels/',cell_identifier,'/',method_cell));
-   
+   file = file(arrayfun(@(x) x.name(1), file) ~= '.');
    isub = [file(:).isdir]; %# returns logical vector
    file = {file(~isub).name}';
-  
+   
+
 
    %- Loop over all masks
    for i_mask = 1:length(file) 
        
        
-      parameter.path_name = strcat(path_plate{i_plate},'/analyzed/images/_labels/',cell_identifier,'/',method_cell);
+       
+       %%%% Get the name of the segmentation mask
        
        
-      mask_path{1} = strcat(path_plate{i_plate},'/analyzed/images/_labels/',cell_identifier,'/',method_cell,'/',file{i_mask});
-      mask_path{2} = strcat(path_plate{i_plate},'/analyzed/images/_labels/',DAPI_identifier,'/',method_nucleus,'/',file{i_mask});
+      parameter.path_name = strcat(path_plate{i_plate},'/analyzed/images/_labels/',cell_identifier,'/',method_cell);      
       
-      mask_split   = strsplit(file{i_mask}, '_'); 
+      mask_path{1} = strcat(path_plate{i_plate},'/analyzed/images/_labels/',cell_identifier,'/',method_cell,'/',file{i_mask}); % FISH channel
+      mask_path{2} = strcat(path_plate{i_plate},'/analyzed/images/_labels/',DAPI_identifier,'/',method_nucleus,'/',file{i_mask}); % DAPI channel
       
-      position     = num2str(str2num(mask_split{2}));
+      
+      %%% Get the info separetely ( position, well ) 
+      mask_split   = strsplit(file{i_mask}, '_');    
+      position     = mask_split{2};
       well         = str2num(mask_split{1}(2:end));
+      
+      %%% Get the name of the gene identfier which is present in image
+      %%% original title but not in the well folder title. We go into the
+      %%% projection folder ZPROJ
        
-      outline_name = strcat(path_plate{i_plate},'/',well_folder{well},'/',outline_folder_name,'/', well_folder{well},'_p',position,'_outline.txt');
-      parameter.outline_name = outline_name;
+      % We get all the files inside the ZPROJ file
+      
+      
+      well_pointer = find([[well_folder{:,2}] == well ] == 1); 
+     
+      ZPROJ_path            = fullfile(path_plate{i_plate},well_folder{well_pointer},'ZPROJ');
+      file_gene_identifier  = dir(ZPROJ_path); 
+      file_gene_identifier  = {file_gene_identifier.name}';
+
+      
+      %%% We keep the files that correspond to our well
+      ind_well_str          = strcat('^w+',num2str(well),'_*');
+      is_file               = cellfun(@(x) ~isempty(regexp(x,ind_well_str)), file_gene_identifier);    % String starts (^) with a w, followed by one or more (+) numbers ([0-9], followed by a _
+      file_gene_identifier  = file_gene_identifier(is_file); 
+      
+      % we get from the title the gene identiier corresponding to the mask
+      file_gene             = file_gene_identifier(1);
+      file_split            = strsplit(file_gene{1},'_');
+      gene_identifier       = file_split(4); 
+      
+      
+      % Now we build the outline name ( same as the original image ) 
+      
+      channel   = strsplit(file_split{6},'.');
+      channel   = channel(1);
+      file_name = strcat('w',num2str(well),'_',file_split(2),'_',file_split(3),'_',gene_identifier,'_p',position,'_');
+      
+      
+      outline_name = strcat(path_plate{i_plate},'/',well_folder{well_pointer},'/',outline_folder_name,'/', file_name,cell_identifier,'_outline.txt');
+      
+      parameter.outline_name = outline_name{1};
        
-      if  exist(strcat(path_plate{i_plate},'/',well_folder{well},'/',outline_folder_name)) ~= 7
-          mkdir(strcat(path_plate{i_plate},'/',well_folder{well},'/',outline_folder_name))
+      if  exist(strcat(path_plate{i_plate},'/',well_folder{well_pointer},'/',outline_folder_name)) ~= 7
+          mkdir(strcat(path_plate{i_plate},'/',well_folder{well_pointer},'/',outline_folder_name))
       end
  
       
       [reg_nuc img ]  = label_to_region(mask_path{2}, options); 
-      reg_cell        = label_to_region(mask_path{1}, options); 
+       reg_cell       = label_to_region(mask_path{1}, options); 
       
       img_size = img.size;
       
       cell_prop            = make_cell_prop(reg_cell,reg_nuc,img_size);
       parameter.cell_prop  = cell_prop;
 
-      name_FISH = strcat(well_folder{well},'_p',position,'_',cell_identifier,extension);     
-      name_DAPI = strcat(well_folder{well},'_p',position,'_',DAPI_identifier,extension);
+      name_FISH = strcat(file_name,cell_identifier,extension)  ;  %strcat(well_folder{well},'_p',position,'_',cell_identifier,extension);     
+      name_DAPI = strcat(file_name,DAPI_identifier,extension) ;  %strcat(well_folder{well},'_p',position,'_',DAPI_identifier,extension);
 
-      parameter.name_FISH = name_FISH;
-      parameter.name_DAPI = name_DAPI;
+      parameter.name_FISH = name_FISH{1};
+      parameter.name_DAPI = name_DAPI{1};
       
 
       save_outline(parameter, flag_second) 

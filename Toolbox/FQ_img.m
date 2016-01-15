@@ -5,7 +5,7 @@ classdef FQ_img < handle
     properties 
         
         %- General image properties
-        file_names = struct('raw', '', 'filt', '','DAPI', '', 'TS_label', '', 'settings', '', 'settings_TS', '', 'settings_TS_detect', '');
+        file_names = struct('raw', '', 'filtered', '','DAPI', '', 'TS_label', '', 'settings', '', 'settings_TS', '', 'settings_TS_detect', '');
         path_names = struct('img', '', 'settings', '','results', '','outlines', '','root', '', 'settings_TS', '','settings_TS_detect', '');
         par_microscope = struct('pixel_size',struct('xy',160, 'z', 300),'RI',1.458, 'NA', 1.25,'Em', 547, 'Ex', 583, 'type', 'widefield');
         PSF_theo

@@ -1081,7 +1081,7 @@ status_text = {' ';'== Processing files - check command window for details'};
 status_update(hObject, eventdata, handles,status_text);
 
 %- Some flags and status definitions
-handles.img.settings.fit.flags.parallel = get(handles.checkbox_parallel_computing,'Value');
+%handles.img.settings.fit.flags.parallel = get(handles.checkbox_parallel_computing,'Value');
 status_save_auto = get(handles.checkbox_auto_save_mature,'Value');
 
 parameters.flags.filtered_use  = get(handles.checkbox_use_filtered,'Value');

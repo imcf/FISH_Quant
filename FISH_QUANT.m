@@ -777,7 +777,7 @@ cell_prop = handles.img.cell_prop;
 dim_sub_z = 2*handles.img.settings.detect.reg_size.z+1;
 
 %- Parallel computing - open MATLAB session for parallel computation 
-flag_struct.parallel = get(handles.checkbox_parallel_computing, 'Value');
+%flag_struct.parallel = get(handles.checkbox_parallel_computing, 'Value');
 
 %- Populate pop-up menu with labels of cells
 N_cell = size(cell_prop,2);
@@ -1085,7 +1085,7 @@ set(handles.h_fishquant,'Pointer','watch');
 status_update(hObject, eventdata, handles,{'Fitting: STARTED ... '})
 
 %- Some parameters
-handles.img.settings.fit.flags.parallel = get(handles.checkbox_parallel_computing, 'Value');
+%handles.img.settings.fit.flags.parallel = get(handles.checkbox_parallel_computing, 'Value');
 
 %- Used to compensate for spots that were close the edge 
 dim_sub_xy = 2*handles.img.settings.detect.reg_size.xy+1;

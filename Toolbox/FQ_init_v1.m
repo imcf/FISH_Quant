@@ -8,7 +8,7 @@ function handles = FQ_init_v1(handles)
 %== Flags and sliders
 if isfield(handles,'checkbox_th_lock')
     set(handles.checkbox_th_lock, 'Value',0);
-    set(handles.checkbox_parallel_computing, 'Value',0);
+%    set(handles.checkbox_parallel_computing, 'Value',0);
 
     set(handles.slider_th_min,'Value', 0)
     set(handles.text_th_min,'String', '');     
