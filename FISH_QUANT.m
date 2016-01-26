@@ -84,7 +84,6 @@ end
 function varargout = FISH_QUANT_OutputFcn(hObject, eventdata, handles) 
 varargout{1} = handles.output;
 
-
 % --- Executes during object deletion, before destroying properties.
 function h_fishquant_DeleteFcn(hObject, eventdata, handles)
 
@@ -2527,99 +2526,6 @@ switch vis_sel_str{vis_sel_val}
 
         %- Call macro
         ij.IJ.runMacroFile(handles.imagej_macro_name,file_name_temp);                   
-
-     case '3D rendering'
-        if exist('vtkinit')            
-            
-             %- Get settings for rendering
-             settings_rendering = handles.settings_rendering;
-             factor_BGD = settings_rendering.factor_BGD;
-             factor_int = settings_rendering.factor_int;
-             flag_crop  = settings_rendering.flag_crop;
-
-             %- Get image data
-             volume1 = image_struct.data;
-             dim_Z   = size(volume1,3);
-
-             %- Get cell
-             ind_cell  = get(handles.pop_up_outline_sel_cell,'Value');
-             spots_fit = handles.img.cell_prop(ind_cell).spots_fit;
-             thresh_in = handles.img.cell_prop(ind_cell).thresh.in;
-             spots_fit_th = spots_fit(thresh_in ==1,:);
-             
-             %- Get spot data
-             pos_plot = [];
-             pos_plot(:,1) = spots_fit_th(:,1) ./ handles.par_microscope.pixel_size.xy;
-             pos_plot(:,2) = spots_fit_th(:,2) ./ handles.par_microscope.pixel_size.xy;
-             pos_plot(:,3) = spots_fit_th(:,3) ./ handles.par_microscope.pixel_size.z;
-             
-             pos_plot_round = round(pos_plot)+1;
-             
-             pos_linear = sub2ind(size(volume1), pos_plot_round(:,1),pos_plot_round(:,2),pos_plot_round(:,3));
-
-             %- Restrict to subvolume
-             if flag_crop
-                z_min = floor(min(pos_plot(:,3))) - handles.detect.region.z;
-                z_max = ceil(max(pos_plot(:,3)))  + handles.detect.region.z;
-
-                 if z_min < 1
-                     z_min = 1;
-                 end
-
-                 if z_max > dim_Z
-                     z_max = dim_Z;
-                 end
-
-                 volume_sub        = volume1(:,:,z_min:z_max);
-                 pos_plot_sub      = pos_plot;
-                 pos_plot_sub(:,3) = pos_plot(:,3) - z_min+1;
-             else
-                 volume_sub        = volume1;
-                 pos_plot_sub      = pos_plot;
-             end
-
-             %- Missing parameters to plot spots
-             point_labels = ones(size(pos_plot,1),1);
-             point_color  = [0 0 0 0;   % black for value 0
-                             1 1 0 0];  % grey for value 1
-             point_config.pointSize = 1.0;
-             
-             %- Define default range for colormap and op
-             median_bgd = median(spots_fit_th(:,handles.img.col_par.bgd));
-             median_int = median(volume1(pos_linear))-median_bgd;
-
-             int_start = round(0);
-             int_end   = factor_int*median_int;
-             int_range = linspace(int_start,int_end,10)';
-
-             opp_range = linspace(0,settings_rendering.opacity,10)';
-             opacityLUT = [int_range,opp_range];
-
-             map_int  = colormap(gray(10));
-             colorMap = [int_range,map_int];
-
-             %- Init VTK
-             vtkinit;
-             
-             %- Plot points                         
-             pos_plot_sub(:,3) = pos_plot_sub(:,3)*handles.par_microscope.pixel_size.z/handles.par_microscope.pixel_size.xy;
-             vtkplotpoints(pos_plot_sub,point_labels,point_color,point_config);
-
-             %- Show a grid
-             grid_config.gridFly = 'staticTriad';
-             grid_config.gridZAxisVisibility = 1;
-             vtkgrid(grid_config); 
-           
-             %- Plot volume
-             volume_config.volumeSpacing = [1 1 handles.par_microscope.pixel_size.z/handles.par_microscope.pixel_size.xy];
-             vtkplotvolume(volume_sub-factor_BGD*median_bgd, colorMap,opacityLUT,volume_config);           
-
-             %- Save data
-             guidata(hObject, handles);
-         else
-             warndlg('vtkmat has to be installed first (see help file)','FISH-QUANT')
-         end
-
 end
 
 
@@ -2688,6 +2594,9 @@ end
 
 %== Cell segmentation
 function menu_segmentation_Callback(hObject, eventdata, handles)
+if ~isempty(handles.img.path_names.root)
+    cd(handles.img.path_names.root)
+end
 FQ_seg;
 
 %== Batch filtering 
@@ -2728,7 +2637,7 @@ function menu_spot_inspector_Callback(hObject, eventdata, handles)
 
 par_main.par_microscope = handles.img.par_microscope;
 par_main.path_names     = handles.img.path_names;
-
+drawnow
 FISH_QUANT_spots('par_main',par_main);
 
 

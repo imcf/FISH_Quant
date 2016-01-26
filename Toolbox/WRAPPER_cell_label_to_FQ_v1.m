@@ -51,8 +51,6 @@ names_struct.ext_image = '.tif';      %- Extension for images (FISH, DAPI)
 names_struct.ext_mask  = '.tif';      %- Extension for CellProfiler masks
 
 
-    
-
 %% Get files with results 
 
 files_proc = parameters.files_proc;
@@ -103,7 +101,6 @@ switch files_proc.input_type
 end
 
 
-
 %% == Convert outline files
 parameters.par_microscope = par_microscope;
 parameters.version        = 'v3';
@@ -113,5 +110,5 @@ parameters.path_name      = path_name;
 
 parameters.flag_bgd           = 'index_0';     % Background corresponds to region with value 0
 
-cell_label_to_FQ_v1(parameters);
+cell_label_to_FQ_v2(parameters);
 

@@ -22,7 +22,7 @@ function varargout = FQ_seg_show_results(varargin)
 
 % Edit the above text to modify the response to help FQ_seg_show_results
 
-% Last Modified by GUIDE v2.5 05-Feb-2015 15:38:04
+% Last Modified by GUIDE v2.5 21-Jan-2016 10:26:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;

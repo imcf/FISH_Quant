@@ -98,7 +98,7 @@ classdef FQ_img < handle
             img.settings.detect.reg_size.z_sep  = img.settings.detect.reg_size.z; 
                
             %- Detection 
-            img.settings.detect.thresh_int   = 0;        % Minimum score of quality parameter for predetection
+            img.settings.detect.thresh_int   = -1;        % Minimum score of quality parameter for predetection
             img.settings.detect.thresh_score = 0;        % Minimum score of quality parameter for predetection
             img.settings.detect.score        = 'Standard deviation';
             img.settings.detect.method       = 'nonMaxSupr';
@@ -501,7 +501,7 @@ classdef FQ_img < handle
            parameters.par_microscope      = img.par_microscope;
 
            %- Save settings if not already saved
-           if isempty(img.file_names.settings)
+           if isempty(img.file_names.settings) && ~strcmp(parameters.flag_type,'outline')
                
                if isfield(parameters,'path_save_settings')
                    path_save_settings = parameters.path_save_settings;

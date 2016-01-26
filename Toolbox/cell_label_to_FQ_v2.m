@@ -1,4 +1,4 @@
-function cell_label_to_FQ_v1(parameters)
+function cell_label_to_FQ_v2(parameters)
 % Florian Mueller, Institut Pasteur
 % email: muellerf.research@gmail.com
 
@@ -18,20 +18,26 @@ function cell_label_to_FQ_v1(parameters)
 
     N_files = length(file_names);
 
-    str_suffix_cell = [names_struct.suffix.FISH, names_struct.suffix.cell];
-    str_suffix_nuc  = [names_struct.suffix.DAPI,names_struct.suffix.nuc];
-
+ 
     %% Loop over files
     for i_file = 1:N_files
 
         %- Update info and get file-name
         fprintf('\n=== ANALYZE file %g of %g\n',i_file,N_files)
 
-        name_mask_cell = file_names{i_file};
-        fprintf('Name (cell): %s\n',name_mask_cell);
+        name_analyze = file_names{i_file};
+        fprintf('Name: %s\n',name_analyze);
 
+        %- Analyze file-name
+        % Contains path when coming from a recursive directory scan
+        [path_loop, name, ext] = fileparts(name_analyze);
+        if isempty(path_loop)
+            path_loop = path_name;
+        end
+        name_img_loop = [name ext];
+        
         %- Check if suffix for cell mask is present
-        pos_string_cell = strfind(name_mask_cell,str_suffix_cell);
+        pos_string_cell = strfind(name_img_loop,names_struct.suffix.cell);
 
         if isempty(pos_string_cell)
            disp('Not a mask for cells!') 
@@ -39,35 +45,34 @@ function cell_label_to_FQ_v1(parameters)
 
             %= Conversion for cells
             disp('RUNNING CONVERSION for cells ...') 
-            [reg_CELLS,img_size] = label_to_region(fullfile(path_name,name_mask_cell),options);
+            [reg_CELLS,img_size] = label_to_region(fullfile(path_name,name_img_loop),options);
 
-
+            %== Name for cel
+            name_cell = name_img_loop(1:pos_string_cell-1);
+            
             %== Infer name of nuclear outline and check if it exists
-            name_base      = name_mask_cell(1:pos_string_cell-1);              
-            name_mask_nuc  = [name_base,str_suffix_nuc];
+            name_dum      = [name_img_loop(1:pos_string_cell-1),names_struct.suffix.nuc];
+            name_mask_nuc = strrep(name_dum, names_struct.suffix.FISH, names_struct.suffix.DAPI);               
             name_mask_nuc_full  = fullfile(path_name,name_mask_nuc);
 
-            nuc_exist = exist(name_mask_nuc_full,'file'); 
-
-            if nuc_exist
+            if exist(name_mask_nuc_full,'file')
                 fprintf('Name (nucleus): %s\n',name_mask_nuc);
                 disp('RUNNING CONVERSION for nuclei ...') 
-                reg_NUC   = label_to_region(fullfile(path_name,name_mask_nuc),options);
-
+                reg_NUC  = label_to_region(fullfile(path_name,name_mask_nuc),options);
+                name_nuc = strrep(name_cell, names_struct.suffix.FISH, names_struct.suffix.DAPI);
             else
                 fprintf('Name (nucleus): %s DOES NOT EXIST!\n',name_mask_nuc);
                 reg_NUC = {};
-
+                name_nuc = [];
             end
-
 
             %== Generate cell_prop to save outline file
             cell_prop = make_cell_prop(reg_CELLS,reg_NUC,img_size);
  
- 
             %== Save outlines
-            parameters.names_struct.cell = name_mask_cell;
-            parameters.names_struct.nuc  = name_mask_nuc;
+            parameters.names_struct.cell = name_cell;
+            parameters.names_struct.nuc  = name_nuc;
+            parameters.names_struct.path = path_loop;
             parameters.cell_prop         = cell_prop;  
             
             %- First color: either if no second color or if second color
@@ -79,8 +84,7 @@ function cell_label_to_FQ_v1(parameters)
             end
             
             %- Second color 
-            if parameters.save_2nd.status
-                
+            if parameters.save_2nd.status            
                 file_name_outline            = save_outline(parameters,1);
                 fprintf('Outline saved: %s\n',file_name_outline);
             end 
@@ -367,7 +371,7 @@ function [file_name_outline, file_name_outline_full]  = save_outline(parameters,
     par_microscope   = parameters.par_microscope;
     version          = parameters.version;
     cell_prop        = parameters.cell_prop;
-    path_name        = parameters.path_name;
+    path_name        = parameters.names_struct.path;
 
     %- Suffix and extension
     %ext_image = names_struct.ext_image;
@@ -376,34 +380,16 @@ function [file_name_outline, file_name_outline_full]  = save_outline(parameters,
     %- Depending on how directories were scanned path_name might be empty
     %  (recursive dir) or not (regular dir). If scanned by rdir, pathname
     %  is contained in file-name
-    if isempty(path_name)
-        [path_name,  file_name_cell,ext] = fileparts(names_struct.cell);
-        file_name_cell = [file_name_cell,ext];
-        
-        [dum,  file_name_nuc,ext]        = fileparts(names_struct.nuc);
-        file_name_nuc = [file_name_nuc,ext];
-        
-    else
-        file_name_cell = names_struct.cell;
-        file_name_nuc  = names_struct.nuc;
-    end
-
-    str_suffix_cell = [names_struct.suffix.FISH, names_struct.suffix.cell];
-    str_suffix_nuc  = [names_struct.suffix.DAPI,names_struct.suffix.nuc];
-
-    %= Get file-names of image
-    ind_cell_suffix   = strfind(file_name_cell,str_suffix_cell);
-    ind_nuc_suffix    = strfind(file_name_nuc,str_suffix_nuc);
-
-    name_FISH_no_ext = [file_name_cell(1:ind_cell_suffix-1),suffix.FISH];
-    name_FISH        = [name_FISH_no_ext,ext_orig];
-    name_DAPI        = [file_name_nuc(1:ind_nuc_suffix-1),suffix.DAPI,ext_orig];
+    name_FISH_no_ext = names_struct.cell;
+    name_FISH        = [names_struct.cell,ext_orig];
+    name_DAPI        = [ names_struct.nuc,ext_orig];
 
     %- Remove parts of the file-name
     name_FISH_no_ext = strrep(name_FISH_no_ext, parameters.names_struct.name_remove, '');
     name_FISH        = strrep(name_FISH, parameters.names_struct.name_remove, '');
     name_DAPI        = strrep(name_DAPI, parameters.names_struct.name_remove, '');
 
+    
     %- Create outline for second color
     if flag_second
         name_FISH        = strrep(name_FISH, suffix.FISH, parameters.save_2nd.suffix);

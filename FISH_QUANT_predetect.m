@@ -96,8 +96,8 @@ if not(isempty(varargin))
             mask_cell_2D = handles.img.cell_prop(handles.cell_ind_main).mask_cell_2D;       
             int_MIP_cell = handles.img_plot(mask_cell_2D);  %- Get all value of cell
             
-            th_int_max      = ceil(3*quantile(int_MIP_cell,0.99));
-            th_int_min      = floor(0.2*th_int_max);          
+            th_int_max   = ceil(3*quantile(int_MIP_cell,0.99));
+            th_int_min   = floor(0.2*th_int_max);          
         
         else
             th_int_min  = floor(handles.img.settings.detect.th_int_min);
@@ -135,8 +135,12 @@ if not(isempty(varargin))
             flag_detect_method = str2double(userValue{5});
             flag_auto_th       = str2double(userValue{6});
             
-            if flag_detect_method ==1 || flag_detect_method == 2
+            if flag_detect_method ==1 
+                set(handles.popupmenu_predetect_mode,'Value',flag_detect_method);
+                detect_method = 'nonMaxSupr';
+            elseif flag_detect_method == 2
                 set(handles.popupmenu_predetect_mode,'Value',flag_detect_method)
+                detect_method = 'connectcomp';
             else
                warndlg('Value for pre-detection method not allowed')
                disp(flag_detect_method);
@@ -149,6 +153,14 @@ if not(isempty(varargin))
     
         if not(handles.closeFigure)
         
+            %- Check if values have already been used
+            status_same_par =   nTH == handles.img.settings.detect.nTH && ...
+                            th_int_min == handles.img.settings.detect.th_int_min    && ...    
+                            th_int_max == handles.img.settings.detect.th_int_max && ...
+                            flag_detect_region == handles.img.settings.detect.flags.detect_region && ...
+                            strcmp(detect_method,handles.img.settings.detect.method) && ...
+                            isfield(handles.img.settings.detect,'data_th') && ~isempty(handles.img.settings.detect.data_th);
+                        
             %- Save settings for pre-detection
             handles.img.status_detect_val_auto = 1;   
             handles.img.settings.detect.nTH                 = nTH;
@@ -156,6 +168,11 @@ if not(isempty(varargin))
             handles.img.settings.detect.th_int_max          = th_int_max;
             handles.img.settings.detect.flags.detect_region = flag_detect_region;
             handles.img.settings.detect.flags.auto_th       = flag_auto_th;
+            
+            %- Roughly set detection threshold if it was never set
+            if handles.img.settings.detect.thresh_int == -1
+                handles.img.settings.detect.thresh_int = round(mean([th_int_min th_int_max]));
+            end
             
             %- Set parameters
             set(handles.text_par_plot_N,'String',num2str(handles.img.settings.detect.nTH));
@@ -176,29 +193,33 @@ if not(isempty(varargin))
 
             str_scores = get(handles.pop_up_detect_quality, 'String');
             str_match  = find(strcmpi(handles.img.settings.detect.score ,str_scores));        
-            set(handles.pop_up_detect_quality,'Value',str_match);
-            
-            
-            %- Set detection mode in drop-down menu
-            mode_detect        = handles.img.settings.detect.method;
-
-            switch mode_detect
-                case 'nonMaxSupr'
-                    set(handles.popupmenu_predetect_mode,'Value',1)
-
-                case  'connectcomp'
-                    set(handles.popupmenu_predetect_mode,'Value',2)
-
-                otherwise
-                    set(handles.popupmenu_predetect_mode,'Value',1)
-            end       
+            set(handles.pop_up_detect_quality,'Value',str_match);    
             
             %- Set selection for regions to analyze
             set(handles.popupmenu_region,'Value',flag_detect_region+1);
 
             %- Plot results
-            handles = popupmenu_region_Callback(hObject, eventdata, handles);
-            handles = popupmenu_predetect_mode_Callback(hObject, eventdata, handles);
+            if ~status_same_par
+                handles = popupmenu_region_Callback(hObject, eventdata, handles);
+                handles = popupmenu_predetect_mode_Callback(hObject, eventdata, handles);
+            else
+               
+                switch detect_method
+                    
+                    case 'nonMaxSupr'
+                        
+                        handles.locmax_thresholds = handles.img.settings.detect.data_th(:,1);
+                        handles.locmax_counts     = handles.img.settings.detect.data_th(:,2);;
+                        handles.status_nonMaxSupr = 1;
+            
+                    case  'connectcomp'
+                        handles.thresholds  = handles.img.settings.detect.data_th(:,1);
+                        handles.thresholdfn = handles.img.settings.detect.data_th(:,2);
+                        handles.status_ccc = 1;
+   
+                end
+                plot_hist_int(hObject, eventdata, handles)
+            end            
             checkbox_status_reg_detect_sep_Callback(hObject, eventdata, handles)
         end 
     end
@@ -485,7 +506,6 @@ switch str{val}
                 parameters.nTH = length(thresholds);
             end
           
-    
             if flag_reg_pos_sep == 0
                 rad_detect = round([size_detect.xy size_detect.xy size_detect.z]);
             else
@@ -543,9 +563,8 @@ switch str{val}
 
             parameters.conn        = 26;   % Connectivity in 3D
             parameters.thresholds  = [];
-            [thresholdfn, thresholds] = multithreshstack_v4(handles.image_filt_mask,parameters);
-            
-            
+            [thresholdfn, thresholds] = multithreshstack_v4(handles.image_filt_mask,parameters);      
+             
             %- Save calculated thresholds
             data_th(:,1) = thresholds;
             data_th(:,2) = thresholdfn;
@@ -558,8 +577,7 @@ switch str{val}
             
             set(handles.h_fishquant_predetect,'Pointer','arrow');
             status_text = {' ';'   Connected components DETECTED!'};
-            status_update(hObject, eventdata, handles,status_text);
-  
+            status_update(hObject, eventdata, handles,status_text); 
         end
 end
 
@@ -571,6 +589,8 @@ if handles.img.settings.detect.flags.auto_th
     set(handles.text_detection_threshold,'String',num2str(round(handles.int_th.mean)));
 end
 
+%= Save detection tresholds
+handles.img.settings.detect.data_th = data_th;
 
 %= Save data and plot
 set(handles.text_par_plot_N,'String', num2str(length(thresholds)));

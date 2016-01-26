@@ -1078,25 +1078,22 @@ if ishandle(handles.h_pan)
     set(handles.h_pan,'Enable','off');  
 end
 
-
 %- Datacursormode
+drawnow;
 dcm_obj = datacursormode;
 
 set(dcm_obj,'SnapToDataVertex','off');
 set(dcm_obj,'DisplayStyle','window');
-set(dcm_obj,'UpdateFcn',@(x,y)myupdatefcn(x,y,handles))
-
+set(dcm_obj,'UpdateFcn',@(x,y)myupdatefcn(x,y,hObject,handles))
+          
 
 %=== Function for Data cursor
-function txt = myupdatefcn(empty,event_obj,handles)
-%disp('data cursor')  
+function txt = myupdatefcn(empty,event_obj,hObject,handles)
 
-%  First check is too make sure that the call is really for the current
-%  figure. There are some problems with this function call ...
-h_gcf = get(0,'CurrentFigure');
-
-if not(isempty(h_gcf))
-    if gcf == handles.h_fishquant_spots     
+%- Continue only if calling axes is the main axes in the GUI
+hAxesParent  = get(get(event_obj,'Target'),'Parent');
+if hAxesParent  ==   handles.axes_main
+    if 1%gcf == handles.h_fishquant_spots     
 
         col_par = handles.img.col_par;
 
@@ -1140,22 +1137,26 @@ if not(isempty(h_gcf))
                slider_max = handles.slider_contr_max_img;
                Im_max = slider_max*handles.img_diff+handles.img_min;
 
-               axes(handles.axes_zoom_xy)   
-               imshow(img_xy,[Im_min Im_max],'XData',[0 (size(img_xy,2)-1)*pixel_size.xy],'YData',[0 (size(img_xy,1)-1)*pixel_size.xy])           
+               handles.spots.img_xy = img_xy;
+               handles.spots.Im_min = Im_min;
+               handles.spots.Im_max = Im_max;
+               
+               axes(handles.axes_zoom_xy)
+               imshow(img_xy,[ ],'XData',[0 (size(img_xy,2)-1)*pixel_size.xy],'YData',[0 (size(img_xy,1)-1)*pixel_size.xy])           
                colorbar('peer',handles.axes_zoom_xy) 
                hold on
                     plot(handles.axes_zoom_xy,spot_pos_x,spot_pos_y,'+g')
                hold off
 
                axes(handles.axes_zoom_xz)
-               imshow(img_xz,[Im_min Im_max],'Parent',handles.axes_zoom_xz ,'XData',[0 (size(img_xz,2)-1)*pixel_size.xy],'YData',[0 (size(img_xz,1)-1)*pixel_size.z])
+               imshow(img_xz,[ ],'Parent',handles.axes_zoom_xz ,'XData',[0 (size(img_xz,2)-1)*pixel_size.xy],'YData',[0 (size(img_xz,1)-1)*pixel_size.z])
                colorbar('peer',handles.axes_zoom_xz)
                hold on
                     plot(handles.axes_zoom_xz,spot_pos_x,spot_pos_z,'+g')
                hold off
 
                axes(handles.axes_zoom_yz)   
-               imshow(img_yz,[Im_min Im_max],'Parent',handles.axes_zoom_yz ,'XData',[0 (size(img_yz,2)-1)*pixel_size.xy],'YData',[0 (size(img_yz,1)-1)*pixel_size.z])
+               imshow(img_yz,[ ],'Parent',handles.axes_zoom_yz ,'XData',[0 (size(img_yz,2)-1)*pixel_size.xy],'YData',[0 (size(img_yz,1)-1)*pixel_size.z])
                colorbar('peer',handles.axes_zoom_yz)
                hold on
                     plot(handles.axes_zoom_yz,spot_pos_y,spot_pos_z,'+g')
@@ -1164,21 +1165,21 @@ if not(isempty(h_gcf))
                %- Plot fit
                if not(isempty(fit_xy))
                    axes(handles.axes_fit_xy)   
-                   imshow(fit_xy,[Im_min Im_max],'Parent',handles.axes_fit_xy ,'XData',[0 (size(img_xy,2)-1)*pixel_size.xy],'YData',[0 (size(img_xy,1)-1)*pixel_size.xy])      
+                   imshow(fit_xy,[ ],'Parent',handles.axes_fit_xy ,'XData',[0 (size(img_xy,2)-1)*pixel_size.xy],'YData',[0 (size(img_xy,1)-1)*pixel_size.xy])      
                    colorbar('peer',handles.axes_fit_xy) 
                    hold on
                         plot(handles.axes_fit_xy,spot_pos_x,spot_pos_y,'+g')
                    hold off
 
                    axes(handles.axes_fit_xz)
-                   imshow(fit_xz,[Im_min Im_max],'Parent',handles.axes_fit_xz ,'XData',[0 (size(img_xz,2)-1)*pixel_size.xy],'YData',[0 (size(img_xz,1)-1)*pixel_size.z])
+                   imshow(fit_xz,[ ],'Parent',handles.axes_fit_xz ,'XData',[0 (size(img_xz,2)-1)*pixel_size.xy],'YData',[0 (size(img_xz,1)-1)*pixel_size.z])
                    colorbar('peer',handles.axes_fit_xz)
                    hold on
                         plot(handles.axes_fit_xz,spot_pos_x,spot_pos_z,'+g')
                    hold off
 
                    axes(handles.axes_fit_yz)   
-                   imshow(fit_yz,[Im_min Im_max],'Parent',handles.axes_fit_yz ,'XData',[0 (size(img_yz,2)-1)*pixel_size.xy],'YData',[0 (size(img_yz,1)-1)*pixel_size.z])
+                   imshow(fit_yz,[ ],'Parent',handles.axes_fit_yz ,'XData',[0 (size(img_yz,2)-1)*pixel_size.xy],'YData',[0 (size(img_yz,1)-1)*pixel_size.z])
                    colorbar('peer',handles.axes_fit_yz)
                    hold on
                         plot(handles.axes_fit_yz,spot_pos_y,spot_pos_z,'+g')
@@ -1256,6 +1257,8 @@ if not(isempty(h_gcf))
 else
     txt = '';
 end
+
+   
 
 
 %=== Function for Cell selector
