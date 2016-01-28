@@ -1036,7 +1036,7 @@ try
     handles.img = FISH_QUANT_predetect('HandlesMainGui',handles);
   
 catch err
-    errordlg('Pre-detection did not work with defined settings - performed with connected components. Likely caused by non-local maximum identification. See user-manual & command window for details.', 'FISH-QUANT: pre-dection')
+    errordlg('Error occured during predetection. Will try with connected components. See user-manual & command window for details.', 'FISH-QUANT: pre-dection')
     handles.detect.mode_predetect = 'connectcomp';
     handles.img = FISH_QUANT_predetect('HandlesMainGui',handles);
     
@@ -1113,6 +1113,7 @@ for ind_cell = 1:length(handles.img.cell_prop);
             [dim_MIP_1,dim_MIP_2] = size(MIP_xy);
             MIP_xy = padarray(MIP_xy,[dim_sub_xy-dim_MIP_1 dim_sub_xy-dim_MIP_2],'post'); 
             spots_proj.res_xy(:,:,1,k) = MIP_xy;
+            
         %- Loaded results have sub-spots but not fits and residuals
         elseif not(isempty(spots_proj))
             spots_proj.res_xy(:,:,1,k) =  0;        
@@ -1311,7 +1312,7 @@ if not(isempty(spots_fit))
 
     %- Call functions to illustrate the fits
     handles = pop_up_threshold_Callback(hObject, eventdata, handles);
-    handles = button_threshold_Callback(hObject, eventdata, handles);
+    %handles = button_threshold_Callback(hObject, eventdata, handles);
 
     %- Save results
     guidata(hObject, handles);
@@ -1331,107 +1332,6 @@ FQ_enable_controls_v1(handles)
 
 %=== Select thresholding parameter
 function handles = pop_up_threshold_Callback(hObject, eventdata, handles)
-% 
-% %- Extracted fitted spots for this cell
-% ind_cell   = get(handles.pop_up_outline_sel_cell,'Value');
-% spots_fit  = handles.img.cell_prop(ind_cell).spots_fit;
-% th_sett = handles.img.th_sett;
-% 
-% %- Executes only if there are results
-% if not(isempty(spots_fit))
-%     
-%     thresh = handles.img.cell_prop(ind_cell).thresh;
-%     
-%     str = get(handles.pop_up_threshold,'String');
-%     val = get(handles.pop_up_threshold,'Value');
-%     popup_parameter = str{val};
-%   
-%     %-Check which parameters
-%     switch (popup_parameter)
-%         
-%         case 'Sigma - XY'
-%             thresh_sel     = thresh.sigmaxy;
-%             thresh_sel_all = th_sett.sigmaxy;         
-%           
-%         case 'Sigma - Z'
-%             thresh_sel     = thresh.sigmaz;
-%             thresh_sel_all = th_sett.sigmaz;
-%             
-%         case 'Amplitude'
-%             thresh_sel = thresh.amp;
-%             thresh_sel_all = th_sett.amp;         
-%             
-%         case 'Background'
-%             thresh_sel     = thresh.bgd;
-%             thresh_sel_all = th_sett.bgd;
-%             
-%         case 'Pos (Z)'
-%             thresh_sel = thresh.pos_z;
-%             thresh_sel_all = th_sett.pos_z;             
-%             
-%         case 'Pixel-intensity (Raw)'
-%             thresh_sel     = thresh.int_raw;
-%             thresh_sel_all = th_sett.int_raw;
-%             
-%         case 'Pixel-intensity (Filtered)'   
-%             thresh_sel     = thresh.int_filt;
-%             thresh_sel_all = th_sett.int_filt;       
-%             
-%     end
-% 
-%     %- Enable lock if specififed
-%     set(handles.checkbox_th_lock,'Value',thresh_sel_all.lock);
-% 
-%    
-%     %== Set sliders and text box according to selection   
-%     
-%     %-  Locked - based on saved values
-%     if thresh_sel_all.lock == 1; 
-%         
-%         %- Assign global values to this particular cell
-%         thresh_sel.min_th = thresh_sel_all.min_th;
-%         thresh_sel.max_th = thresh_sel_all.max_th;
-%         
-%         %- Update slider values
-%         value_min = (thresh_sel.min_th-thresh_sel.min)/thresh_sel.diff;
-%         if value_min < 0; value_min = 0; end    % Might be necessary if slider was at the left end
-%         if value_min > 1; value_min = 1; end    % Might be necessary if slider was at the right end
-%         
-%         value_max = (thresh_sel.max_th-thresh_sel.min)/thresh_sel.diff;
-%         if value_max < 0; value_max = 0; end   % Might be necessary if slider was at the left end  
-%         if value_max > 1; value_max = 1; end   % Might be necessary if slider was at the right end        
-%         
-%         %- Slider for lower limit and corresponding text box
-%         set(handles.slider_th_min,'Value',value_min)
-%         set(handles.text_th_min,'String', num2str(thresh_sel.min_th));     
-%      
-%         %- Slider for upper limit and corresponding text box
-%         set(handles.slider_th_max,'Value',value_max)
-%         set(handles.text_th_max,'String', num2str(thresh_sel.max_th));
-%     
-%     %- Not locked - not thresholding
-%     else                    
-%         
-%         %- Slider for lower limit and corresponding text box
-%         set(handles.slider_th_min,'Value',0)
-%         set(handles.text_th_min,'String', num2str(thresh_sel.min));     
-%      
-%         %- Slider for upper limit and corresponding text box
-%         set(handles.slider_th_max,'Value',1)
-%         set(handles.text_th_max,'String', num2str(thresh_sel.max));
-%     end
-%  
-%     %== For slider functions calls and call of threshold function
-%     handles.img.cell_prop(ind_cell).thresh.diff = thresh_sel.diff;  %- Save 'diff' for histogram plotting later
-%     handles.img.cell_prop(ind_cell).thresh.min  = thresh_sel.min;   %- Save 'diff' for histogram plotting later
-%     handles.img.cell_prop(ind_cell).thresh.max  = thresh_sel.max;   %- Save 'diff' for histogram plotting later
-%     
-%     %- Save handles-structure
-%     handles = button_threshold_Callback(hObject, eventdata, handles);
-%     guidata(hObject, handles);  
-% 
-% end
-
 
 %- Extracted fitted spots for this cell
 ind_cell  = get(handles.pop_up_outline_sel_cell,'Value');
@@ -1637,49 +1537,53 @@ if not(isempty(spots_fit))
     % Exclude spots that are too close
     % =====================================================================  
 
-    %- Mask with relative distance and matrix with radius
-    data    = spots_fit(:,1:3);
-    N_spots = size(data,1);
-    dum        = [];
-    dum(1,:,:) = data';
-    data_3D_1  = repmat(dum,[N_spots 1 1]);
-    data_3D_2  = repmat(data,[1 1 N_spots]);
-
-    d_coord = data_3D_1-data_3D_2;
-
-    r = sqrt(squeeze(d_coord(:,1,:).^2 + d_coord(:,2,:).^2 + d_coord(:,3,:).^2)); 
-
-    %- Determine spots that are too close
     r_min = str2double(get(handles.text_min_dist_spots,'String'));
-
-    mask_close          = zeros(size(r));
-    mask_close(r<r_min) = 1;
-    mask_close_inv      = not(mask_close);
-
-    %- Mask with intensity ratios
-    data_int     = spots_detected(:,col_par.int_raw);
-    mask_int_3D1 = repmat(data_int,1,N_spots);
-    mask_int_3D2 = repmat(data_int',N_spots,1);
-
-    mask_int_ratio = mask_int_3D2 ./ mask_int_3D1;
-
-    %- Find close spots and remove the ones with the dimmest pixel
-    m_diag = logical(diag(1*(1:N_spots)));
-
-    mask_close_spots = mask_int_ratio;
-    mask_close_spots(mask_close_inv) = 10;
-    mask_close_spots(m_diag)         = 10;  %- Set diagonal to 10;
-
-    %- Find ratios of spot that are < 1 
-    [row,col] = find(mask_close_spots < 1);
-    ind_spots_too_close1 = unique(col);
-
-    %- Find ratios of spot that are == 1 
-    [row,col] = find(mask_close_spots == 1);
-    ind_spots_too_close2 = unique(col(2:end));
-
-    ind_spots_too_close = union(ind_spots_too_close1,ind_spots_too_close2);
     
+    if r_min > 0
+    
+        %- Mask with relative distance and matrix with radius
+        data    = spots_fit(:,1:3);
+        N_spots = size(data,1);
+        dum        = [];
+        dum(1,:,:) = data';
+        data_3D_1  = repmat(dum,[N_spots 1 1]);
+        data_3D_2  = repmat(data,[1 1 N_spots]);
+
+        d_coord = data_3D_1-data_3D_2;
+
+        r = sqrt(squeeze(d_coord(:,1,:).^2 + d_coord(:,2,:).^2 + d_coord(:,3,:).^2)); 
+
+        %- Determine spots that are too close
+        mask_close          = zeros(size(r));
+        mask_close(r<r_min) = 1;
+        mask_close_inv      = not(mask_close);
+
+        %- Mask with intensity ratios
+        data_int     = spots_detected(:,col_par.int_raw);
+        mask_int_3D1 = repmat(data_int,1,N_spots);
+        mask_int_3D2 = repmat(data_int',N_spots,1);
+
+        mask_int_ratio = mask_int_3D2 ./ mask_int_3D1;
+
+        %- Find close spots and remove the ones with the dimmest pixel
+        m_diag = logical(diag(1*(1:N_spots)));
+
+        mask_close_spots = mask_int_ratio;
+        mask_close_spots(mask_close_inv) = 10;
+        mask_close_spots(m_diag)         = 10;  %- Set diagonal to 10;
+
+        %- Find ratios of spot that are < 1 
+        [row,col] = find(mask_close_spots < 1);
+        ind_spots_too_close1 = unique(col);
+
+        %- Find ratios of spot that are == 1 
+        [row,col] = find(mask_close_spots == 1);
+        ind_spots_too_close2 = unique(col(2:end));
+
+        ind_spots_too_close = union(ind_spots_too_close1,ind_spots_too_close2);
+    else
+        ind_spots_too_close = [];
+    end
 
     % =====================================================================   
     % APPLY THRESHOLD
@@ -1794,18 +1698,10 @@ end
 %==== Button to unlock all thresholds
 function button_th_unlock_all_Callback(hObject, eventdata, handles)
 
-% handles.img.settings.thresh.sigmaxy.lock = 0; 
-% handles.img.settings.thresh.sigmaz.lock  = 0;
-% handles.img.settings.thresh.amp.lock     = 0; 
-% handles.img.settings.thresh.bgd.lock     = 0;               
-% handles.img.settings.thresh.pos_z.lock   = 0;
-% handles.img.settings.thresh.int_raw.lock = 0;               
-% handles.img.settings.thresh.int_filt.lock= 0;
-
 %- Reset locks and apply thresholding
 handles.img.th_lock_reset;
 handles = pop_up_threshold_Callback(hObject, eventdata, handles);
-handles = button_threshold_Callback(hObject, eventdata, handles);
+%handles = button_threshold_Callback(hObject, eventdata, handles);
 
 guidata(hObject, handles);
 
@@ -2328,27 +2224,30 @@ ind_cell   = get(handles.pop_up_outline_sel_cell,'Value');
 thresh     = handles.img.cell_prop(ind_cell).thresh;
 spots_proj = handles.img.cell_prop(ind_cell).spots_proj;
 
-%- Plot only if data is present
-if sum(spots_proj.xy(:))
-    if isempty(axes_select)
-        figure
-        montage(spots_proj.xy(:,:,:,thresh.in == 1),'DisplayRange', []);    
-        set(gcf,'Position', [300   300   500   400])       
-        set(gca,'Units','normalized')
-        set(gca,'Position', [0.1   0.1   0.8   0.8])
-        colormap(jet);
+%- Show mosaic only if there are fewer than 1000 spots
+if length(thresh.in == 1) < 1000
+
+    %- Plot only if data is present
+    if sum(spots_proj.xy(:))
+        if isempty(axes_select)
+            figure
+            montage(spots_proj.xy(:,:,:,thresh.in == 1),'DisplayRange', []);    
+            set(gcf,'Position', [300   300   500   400])       
+            set(gca,'Units','normalized')
+            set(gca,'Position', [0.1   0.1   0.8   0.8])
+            colormap(jet);
+        else
+            axes(axes_select);
+            h = montage(spots_proj.xy(:,:,:,thresh.in_display),'DisplayRange', []);
+            set(h,'ButtonDownFcn',@axes_proj_xy_ButtonDownFcn);   % Button-down function has to be set again
+            colormap(jet);
+            freezeColors;
+        end
+        title('Max-projection XY','FontSize',9)  
     else
-        axes(axes_select);
-        h = montage(spots_proj.xy(:,:,:,thresh.in_display),'DisplayRange', []);
-        set(h,'ButtonDownFcn',@axes_proj_xy_ButtonDownFcn);   % Button-down function has to be set again
-        colormap(jet);
-        freezeColors;
+       set(handles.axes_proj_xy,'Visible','off');     
     end
-    title('Max-projection XY','FontSize',9)  
-else
-   set(handles.axes_proj_xy,'Visible','off');     
-end
-  
+end  
 
 %=== Projection in xz
 function plot_proj_xz(handles,axes_select)
@@ -2357,27 +2256,30 @@ ind_cell   = get(handles.pop_up_outline_sel_cell,'Value');
 thresh     = handles.img.cell_prop(ind_cell).thresh;
 spots_proj = handles.img.cell_prop(ind_cell).spots_proj;
 
-%- Plot only if data is present
-if sum(spots_proj.xz(:))  
-    if isempty(axes_select)
-        figure
-        montage(spots_proj.xz(:,:,:,thresh.in == 1),'DisplayRange', []);    
-        set(gcf,'Position', [300   300   500   400])       
-        set(gca,'Units','normalized')
-        set(gca,'Position', [0.1   0.1   0.8   0.8])
-        colormap(jet);
+%- Show mosaic only if there are fewer than 1000 spots
+if length(thresh.in == 1) < 1000
+
+    %- Plot only if data is present
+    if sum(spots_proj.xz(:))  
+        if isempty(axes_select)
+            figure
+            montage(spots_proj.xz(:,:,:,thresh.in == 1),'DisplayRange', []);    
+            set(gcf,'Position', [300   300   500   400])       
+            set(gca,'Units','normalized')
+            set(gca,'Position', [0.1   0.1   0.8   0.8])
+            colormap(jet);
+        else
+            axes(axes_select);
+            h = montage(spots_proj.xz(:,:,:,thresh.in_display),'DisplayRange', []);
+            set(h,'ButtonDownFcn',@axes_proj_xz_ButtonDownFcn);   % Button-down function has to be set again
+            colormap(jet);
+            freezeColors;
+        end
+        title('Max-projection XZ','FontSize',9) 
     else
-        axes(axes_select);
-        h = montage(spots_proj.xz(:,:,:,thresh.in_display),'DisplayRange', []);
-        set(h,'ButtonDownFcn',@axes_proj_xz_ButtonDownFcn);   % Button-down function has to be set again
-        colormap(jet);
-        freezeColors;
+       set(handles.axes_proj_xz,'Visible','off');     
     end
-    title('Max-projection XZ','FontSize',9) 
-else
-   set(handles.axes_proj_xz,'Visible','off');     
 end
-    
 
 %=== Residuals in xy
 function plot_resid_xy(handles,axes_select)
@@ -2386,31 +2288,34 @@ ind_cell   = get(handles.pop_up_outline_sel_cell,'Value');
 thresh     = handles.img.cell_prop(ind_cell).thresh;
 spots_proj = handles.img.cell_prop(ind_cell).spots_proj;
 
-%- Plot only if data is present
-if isfield(spots_proj,'res_xy')
-    if sum(spots_proj.res_xy(:))     
-        if isempty(axes_select)
-            figure
-            montage(spots_proj.res_xy(:,:,:,thresh.in == 1),'DisplayRange', []);    
-            set(gcf,'Position', [300   300   500   400])       
-            set(gca,'Units','normalized')
-            set(gca,'Position', [0.1   0.1   0.8   0.8])
-            colormap(jet);    
+%- Show mosaic only if there are fewer than 1000 spots
+if length(thresh.in == 1) < 1000
+    
+    %- Plot only if data is present
+    if isfield(spots_proj,'res_xy')
+        if sum(spots_proj.res_xy(:))     
+            if isempty(axes_select)
+                figure
+                montage(spots_proj.res_xy(:,:,:,thresh.in == 1),'DisplayRange', []);    
+                set(gcf,'Position', [300   300   500   400])       
+                set(gca,'Units','normalized')
+                set(gca,'Position', [0.1   0.1   0.8   0.8])
+                colormap(jet);    
+            else
+                axes(axes_select);
+                h_xy = montage(spots_proj.res_xy(:,:,:,thresh.in_display),'DisplayRange', []);
+                set(h_xy,'ButtonDownFcn',@axes_resid_xy_ButtonDownFcn);   % Button-down function has to be set again
+                colormap(jet);
+                freezeColors;
+            end
+            title('RESID: Max-proj XY','FontSize',9)
         else
-            axes(axes_select);
-            h_xy = montage(spots_proj.res_xy(:,:,:,thresh.in_display),'DisplayRange', []);
-            set(h_xy,'ButtonDownFcn',@axes_resid_xy_ButtonDownFcn);   % Button-down function has to be set again
-            colormap(jet);
-            freezeColors;
-        end
-        title('RESID: Max-proj XY','FontSize',9)
+            set(handles.axes_resid_xy,'Visible','off');       
+        end    
     else
-        set(handles.axes_resid_xy,'Visible','off');       
-    end    
-else
-   set(handles.axes_resid_xy,'Visible','off');     
+       set(handles.axes_resid_xy,'Visible','off');     
+    end
 end
-   
 
 
 
