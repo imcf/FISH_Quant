@@ -38,7 +38,7 @@ classdef FQ_img < handle
         %- mRNA 
         mRNA_prop
         
-        
+
         %- Status updates
         status_filter          = 0;
         status_detect_val_auto = 0;  % Did an automated calculation of the thresholds already take place?
@@ -53,7 +53,7 @@ classdef FQ_img < handle
         
         
         %- Cell geometry
-        cell_prop = struct('label', {}, 'x', {}, 'y', {}, 'pos_Nuc', {}, 'pos_TS', {}, 'spots_fit', [],'spots_detected',[],'thresh',{},'sub_spots',{},'sub_spots_filt',{},'spots_proj',{},'FIT_Result',{});
+        cell_prop = struct('label', {}, 'x', {}, 'y', {}, 'pos_Nuc', {}, 'pos_TS', {}, 'spots_fit', [],'spots_detected',[],'thresh',{},'sub_spots',{},'sub_spots_filt',{},'spots_proj',{},'FIT_Result',{},'intint',[],'loc_features',{},'dist_all',[]);
     end
 
 
@@ -587,6 +587,18 @@ classdef FQ_img < handle
 
         end      
         
+        
+        %% ==== Save results file
+        function [file_save, path_save] = save_results_flex(img,name_full,parameters)
+            
+           %- Parameters to save results
+           parameters.file_names          = img.file_names;
+           parameters.cell_prop           = img.cell_prop;
+           parameters.par_microscope      = img.par_microscope;
+           
+           [file_save, path_save] = FQ_save_results_flex_v1(name_full,parameters);
+
+        end
         
         %% ==== Define experimental parameters
         function define_par(img)
@@ -1212,6 +1224,23 @@ classdef FQ_img < handle
                 
              end
        end 
+       
+       
+        %% === Function to load PSF image
+        function img = calc_loc_features(img)
+       
+           img = FQ_calc_loc_feature_v1(img);
+  
+        end
+        
+             %% === Function to load PSF image
+        function img = calc_intint(img)
+       
+           img = FQ_calc_intint_v1(img);
+  
+        end
+        
+        
     end
 end
 

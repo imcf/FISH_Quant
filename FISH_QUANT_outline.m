@@ -1102,7 +1102,11 @@ elseif not(isempty(handles.img.path_names.root));
 else
     path_outline = cd;
 end
-cd(path_outline)
+if exist(path_outline)
+    cd(path_outline)
+else
+    disp('Folder for outlines not present')
+end
 
 
 %- Get outline

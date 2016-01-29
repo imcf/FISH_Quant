@@ -1,4 +1,4 @@
-function [name_save, path_save] = FQ_save_results_v1(file_name_full,parameters)
+function [name_save, path_save] = FQ_save_results_flex_v1(file_name_full,parameters)
 
 %== Extract parameters
 path_save                = parameters.path_save; 
@@ -172,48 +172,41 @@ if name_save ~= 0
                 if isfield(cell_prop(i_cell),'spots_fit')
                     if not(isempty(cell_prop(i_cell).spots_fit));
                         spots_output   = [cell_prop(i_cell).spots_fit,cell_prop(i_cell).spots_detected,cell_prop(i_cell).thresh.in];
-
+                        str_text       = 'Pos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit';
+                        
                         if flag_th_only
                             th_out = not(cell_prop(i_cell).thresh.in);       
                             spots_output(th_out,:) = [];     
                         end
-
+                        
+                        %- Check if there are distance measurements
+                         if ~(isempty(cell_prop(i_cell).spots_fit));
+                                 spots_output   = [spots_output, cell_prop(i_cell).dist_all];
+                                 str_text = [str_text,'\tPos_cell\tPos_nuc'];
+                         end
+                         
+                         %- Check if there are distance measurements
+                         if ~(isempty(cell_prop(i_cell).intint))
+                                 spots_output   = [spots_output, cell_prop(i_cell).intint'];
+                                 str_text = [str_text,'\tIntInt'];
+                         end
+                         
+                           
+                        %- Add line change        
+                        str_text = [str_text,'\n'];
+                            
+                        
                         if not(isempty(spots_output))
                             N_par = size(spots_output,2);            
                             string_output = [repmat('%g\t',1,N_par-1),'%g\n'];
 
                             fprintf(fid,'%s\n', 'SPOTS_START');          
-                            fprintf(fid,'Pos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit\n');
+                            fprintf(fid,str_text);
 
                             fprintf(fid, string_output,spots_output');  
                             fprintf(fid,'%s\n', 'SPOTS_END'); 
                         end
                     end
-                end
-            end
-
-
-            %- Clusters
-            if isfield(cell_prop(i_cell),'cluster_prop')            
-                for i_c = 1:length(cell_prop(i_cell).cluster_prop)              
-                    fprintf(fid,'%s\t%s\n', 'CLUSTER_START', cell_prop(i_cell).cluster_prop(i_c).label);
-
-                    fprintf(fid,'Area\t%g\n',cell_prop(i_cell).cluster_prop(i_c).area);
-                    fprintf(fid,'Intensity\t');
-
-                    fprintf(fid,'%g\t',cell_prop(i_cell).cluster_prop(i_c).int);               
-                    fprintf(fid,'\nX_POS\t');
-                    fprintf(fid,'%g\t',cell_prop(i_cell).cluster_prop(i_c).x);
-                    fprintf(fid,'\nY_POS\t');
-                    fprintf(fid,'%g\t',cell_prop(i_cell).cluster_prop(i_c).y); 
-                    fprintf(fid,'\nZ_POS\t');
-                    fprintf(fid,'%g\t',cell_prop(i_cell).cluster_prop(i_c).z'); 
-
-                    fprintf(fid,'Pos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit\n');
-                    fprintf(fid,'%g\t',cell_prop(i_cell).cluster_prop(i_c).par_fit); 
-
-                    fprintf(fid,'\nCLUSTER_END\n');
-
                 end
             end
         end           

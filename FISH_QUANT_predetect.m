@@ -101,7 +101,7 @@ if not(isempty(varargin))
         
             %- Take random samples
             y_random = datasample(int_MIP_cell,10000);
-            [counts, bin] = hist(y_random,250);
+            [counts, bin] = hist(double(y_random),250);
                                     
             h_fig = figure; set(h_fig,'color','w')
             s1 = subplot(211);

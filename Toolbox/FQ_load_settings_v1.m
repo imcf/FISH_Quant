@@ -19,7 +19,6 @@ fid  =  fopen(file_name,'r');
 % If yes, assign the corresponding value
 
 if fid == -1
-    warndlg('Settings file cannot be opened. See Command window for more details',mfilename)
     disp(' ')
     disp('=== Settings file for mature mRNA detection cannot be opened');
     disp('Maybe folder is not set correctly?')
