@@ -1,7 +1,7 @@
 function varargout = FISH_QUANT(varargin)
 % FISH_QUANT M-file for FISH_QUANT.fig
 
-% Last Modified by GUIDE v2.5 03-Dec-2015 17:44:46
+% Last Modified by GUIDE v2.5 29-Jan-2016 11:22:11
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -265,7 +265,11 @@ elseif not(isempty(handles.img.path_names.root))
 end
 
 %- Load image
-button = questdlg('Loading new image will delete results of previous analysis. Continue?','Load new image','Yes','No','No');
+if ~isempty(handles.img.raw)
+    button = questdlg('Loading new image will delete results of previous analysis. Continue?','Load new image','Yes','No','No');
+else
+    button = 'Yes';
+end
 
 if strcmp(button,'Yes')    
          
@@ -681,18 +685,9 @@ if file_name_results ~= 0
             handles.img.settings.thresh.int_raw.lock   = 0;
             handles.img.settings.thresh.int_filt.lock  = 0;
             handles.detect.flag_detect_region = 0;
-
-%             if isempty(handles.img.path_names.results)
-%                 path_settings = handles.img.path_names.root;
-%             else
-%                 path_settings = handles.img.path_names.results; 
-%             end
-
-           % if not(isempty(handles.img.file_names.settings))
-             %   handles.img.load_settings(fullfile(path_settings,handles.img.file_names.settings));                
-                handles = FQ_populate_v1(handles); 
-                popup_filter_type_Callback(hObject, eventdata, handles); % Adjust GUI for default filter
-          %  end    
+          
+            handles = FQ_populate_v1(handles); 
+            popup_filter_type_Callback(hObject, eventdata, handles); % Adjust GUI for default filter
 
             set(handles.text_psf_theo_xy,'String',num2str(round(handles.img.PSF_theo.xy_nm)));
             set(handles.text_psf_theo_z, 'String',num2str(round(handles.img.PSF_theo.z_nm)));
@@ -746,6 +741,33 @@ status_update(hObject, eventdata, handles,{'Results loaded.'})
 
 %- Go back to original folder
 cd(current_dir)
+
+
+%== Menu: load outline from other channel
+function menu_load_outline_other_Callback(hObject, eventdata, handles)
+
+%- Change to outline or root directory if specified
+current_dir = pwd;
+
+if      not(isempty(handles.img.path_names.outlines))
+   cd(handles.img.path_names.outlines)    
+elseif  not(isempty(handles.img.path_names.root))   
+    cd(handles.img.path_names.root)
+end
+    
+%- Generate new FQ object
+status_open = handles.img.load_existing_outline([]);       
+
+if status_open.outline
+    handles = analyze_cellprop(hObject, eventdata, handles); 
+    set(handles.checkbox_plot_outline,'Value',1);
+    status_update(hObject, eventdata, handles,{'Results loaded.'})
+    guidata(hObject, handles);
+    
+end
+%- Go back to original folder
+cd(current_dir)
+
 
 
 %==========================================================================
@@ -2007,7 +2029,7 @@ if isempty(axes_select)
         figure
         imshow(img_plot,[]);
     else
-        imtool(uint16(img_plot),[]);  % imtool doesnt work with 32bit
+        imtool(uint16(img_plot),[]);  % imtool does not work with 32bit
     end
 else
     axes(axes_select);   

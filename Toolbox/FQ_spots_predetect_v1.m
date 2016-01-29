@@ -176,7 +176,7 @@ switch mode_predetect
         end
         
         %- Pre-detection
-        pos_dum    = nonMaxSupr(double(image_filt_mask), rad_detect,thresh_int);
+        pos_dum = nonMaxSupr(double(image_filt_mask), rad_detect,thresh_int);
         
         if ~img.status_3D
             pos_dum(:,3) = 1;

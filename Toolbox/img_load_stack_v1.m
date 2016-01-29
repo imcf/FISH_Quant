@@ -115,14 +115,16 @@ if exist(file_name,'file') == 2
     if isempty(par.range)
     
         data = bfopen(file_name);
-        dum  = data{1};
-       
+        dum  = data{1};       
+        
+        
          %-Dimensions of image
         [img.NY, img.NX]  = size(dum{1});
         img.NZ            = size(dum,1);
-
+        type = class(dum{1,1});
+        
         %- Intensity values of image
-        data_mat = zeros(img.NY,img.NX,img.NZ);
+        data_mat = zeros(img.NY,img.NX,img.NZ,type);
 
         for iP =1:img.NZ
            data_mat(:,:,iP) = dum{iP,1};        
@@ -141,7 +143,9 @@ if exist(file_name,'file') == 2
         ind_end   = par.range.end;
 
         %- Open image: OPB
-        data_mat = zeros(img.NY,img.NX,img.NZ);
+        dum  = bfGetPlane(r, 1);
+        type = class(dum);
+        data_mat = zeros(img.NY,img.NX,img.NZ,type);
         ind_loop = 1;
         for ind_load = ind_start:ind_end
             data_mat(:,:,ind_loop) = bfGetPlane(r, ind_load);

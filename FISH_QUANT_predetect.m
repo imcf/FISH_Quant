@@ -97,8 +97,32 @@ if not(isempty(varargin))
             int_MIP_cell = handles.img_plot(mask_cell_2D);  %- Get all value of cell
             
             th_int_max   = ceil(3*quantile(int_MIP_cell,0.99));
-            th_int_min   = floor(0.2*th_int_max);          
+            th_int_min   = floor(0.2*th_int_max);        
         
+            %- Take random samples
+            y_random = datasample(int_MIP_cell,10000);
+            [counts, bin] = hist(y_random,250);
+                                    
+            h_fig = figure; set(h_fig,'color','w')
+            s1 = subplot(211);
+            plot(bin,counts,'LineWidth',2)   
+            
+            hold on            
+                plot([th_int_min th_int_min],[1 max(counts)],'r')
+                plot([th_int_max th_int_max],[1 max(counts)],'r')
+            hold off
+            xlabel('Intensity')
+            ylabel('Frequency')
+            legend('Pixel intensity (5K randomly selected)','Min value','Max value') 
+            
+            s2=subplot(212);
+            box on
+            copyobj(allchild(s1),s2);
+            set(gca,'yscale','log');
+            xlabel('Intensity')
+            ylabel('Frequency [log]')
+            
+            
         else
             th_int_min  = floor(handles.img.settings.detect.th_int_min);
             th_int_max  = ceil(handles.img.settings.detect.th_int_max);
@@ -126,7 +150,8 @@ if not(isempty(varargin))
         
         options.Resize='on';
         userValue = inputdlg(prompt_avg,dlgTitle,1,defaultValue_avg,options);
-
+        if exist('h_fig'), close(h_fig), end
+        
         if( ~ isempty(userValue))
             th_int_min         = str2double(userValue{1}); 
             th_int_max         = str2double(userValue{2});
@@ -810,15 +835,11 @@ plot_image(handles,handles.axes_img,[])
 pop_up_detect_quality_Callback(hObject, eventdata, handles)
 
 
-
-
-
 %== Show detected spots
 function button_show_detected_spots_Callback(hObject, eventdata, handles)
   
 handles.ind_cell_sel = get(handles.pop_up_cell_select,'Value');
 FISH_QUANT_spots('HandlesMainGui',handles);  
-
 
 
 

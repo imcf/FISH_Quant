@@ -112,6 +112,10 @@ classdef FQ_img < handle
             img.settings.detect.flags.parallel       = 0;  % Parallel computing (0 - no; 1 - GPU)
             img.settings.detect.flags.auto_th        = 0;  % Automatically calculate threshold
             
+            img.settings.detect.data_th      = [];
+            img.settings.detect.nTH          = [];
+            img.settings.detect.th_int_min   = [];
+            img.settings.detect.th_int_max   = [];
             
             %=== Options for mature mRNA detection
             img.settings.detect.nTH         = 50;
@@ -214,6 +218,7 @@ classdef FQ_img < handle
         
         %% === Make new FQ_img object
         function img = reinit(img)
+            
             %- Make new FQ object and keep experimental parameters
             img_old            = img;
             img                = FQ_img;
@@ -264,19 +269,19 @@ classdef FQ_img < handle
                 switch img_type
                 
                     case {'raw','RAW'}
-                        img.raw  = uint32(img_struct.data);
+                        img.raw  = (img_struct.data);
                         img.file_names.raw = [file_name_only,ext];
                         
                     case {'filt','filtered'}
-                        img.filt  = uint32(img_struct.data);
+                        img.filt  = (img_struct.data);
                         img.file_names.filtered = [file_name_only,ext];
                         
                     case {'DAPI','dapi'}
-                        img.DAPI  = uint32(img_struct.data);
+                        img.DAPI  = (img_struct.data);
                         img.file_names.DAPI = [file_name_only,ext];
                         
                     case {'TS_label','ts_label'}
-                        img.TS_label  = uint32(img_struct.data);
+                        img.TS_label  = (img_struct.data);
                         img.file_names.TS_label = [file_name_only,ext];             
                 end
                 
@@ -465,6 +470,8 @@ classdef FQ_img < handle
                end
                 
             end
+            
+            
             %- Don't open image 
             if path_img == -1
                 return
@@ -492,7 +499,69 @@ classdef FQ_img < handle
         end
             
         
-          %% ==== Save results file
+        
+        %% ==== Load outline of other color
+        function status_open = load_existing_outline(img,file_name_open)
+            
+            %- Default output
+            status_open.outline = 0;
+            
+            %- Specify file-name if not specified
+            if isempty(file_name_open)
+            
+                current_dir = pwd;
+
+                if ~isempty(img.path_names.outlines)
+                   cd(img.path_names.outlines)
+                elseif ~isempty(img.path_names.root)
+                   cd(img.path_names.root) 
+                end
+
+                %- Load file
+                [file_name,path_name] = uigetfile({'*.txt'},'Select file');
+                cd(current_dir)
+                
+                if file_name ~= 0
+                    file_name_open = fullfile(path_name,file_name);
+                else
+                    exit
+                    
+                end
+            else
+                path_name = fileparts(file_name_open);
+            end
+    
+            %- Load outline file and microscope parameters
+            par.flag_identifier = 0;
+            par.col_par         = img.col_par;
+            
+            [img.cell_prop, dum, dum, status_open.outline,dum,dum,img.comment] = FQ_load_results_WRAPPER_v2(file_name_open,par); 
+               
+            %==== Analyze comment
+            
+            if ~isempty(img.comment)
+            
+               for ic = 1:numel(img.comment)
+                   
+                   comment_loop = img.comment{ic};
+                   
+                   %- Check if there are substacks
+                   %  They are save in the format substack_5-12, where 5-12
+                   %  indicates the planes that should be considered.
+                   if strfind(comment_loop,'substack')                      
+                       range  = regexp(comment_loop,'substack_(?<start>\d*)-(?<end>\d*)', 'names');     
+                       img.range.start = str2num(range.start);
+                       img.range.end   = str2num(range.end);
+                   end
+   
+               end
+                
+            end
+        end
+            
+       
+            
+        %% ==== Save results file
         function [file_save, path_save] = save_results(img,name_full,parameters)
             
            %- Parameters to save results
