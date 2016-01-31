@@ -138,7 +138,7 @@ if not(isempty(varargin))
         
     elseif strcmp( varargin{1},'par_main')         
         
-        par_main                       = varargin{2};
+        par_main                  = varargin{2};
         handles.img               = FQ_img;
         handles.img.path_names    = par_main.path_names; 
      
@@ -149,7 +149,7 @@ if not(isempty(varargin))
         handles.file_load = file_load;
         
         %- FQ_img object, path_names, and par_microscope
-        handles.img               = FQ_img;
+        handles.img            = FQ_img;
         handles.img.path_names = varargin{3};      
         handles.par_microscope = varargin{4};
         
@@ -268,7 +268,7 @@ FISH_QUANT_spots_OpeningFcn(hObject, eventdata, handles);
 %- Load results
 status_file = handles.img.load_results(fullfile(file_load.path,file_load.name),file_load.path_img);    
 
-if ~status_file
+if ~status_file.img
     warndlg('Image could not be opened!','FISH-quant')
     fprintf('=== FILE COULD NOT BE OPENED\n');
     disp('Often this is caused because folders for results or images are badly defined.')
@@ -276,6 +276,12 @@ if ~status_file
     fprintf('Results [path]: %s\n\n',file_load.path)
     fprintf('Image [path]: %s\n\n',file_load.path_img)
 
+elseif ~status_file.outline
+    warndlg('Outline could not be opened!','FISH-quant')
+    fprintf('=== FILE COULD NOT BE OPENED\n');
+    disp('Often this is caused because folders for results or images are badly defined.')
+    fprintf('\nResults [name]: %s\n',file_load.name)
+    
 else
 
     %- Load settings files
@@ -830,7 +836,7 @@ if flag_show_cell_label || flag_show_all_cells
 
 
                 if x_pos > x_min && x_pos < x_max && y_pos > y_min && y_pos < y_max
-                    text(x_pos,y_pos,cell_prop(i_cell).label,'Color','r','FontSize',12, 'Interpreter', 'none','BackgroundColor',[0 0 0],'FontWeight','bold');
+                    text(x_pos,y_pos,cell_prop(i_cell).label,'Color','w','FontSize',12, 'Interpreter', 'none','BackgroundColor',[0 0 0],'FontWeight','bold');
                 end
             end
         end

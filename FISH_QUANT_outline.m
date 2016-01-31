@@ -72,6 +72,8 @@ if isempty(FQ_outline_open) || FQ_outline_open == 0
 
     handles.parameters_TS_detect = [];
 
+    handles.flag_show_cell_label = 1;
+    
     %- Use identifiers to get DAPI and TS images automatically
     file_ident.status = 0;    %-1 not specified; 0 dont use; 1 use  -> will be overwritten below for certain calls of GU  
     file_ident.FISH   = '';
@@ -1357,8 +1359,6 @@ if not(handles.status_draw)
     set(handles.listbox_cell,'String',str_list)
     set(handles.listbox_cell,'Value',ind_cell)
     
-    listbox_cell_Callback(hObject, eventdata, handles);
-
     handles.img.cell_prop(ind_cell).label = str_cell;
     handles.cell_counter = handles.cell_counter+1;
     
@@ -1366,10 +1366,11 @@ if not(handles.status_draw)
         handles.v_axis = axis(handles.axes_sep);
     end
     
+    %- Update list-box - includes drawing
+    listbox_cell_Callback(hObject, eventdata, handles);
+
     %- Save and show results
     handles.status_draw = 0;
-    
-    handles = plot_image(handles,handles.axes_image);
     guidata(hObject, handles);
 
     %- UIWAIT makes FISH_QUANT_outline wait for user response (see UIRESUME)
@@ -1858,6 +1859,9 @@ global status_plot_first
 handles.img_FISH_disp  = [];
 handles.img_2nd_disp   = [];
 
+%- Show labels
+flag_show_cell_label = handles.flag_show_cell_label;
+
 %- Only image without outlines
 status_show_outlines = get(handles.checkbox_show_outlines,'Value');
 
@@ -1916,6 +1920,10 @@ else
     cla    
 end
 
+x_min = v(1);
+x_max = v(2);
+y_min = v(3);
+y_max = v(4);
 
 %- FISH: determine the contrast of the image
 slider_min = get(handles.slider_contrast_min,'Value');
@@ -2040,6 +2048,17 @@ if status_show_outlines
                 y = cell_prop(i_cell).y;
                 plot([x,x(1)],[y,y(1)],'b','Linewidth', 2)  
 
+               % Show cell labels
+               if flag_show_cell_label
+
+                    [ geom] = polygeom( x, y ); 
+                    x_pos = geom(2); y_pos = geom(3);
+
+                    if x_pos > x_min && x_pos < x_max && y_pos > y_min && y_pos < y_max
+                        text(x_pos,y_pos,cell_prop(i_cell).label,'Color','w','FontSize',12, 'Interpreter', 'none','BackgroundColor',[0 0 0],'FontWeight','bold');
+                    end
+                end     
+                
                 %- Nucleus
                 pos_Nuc   = cell_prop(i_cell).pos_Nuc;   
                 if not(isempty(pos_Nuc))  
@@ -2451,6 +2470,10 @@ if ~handles.status_draw
     end
 end
 
+%== Show cell labels
+function menu_show_labels_Callback(hObject, eventdata, handles)
+
+
 % =========================================================================
 % Experimental parameters
 % =========================================================================
@@ -2617,3 +2640,6 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
 end
 
 function checkbox_nuc_auto_in_curr_cell_Callback(hObject, eventdata, handles)
+
+
+% --------------------------------------------------------------------

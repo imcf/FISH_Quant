@@ -195,9 +195,11 @@ end
 %== Load folders
 function menu_folder_load_Callback(hObject, eventdata, handles)
 
-
-%- Load image
-button = questdlg('Loading folders will overwrite current selection. Continue?','Load folders','Yes','No','No');
+if ~isempty(handles.img.path_names.root)
+    button = questdlg('Loading folders will overwrite current selection. Continue?','Load folders','Yes','No','No');
+else
+    button = 'Yes';
+end
 
 if strcmp(button,'Yes')    
          

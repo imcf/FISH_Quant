@@ -104,16 +104,21 @@ if not(isempty(varargin))
             [counts, bin] = hist(double(y_random),250);
                                     
             h_fig = figure; set(h_fig,'color','w')
+            set(gcf,'Name','Histogram of pixel values in filtered image')
+            set(gcf,'Toolbar','none')
+            set(gcf,'NumberTitle','off')
+            set(gcf,'MenuBar','none')
+            
             s1 = subplot(211);
-            plot(bin,counts,'LineWidth',2)   
+            plot(bin,counts,'k','LineWidth',2)   
             
             hold on            
-                plot([th_int_min th_int_min],[1 max(counts)],'r')
+                plot([th_int_min th_int_min],[1 max(counts)],'b')
                 plot([th_int_max th_int_max],[1 max(counts)],'r')
             hold off
             xlabel('Intensity')
             ylabel('Frequency')
-            legend('Pixel intensity (5K randomly selected)','Min value','Max value') 
+            legend('Pixel intensity','Threshold: tested min','Threshold: tested max') 
             
             s2=subplot(212);
             box on
