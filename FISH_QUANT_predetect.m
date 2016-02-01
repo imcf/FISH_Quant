@@ -103,7 +103,7 @@ if not(isempty(varargin))
             y_random = datasample(int_MIP_cell,10000);
             [counts, bin] = hist(double(y_random),250);
                                     
-            h_fig = figure; set(h_fig,'color','w')
+            h_fig = figure(789); set(h_fig,'color','w')
             set(gcf,'Name','Histogram of pixel values in filtered image')
             set(gcf,'Toolbar','none')
             set(gcf,'NumberTitle','off')
@@ -155,7 +155,7 @@ if not(isempty(varargin))
         
         options.Resize='on';
         userValue = inputdlg(prompt_avg,dlgTitle,1,defaultValue_avg,options);
-        if exist('h_fig'), close(h_fig), end
+        %if exist('h_fig'), close(h_fig), end
         
         if( ~ isempty(userValue))
             th_int_min         = str2double(userValue{1}); 

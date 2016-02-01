@@ -166,7 +166,7 @@ assignin('base','h_spots',handles.h_fishquant_spots)
 %- Matlab stuff
 handles.output = hObject;
 guidata(hObject, handles);
-
+%uiresume(handles.h_fishquant_spots)
 
 % --- Outputs from this function are returned to the command line.
 function varargout = FISH_QUANT_spots_OutputFcn(hObject, eventdata, handles) 
@@ -212,11 +212,6 @@ parameters.version             = handles.img.version;
 parameters.flag_type           = 'spots';  
 
 handles.img.save_results([],parameters);
-
-% 
-% 
-% file_name_results = FQ_save_results_v1([],parameters);
-% handles.file_name_results  = file_name_results;
 guidata(hObject, handles);
 
 %- Go back to original directory

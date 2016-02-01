@@ -41,8 +41,8 @@ if size(cell_prop.spots_detected,1) >= param.N_min
     %- Loop over all spots
     for i_spot = 1:size(cell_prop.spots_fit,1)
         
-        spot_pos = cell_prop.spots_fit(i_spot,1:2);  % For detected positions: cell_prop.spots_detected(i_spot,1:2)*pixel_size.xy; 
-        dist_membrane(i_spot)       =  p_poly_dist(spot_pos(2), spot_pos(1), cell_poly(:,1), cell_poly(:,2));
+        spot_pos               = cell_prop.spots_fit(i_spot,1:2);  % For detected positions: cell_prop.spots_detected(i_spot,1:2)*pixel_size.xy; 
+        dist_membrane(i_spot)  =  p_poly_dist(spot_pos(2), spot_pos(1), cell_poly(:,1), cell_poly(:,2));
          
         if is_nuc
             dist_nucleus(i_spot) =  p_poly_dist(spot_pos(2), spot_pos(1), nucleus_poly(:,1), nucleus_poly(:,2));
@@ -55,7 +55,7 @@ if size(cell_prop.spots_detected,1) >= param.N_min
     %- All distances
     dist_all(:,1) = dist_membrane;
     dist_all(:,2) = dist_nucleus;
-    dist_all = dist_all / pixel_size.xy;
+    dist_all      = dist_all;
     
     %- Summary of cells  
     feature.mean.dist_membrane    = mean(dist_membrane);
