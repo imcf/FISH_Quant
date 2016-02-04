@@ -117,16 +117,19 @@ function proj_struct = FQ3_proj_z_v1(files_proc,param)
         disp('==   Slice selection')
 
         %- Perform only if slices should be removed
+
         if slice_select.perc < 1
-            FM = zeros(size(img_loop,3),1);
+            
             op = slice_select.operator;
             parfor i = 1:size(img_loop,3);
                 FM(i) = fmeasure(double(img_loop(:,:,i)),op ,[]);
             end
             ind_sel = (FM >= quantile(FM,1-slice_select.perc ));    
             img_loop = img_loop(:,:,ind_sel);
+        else
+          	FM = ones(size(img_loop,3),1);
+            ind_sel = (FM >= 0);
         end
-
 
         %- Show results
         if param.flags.show

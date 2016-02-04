@@ -798,7 +798,7 @@ if flag_show_cell_label || flag_show_all_cells
             if flag_show_all_cells
                 plot([x,x(1)],[y,y(1)],'b','Linewidth', 2)
 
-                if isfield(handles.cell_prop(ind_cell),'cluster_prop')
+                if isfield(handles.img.cell_prop(ind_cell),'cluster_prop')
                     for i_c = 1: length(cell_prop(i_cell).cluster_prop);
 
                         y_sub = cell_prop(i_cell).cluster_prop(i_c).y;
@@ -809,7 +809,7 @@ if flag_show_cell_label || flag_show_all_cells
                 end
 
 
-                 if isfield(handles.cell_prop(ind_cell),'aggregate_prop')
+                 if isfield(handles.img.cell_prop(ind_cell),'aggregate_prop')
                     for i_a = 1: length(cell_prop(i_cell).aggregate_prop);
 
                         y_sub = cell_prop(i_cell).aggregate_prop(i_a).y;
@@ -1080,8 +1080,8 @@ if ishandle(handles.h_pan)
 end
 
 %- Datacursormode
-drawnow;
 dcm_obj = datacursormode;
+drawnow;
 
 set(dcm_obj,'SnapToDataVertex','off');
 set(dcm_obj,'DisplayStyle','window');
@@ -1094,172 +1094,163 @@ function txt = myupdatefcn(empty,event_obj,hObject,handles)
 %- Continue only if calling axes is the main axes in the GUI
 hAxesParent  = get(get(event_obj,'Target'),'Parent');
 if hAxesParent  ==   handles.axes_main
-    if 1%gcf == handles.h_fishquant_spots     
+    col_par = handles.img.col_par;
 
-        col_par = handles.img.col_par;
+    pos    = get(event_obj,'Position');
+    target = get(event_obj,'Target');
+    index  = get(event_obj,'DataIndex');
 
-        pos    = get(event_obj,'Position');
-        target = get(event_obj,'Target');
-        index  = get(event_obj,'DataIndex');
+    %- Plot subregions of image
+    if  any(target == handles.h_spots_in) || any(target == handles.h_spots_out)  || any(target == handles.h_spots_out_man)
+       ind_cell   = get(handles.pop_up_cell_select,'Value');
+       spots_fit  = handles.img.cell_prop(ind_cell).spots_fit;
+       thresh     = handles.img.cell_prop(ind_cell).thresh;
 
-        %- Plot subregions of image
-            if  any(target == handles.h_spots_in) || any(target == handles.h_spots_out)  || any(target == handles.h_spots_out_man)
-               ind_cell   = get(handles.pop_up_cell_select,'Value');
-               spots_fit  = handles.img.cell_prop(ind_cell).spots_fit;
-               thresh     = handles.img.cell_prop(ind_cell).thresh;
+       pixel_size    = handles.img.par_microscope.pixel_size;
 
-               pixel_size    = handles.img.par_microscope.pixel_size;
+       %- Get index of target and link back to original spot number   
+       if         target == handles.h_spots_in
+            spot_ind = handles.ind_rel_in(index);   
+       elseif     target == handles.h_spots_out
+            spot_ind = handles.ind_rel_out(index); 
+       elseif     target == handles.h_spots_out_man
+            spot_ind = handles.ind_rel_out_man(index);           
+       end
 
-               %- Get index of target and link back to original spot number   
-               if         target == handles.h_spots_in
-                    spot_ind = handles.ind_rel_in(index);   
-               elseif     target == handles.h_spots_out
-                    spot_ind = handles.ind_rel_out(index); 
-               elseif     target == handles.h_spots_out_man
-                    spot_ind = handles.ind_rel_out_man(index);           
-               end
+       img_xy = handles.img.cell_prop(ind_cell).spots_proj_GUI(spot_ind).xy;
+       img_xz = handles.img.cell_prop(ind_cell).spots_proj_GUI(spot_ind).xz;
+       img_yz = handles.img.cell_prop(ind_cell).spots_proj_GUI(spot_ind).yz;
 
-               img_xy = handles.img.cell_prop(ind_cell).spots_proj_GUI(spot_ind).xy;
-               img_xz = handles.img.cell_prop(ind_cell).spots_proj_GUI(spot_ind).xz;
-               img_yz = handles.img.cell_prop(ind_cell).spots_proj_GUI(spot_ind).yz;
+       fit_xy = handles.img.cell_prop(ind_cell).spots_proj_GUI(spot_ind).xy_fit;
+       fit_xz = handles.img.cell_prop(ind_cell).spots_proj_GUI(spot_ind).xz_fit;
+       fit_yz = handles.img.cell_prop(ind_cell).spots_proj_GUI(spot_ind).yz_fit;
 
-               fit_xy = handles.img.cell_prop(ind_cell).spots_proj_GUI(spot_ind).xy_fit;
-               fit_xz = handles.img.cell_prop(ind_cell).spots_proj_GUI(spot_ind).xz_fit;
-               fit_yz = handles.img.cell_prop(ind_cell).spots_proj_GUI(spot_ind).yz_fit;
+       spot_pos.x = spots_fit(spot_ind,col_par.pos_x_sub);
+       spot_pos.y = spots_fit(spot_ind,col_par.pos_y_sub);
+       spot_pos.z = spots_fit(spot_ind,col_par.pos_z_sub);
 
-               spot_pos_x = spots_fit(spot_ind,col_par.pos_x_sub);
-               spot_pos_y = spots_fit(spot_ind,col_par.pos_y_sub);
-               spot_pos_z = spots_fit(spot_ind,col_par.pos_z_sub);
+       %- Plot the sub-images
+       slider_min = handles.slider_contr_min_img;
+       Im_min  = slider_min*handles.img_diff+handles.img_min;
 
-               %- Plot the sub-images
-               slider_min = handles.slider_contr_min_img;
-               Im_min  = slider_min*handles.img_diff+handles.img_min;
+       slider_max = handles.slider_contr_max_img;
+       Im_max = slider_max*handles.img_diff+handles.img_min;
 
-               slider_max = handles.slider_contr_max_img;
-               Im_max = slider_max*handles.img_diff+handles.img_min;
+       handles.spots.img_xy = img_xy;
+       handles.spots.Im_min = Im_min;
+       handles.spots.Im_max = Im_max;
 
-               handles.spots.img_xy = img_xy;
-               handles.spots.Im_min = Im_min;
-               handles.spots.Im_max = Im_max;
-               
-               axes(handles.axes_zoom_xy)
-               imshow(img_xy,[ ],'XData',[0 (size(img_xy,2)-1)*pixel_size.xy],'YData',[0 (size(img_xy,1)-1)*pixel_size.xy])           
-               colorbar('peer',handles.axes_zoom_xy) 
-               hold on
-                    plot(handles.axes_zoom_xy,spot_pos_x,spot_pos_y,'+g')
-               hold off
+       %-XY
+       pixel.x = pixel_size.xy;   pixel.y = pixel_size.xy;
+       spot_plots.x = spot_pos.x; spot_plots.y = spot_pos.y;
+       FQ_plot_spots_axes_v1(handles.axes_zoom_xy,img_xy,pixel,spot_plots,'Data - XY')
+       
+       
+       %-XZ
+       spot_plots.x = spot_pos.x; spot_plots.y = spot_pos.z;
+       pixel.x = pixel_size.xy;   pixel.y = pixel_size.z;               
+       FQ_plot_spots_axes_v1(handles.axes_zoom_xz,img_xz,pixel,spot_plots,'Data - XZ')
 
-               axes(handles.axes_zoom_xz)
-               imshow(img_xz,[ ],'Parent',handles.axes_zoom_xz ,'XData',[0 (size(img_xz,2)-1)*pixel_size.xy],'YData',[0 (size(img_xz,1)-1)*pixel_size.z])
-               colorbar('peer',handles.axes_zoom_xz)
-               hold on
-                    plot(handles.axes_zoom_xz,spot_pos_x,spot_pos_z,'+g')
-               hold off
+       %-YZ
+       spot_plots.y = spot_pos.y; spot_plots.y = spot_pos.z;
+       pixel.x = pixel_size.xy;   pixel.y = pixel_size.z;
+       FQ_plot_spots_axes_v1(handles.axes_zoom_yz,img_yz,pixel,spot_plots,'Data - YZ')
 
-               axes(handles.axes_zoom_yz)   
-               imshow(img_yz,[ ],'Parent',handles.axes_zoom_yz ,'XData',[0 (size(img_yz,2)-1)*pixel_size.xy],'YData',[0 (size(img_yz,1)-1)*pixel_size.z])
-               colorbar('peer',handles.axes_zoom_yz)
-               hold on
-                    plot(handles.axes_zoom_yz,spot_pos_y,spot_pos_z,'+g')
-               hold off
 
-               %- Plot fit
-               if not(isempty(fit_xy))
-                   axes(handles.axes_fit_xy)   
-                   imshow(fit_xy,[ ],'Parent',handles.axes_fit_xy ,'XData',[0 (size(img_xy,2)-1)*pixel_size.xy],'YData',[0 (size(img_xy,1)-1)*pixel_size.xy])      
-                   colorbar('peer',handles.axes_fit_xy) 
-                   hold on
-                        plot(handles.axes_fit_xy,spot_pos_x,spot_pos_y,'+g')
-                   hold off
+       %- Plot fit
+       if not(isempty(fit_xy))
 
-                   axes(handles.axes_fit_xz)
-                   imshow(fit_xz,[ ],'Parent',handles.axes_fit_xz ,'XData',[0 (size(img_xz,2)-1)*pixel_size.xy],'YData',[0 (size(img_xz,1)-1)*pixel_size.z])
-                   colorbar('peer',handles.axes_fit_xz)
-                   hold on
-                        plot(handles.axes_fit_xz,spot_pos_x,spot_pos_z,'+g')
-                   hold off
+           %-XY
+           pixel.x = pixel_size.xy;   pixel.y = pixel_size.xy;
+           spot_plots.x = spot_pos.x; spot_plots.y = spot_pos.y;
+           FQ_plot_spots_axes_v1(handles.axes_fit_xy,fit_xy,pixel,spot_plots,'Fit - XY')
 
-                   axes(handles.axes_fit_yz)   
-                   imshow(fit_yz,[ ],'Parent',handles.axes_fit_yz ,'XData',[0 (size(img_yz,2)-1)*pixel_size.xy],'YData',[0 (size(img_yz,1)-1)*pixel_size.z])
-                   colorbar('peer',handles.axes_fit_yz)
-                   hold on
-                        plot(handles.axes_fit_yz,spot_pos_y,spot_pos_z,'+g')
-                   hold off
+           %-XZ
+           spot_plots.x = spot_pos.x; spot_plots.y = spot_pos.z;
+           pixel.x = pixel_size.xy;   pixel.y = pixel_size.z;               
+           FQ_plot_spots_axes_v1(handles.axes_fit_xz,fit_xz,pixel,spot_plots,'Fit - XZ')
 
-               else
-
-                    cla(handles.axes_fit_xy)
-                    cla(handles.axes_fit_xz)
-                    cla(handles.axes_fit_yz)
-               end
-               %colormap(hot)
-
-               %- Update information about spot
-               set(handles.text_spot_id,'String',round(spot_ind));
-               set(handles.text_sigmaxy,'String',round(spots_fit(spot_ind,col_par.sigmax)));
-               set(handles.text_sigmaz,'String',round(spots_fit(spot_ind,col_par.sigmaz)));
-               set(handles.text_amp,'String',round(spots_fit(spot_ind,col_par.amp)));
-               set(handles.text_bgd,'String',round(spots_fit(spot_ind,col_par.bgd)));
-
-               %- Set selector for manual removal
-               if thresh.in(spot_ind) == -1
-                   set(handles.checkbox_remove_man,'Value',1);
-               else
-                   set(handles.checkbox_remove_man,'Value',0);
-               end
-
-            else
-
-                cla(handles.axes_zoom_xy)
-                cla(handles.axes_zoom_xz)
-                cla(handles.axes_zoom_yz)
-
-                cla(handles.axes_fit_xy)
-                cla(handles.axes_fit_xz)
-                cla(handles.axes_fit_yz)
-
-                set(handles.text_spot_id,'String','');
-                set(handles.text_sigmaxy,'String','');
-                set(handles.text_sigmaz,'String','');
-                set(handles.text_amp,'String','');
-                set(handles.text_bgd,'String','');
-
-                set(handles.checkbox_remove_man,'Value',0);
-            end
- 
-        
-        %- Update cursor accordingly
-        img_plot = handles.img_plot_GUI;
-        x_pos = round(pos(1));
-        y_pos = round(pos(2));
-
-        if     target == handles.h_spots_in
-            txt = {['Good spot: ',num2str(spot_ind)], ...
-                   ['X-Y: ',num2str(x_pos),'-',num2str(y_pos)],...
-                   ['Int: ',num2str(img_plot(y_pos,x_pos))]};
-
-        elseif target == handles.h_spots_out
-            txt = {['Bad spot [auto]: ',num2str(spot_ind)], ...
-                   ['X-Y: ',num2str(x_pos),'-',num2str(y_pos)],...
-                   ['Int: ',num2str(img_plot(y_pos,x_pos))]}; 
-        elseif target == handles.h_spots_out_man
-            txt = {['Bad spot [man]: ',num2str(spot_ind)], ...
-                   ['X-Y: ',num2str(x_pos),'-',num2str(y_pos)],...
-                   ['Int: ',num2str(img_plot(y_pos,x_pos))]}; 
+           %-YZ
+           spot_plots.y = spot_pos.y; spot_plots.y = spot_pos.z;
+           pixel.x = pixel_size.xy;   pixel.y = pixel_size.z;
+           FQ_plot_spots_axes_v1(handles.axes_fit_yz,fit_yz,pixel,spot_plots,'Fit - YZ')
         else
-            txt = {['X-Y: ',num2str(x_pos),'-',num2str(y_pos)],...
-                   ['Int: ',num2str(img_plot(y_pos,x_pos))]};
-        end
+
+            cla(handles.axes_fit_xy)
+            cla(handles.axes_fit_xz)
+            cla(handles.axes_fit_yz)
+       end
+              
+       %- Update information about spot
+       set(handles.text_spot_id,'String',round(spot_ind));
+       set(handles.text_sigmaxy,'String',round(spots_fit(spot_ind,col_par.sigmax)));
+       set(handles.text_sigmaz,'String',round(spots_fit(spot_ind,col_par.sigmaz)));
+       set(handles.text_amp,'String',round(spots_fit(spot_ind,col_par.amp)));
+       set(handles.text_bgd,'String',round(spots_fit(spot_ind,col_par.bgd)));
+
+       %- Set selector for manual removal
+       if thresh.in(spot_ind) == -1
+           set(handles.checkbox_remove_man,'Value',1);
+       else
+           set(handles.checkbox_remove_man,'Value',0);
+       end
 
     else
-            txt = '';
-    end
-    
-else
-    txt = '';
-end
 
-   
+        cla(handles.axes_zoom_xy)
+        cla(handles.axes_zoom_xz)
+        cla(handles.axes_zoom_yz)
+
+        cla(handles.axes_fit_xy)
+        cla(handles.axes_fit_xz)
+        cla(handles.axes_fit_yz)
+
+        set(handles.text_spot_id,'String','');
+        set(handles.text_sigmaxy,'String','');
+        set(handles.text_sigmaz,'String','');
+        set(handles.text_amp,'String','');
+        set(handles.text_bgd,'String','');
+
+        set(handles.checkbox_remove_man,'Value',0);
+    end
+
+        
+    %- Update cursor accordingly
+    img_plot = handles.img_plot_GUI;
+    x_pos = round(pos(1));
+    y_pos = round(pos(2));
+
+    if     target == handles.h_spots_in
+        txt = {['Good spot: ',num2str(spot_ind)], ...
+               ['X-Y: ',num2str(x_pos),'-',num2str(y_pos)],...
+               ['Int: ',num2str(img_plot(y_pos,x_pos))]};
+
+    elseif target == handles.h_spots_out
+        txt = {['Bad spot [auto]: ',num2str(spot_ind)], ...
+               ['X-Y: ',num2str(x_pos),'-',num2str(y_pos)],...
+               ['Int: ',num2str(img_plot(y_pos,x_pos))]}; 
+    elseif target == handles.h_spots_out_man
+        txt = {['Bad spot [man]: ',num2str(spot_ind)], ...
+               ['X-Y: ',num2str(x_pos),'-',num2str(y_pos)],...
+               ['Int: ',num2str(img_plot(y_pos,x_pos))]}; 
+    else
+        txt = {['X-Y: ',num2str(x_pos),'-',num2str(y_pos)],...
+               ['Int: ',num2str(img_plot(y_pos,x_pos))]};
+    end
+
+else
+	txt = '';
+end
+    
+
+
+
+%=== Function for Cell selector
+function FQ_plot_spots_axes(h_ax,img,pixel,spot_pos)
+
+imshow(img,[ ],'XData',[0 (size(img,2)-1)*pixel.x],'YData',[0 (size(img,1)-1)*pixel.y],'Parent', h_ax)  
+% colorbar('peer',handles.axes_zoom_xy)   
+
 
 
 %=== Function for Cell selector
@@ -1392,21 +1383,3 @@ h = zoom;
 function h_fishquant_spots_ButtonDownFcn(hObject, eventdata, handles)
 
 function uipanel2_ButtonDownFcn(hObject, eventdata, handles)
-
-
-% --- Executes on button press in checkbox_show_cell_label.
-
-% hObject    handle to checkbox_show_cell_label (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of checkbox_show_cell_label
-
-
-% --- Executes on button press in checkbox_show_all_cells.
-
-% hObject    handle to checkbox_show_all_cells (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of checkbox_show_all_cells

@@ -8,6 +8,17 @@ reg_type = param.reg_type;
 %- Draw region according to selection
 switch reg_type;
     
+    case 'Freehand'
+        h_fh = imfreehand(h_axes,pos);        
+        setColor(h_fh,'b');        
+        reg_pos = getPosition(h_fh);         
+    
+        if size(reg_pos,1) == 1
+           position = []; 
+        else
+            position = reg_pos;
+        end
+        
     case 'Polygon'
         h_poly = impoly(h_axes,pos);        
         setColor(h_poly,'b');

@@ -239,7 +239,7 @@ if not(isempty(varargin))
                     case 'nonMaxSupr'
                         
                         handles.locmax_thresholds = handles.img.settings.detect.data_th(:,1);
-                        handles.locmax_counts     = handles.img.settings.detect.data_th(:,2);;
+                        handles.locmax_counts     = handles.img.settings.detect.data_th(:,2);
                         handles.status_nonMaxSupr = 1;
             
                     case  'connectcomp'

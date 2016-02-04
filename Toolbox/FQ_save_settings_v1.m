@@ -5,7 +5,8 @@ function [file_save, path_save] = FQ_save_settings_v1(file_name_full,img)
 if isempty(file_name_full)    
     
     %- Get name of image
-    file_name_default_spot = '_FQ_settings_MATURE.txt';
+    [dum, name_file]       = fileparts(img.file_names.raw); 
+    file_name_default_spot = [name_file,'__settings_MATURE.txt'];
 
     %- Get file-name
     [file_save ,path_save] = uiputfile(file_name_default_spot,'File-name for detection settings');

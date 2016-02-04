@@ -1060,12 +1060,8 @@ try
     handles.img = FISH_QUANT_predetect('HandlesMainGui',handles);
   
 catch err
-    errordlg('Error occured during predetection. Will try with connected components. See user-manual & command window for details.', 'FISH-QUANT: pre-dection')
-    handles.detect.mode_predetect = 'connectcomp';
-    handles.img = FISH_QUANT_predetect('HandlesMainGui',handles);
-    
-    disp(err)
-    
+    errordlg('Error occured during pre-detection. See user-manual & command window for detailed error message.', 'FISH-QUANT: pre-dection')
+    disp(err) 
 end
     
 %- Get names of cells (in case outline was defined during pre-detection)

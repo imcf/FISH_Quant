@@ -1767,53 +1767,59 @@ if not(isempty(spots_fit))
 
         spots_detected_cell = cell_summary(ind_cell,1).spots_detected;
         spots_fit_cell      = cell_summary(ind_cell,1).spots_fit;   
-
+        
+        %- Determine spots that are too close
+        r_min = str2double(get(handles.text_min_dist_spots,'String'));
+        
         %- Mask with relative distance and matrix with radius
         if not(isempty(spots_fit_cell))
 
-            data    = spots_fit_cell(:,1:3);
-            N_spots = size(data,1);
-            dum = [];
-            dum(1,:,:) = data';
-            data_3D_1  = repmat(dum,[N_spots 1 1]);
-            data_3D_2  = repmat(data,[1 1 N_spots]);
+            if r_min > 0
+         
+                data    = spots_fit_cell(:,1:3);
+                N_spots = size(data,1);
+                dum = [];
+                dum(1,:,:) = data';
+                data_3D_1  = repmat(dum,[N_spots 1 1]);
+                data_3D_2  = repmat(data,[1 1 N_spots]);
 
-            d_coord = data_3D_1-data_3D_2;
+                d_coord = data_3D_1-data_3D_2;
 
-            r = sqrt(squeeze(d_coord(:,1,:).^2 + d_coord(:,2,:).^2 + d_coord(:,3,:).^2)); 
+                r = sqrt(squeeze(d_coord(:,1,:).^2 + d_coord(:,2,:).^2 + d_coord(:,3,:).^2)); 
 
-            %- Determine spots that are too close
-            r_min = str2double(get(handles.text_min_dist_spots,'String'));
+                mask_close          = zeros(size(r));
+                mask_close(r<r_min) = 1;
+                mask_close_inv      = not(mask_close);
 
-            mask_close          = zeros(size(r));
-            mask_close(r<r_min) = 1;
-            mask_close_inv      = not(mask_close);
+                %- Mask with intensity ratios
+                data_int     = spots_detected_cell(:,col_par.int_raw);
+                mask_int_3D1 = repmat(data_int,1,N_spots);
+                mask_int_3D2 = repmat(data_int',N_spots,1);
 
-            %- Mask with intensity ratios
-            data_int     = spots_detected_cell(:,col_par.int_raw);
-            mask_int_3D1 = repmat(data_int,1,N_spots);
-            mask_int_3D2 = repmat(data_int',N_spots,1);
-
-            mask_int_ratio = mask_int_3D2 ./ mask_int_3D1;
+                mask_int_ratio = mask_int_3D2 ./ mask_int_3D1;
 
 
-            %- Find close spots and remove the ones with the dimmest pixel
-            m_diag = logical(diag(1*(1:N_spots)));
+                %- Find close spots and remove the ones with the dimmest pixel
+                m_diag = logical(diag(1*(1:N_spots)));
 
-            mask_close_spots                 = mask_int_ratio;
-            mask_close_spots(mask_close_inv) = 10;
-            mask_close_spots(m_diag)         = 10;  %- Set diagonal to 10;
+                mask_close_spots                 = mask_int_ratio;
+                mask_close_spots(mask_close_inv) = 10;
+                mask_close_spots(m_diag)         = 10;  %- Set diagonal to 10;
 
-            %== Find ratios of spot that are < 1 
-            [row,col] = find(mask_close_spots < 1);
-            ind_spots_too_close1 = unique(col);
+                %== Find ratios of spot that are < 1 
+                [row,col] = find(mask_close_spots < 1);
+                ind_spots_too_close1 = unique(col);
 
-            %== Find ratios of spot that are == 1 
-            [row,col] = find(mask_close_spots == 1);
-            ind_spots_too_close2 = unique(col(2:end));
+                %== Find ratios of spot that are == 1 
+                [row,col] = find(mask_close_spots == 1);
+                ind_spots_too_close2 = unique(col(2:end));
 
-            ind_spots_too_close = union(ind_spots_too_close1,ind_spots_too_close2);
+                ind_spots_too_close = union(ind_spots_too_close1,ind_spots_too_close2);
 
+            else
+                ind_spots_too_close = [];
+            end
+            
             %== Get thresholds for this cell
             logic_in_cell                        = thresh_all.logic_in(spots_range(ind_cell).start:spots_range(ind_cell).end);
             logic_out_man_cell                   = thresh_all.logic_out_man(spots_range(ind_cell).start:spots_range(ind_cell).end);

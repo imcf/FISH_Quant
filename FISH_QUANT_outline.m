@@ -114,13 +114,6 @@ if isempty(FQ_outline_open) || FQ_outline_open == 0
 
     set(handles.h_fishquant_outline,'WindowStyle','normal')
 
-%     %==== Path-names
-%     handles.path_name_root          = [];
-%     handles.path_name_image         = [];
-%     handles.path_name_outline       = [];
-%     handles.path_name_results       = [];
-%     handles.path_name_settings      = [];
-
     %==== Name of loaded outline file
     handles.outline_name_load   = [];
     
@@ -450,14 +443,22 @@ guidata(hObject, handles);
 
 %== key press on figure
 function h_fishquant_outline_KeyPressFcn(hObject, eventdata, handles)
-
+switch eventdata.Key     
+        case {'X','x'}
+            button_cell_delete_Callback(hObject, eventdata, handles)
+            
+        case {'N','n'}
+            button_cell_new_Callback(hObject, eventdata, handles)     
+end
 
 %== key press on listbox for cells
 function listbox_cell_KeyPressFcn(hObject, eventdata, handles)
 switch eventdata.Key     
         case {'X','x'}
             button_cell_delete_Callback(hObject, eventdata, handles)
-          
+            
+        case {'N','n'}
+            button_cell_new_Callback(hObject, eventdata, handles)           
 end
 
 
@@ -1338,46 +1339,49 @@ if not(handles.status_draw)
 
     position = reg_result.position;
 
-    handles.axis_fig  = axis;
+    if ~isempty(position)         
 
-    %- Save position
-    handles.img.cell_prop(ind_cell).reg_type = reg_result.reg_type;
-    handles.img.cell_prop(ind_cell).reg_pos  = reg_result.reg_pos;
+        handles.axis_fig  = axis;
 
-    handles.img.cell_prop(ind_cell).x = round(position(:,1))';  % v3: Has to be a row vector to agree with read-in from files
-    handles.img.cell_prop(ind_cell).y = round(position(:,2))';  % v3: Has to be a row vector to agree with read-in from files
+        %- Save position
+        handles.img.cell_prop(ind_cell).reg_type = reg_result.reg_type;
+        handles.img.cell_prop(ind_cell).reg_pos  = reg_result.reg_pos;
 
-    handles.img.cell_prop(ind_cell).pos_TS  = [];
-    handles.img.cell_prop(ind_cell).pos_Nuc = [];
-    handles.img.cell_prop(ind_cell).str_list_TS = [];
-    handles.img.cell_prop(ind_cell).TS_counter   = 1;
+        handles.img.cell_prop(ind_cell).x = round(position(:,1))';  % v3: Has to be a row vector to agree with read-in from files
+        handles.img.cell_prop(ind_cell).y = round(position(:,2))';  % v3: Has to be a row vector to agree with read-in from files
 
-    %- Add entry at the end and update list
-    str_cell = ['Cell_', num2str(handles.cell_counter)];
-    str_list{ind_cell} = str_cell;
+        handles.img.cell_prop(ind_cell).pos_TS  = [];
+        handles.img.cell_prop(ind_cell).pos_Nuc = [];
+        handles.img.cell_prop(ind_cell).str_list_TS = [];
+        handles.img.cell_prop(ind_cell).TS_counter   = 1;
 
-    set(handles.listbox_cell,'String',str_list)
-    set(handles.listbox_cell,'Value',ind_cell)
-    
-    handles.img.cell_prop(ind_cell).label = str_cell;
-    handles.cell_counter = handles.cell_counter+1;
-    
-    if fig_sep
-        handles.v_axis = axis(handles.axes_sep);
+        %- Add entry at the end and update list
+        str_cell = ['Cell_', num2str(handles.cell_counter)];
+        str_list{ind_cell} = str_cell;
+
+        set(handles.listbox_cell,'String',str_list)
+        set(handles.listbox_cell,'Value',ind_cell)
+
+        handles.img.cell_prop(ind_cell).label = str_cell;
+        handles.cell_counter = handles.cell_counter+1;
+
+        if fig_sep
+            handles.v_axis = axis(handles.axes_sep);
+        end
+
+        %- Update list-box - includes drawing
+        listbox_cell_Callback(hObject, eventdata, handles);
+
+        %- Save and show results
+        handles.status_draw = 0;
+        guidata(hObject, handles);
     end
-    
-    %- Update list-box - includes drawing
-    listbox_cell_Callback(hObject, eventdata, handles);
-
-    %- Save and show results
-    handles.status_draw = 0;
-    guidata(hObject, handles);
-
     %- UIWAIT makes FISH_QUANT_outline wait for user response (see UIRESUME)
     %- New call is necessary since impoly breaks first call
     if handles.child;
         uiwait(handles.h_fishquant_outline);
     end
+    
 end
 
 
@@ -2525,6 +2529,10 @@ handles.par_microscope = par_microscope;
 guidata(hObject, handles);
 
 
+%== Button down
+function h_fishquant_outline_ButtonDownFcn(hObject, eventdata, handles)
+
+
 % =========================================================================
 % NOT USED
 % =========================================================================
@@ -2640,6 +2648,3 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
 end
 
 function checkbox_nuc_auto_in_curr_cell_Callback(hObject, eventdata, handles)
-
-
-% --------------------------------------------------------------------
