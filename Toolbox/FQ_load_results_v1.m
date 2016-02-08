@@ -45,8 +45,8 @@ if fid == -1
     disp(['File cannot be opened: ' , file_name])
     flag_file = 0;
 else
-
-
+    disp(['FISH-quant will open file: ' , file_name])
+    
     tline = fgetl(fid);
     
     while ischar(tline)
@@ -345,17 +345,14 @@ else
                 if not(isempty(strfind(tline, 'Z_POS')))
                     cell_prop(ind_cell).cluster_prop(ind_cluster).z = val;   
                 end                
-                
 
                 %- Get next line
                 tline = fgetl(fid);
             end   
             
         end  
-        
-        
-                
-        
+      
+
         %- Read line unless already read
         if not(flag_line_read)
             tline = fgetl(fid);

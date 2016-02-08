@@ -7,8 +7,9 @@ flag_file = 0;
 version = '';
 size_img = '';
 comment = [];
-% ==== Get parameters to read data
 
+
+% ==== Get parameters to read data
 
 % =  flag_identifier  ... does first column contain an identifier for each spot
 if isfield(parameters,'flag_identifier')
