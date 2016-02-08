@@ -1,9 +1,13 @@
 function [cell_prop, par_microscope, file_names, flag_file, version,size_img,comment] = FQ_load_results_WRAPPER_v2(file_name,parameters)
 
-
+cell_prop = {};
+par_microscope= {};
+file_names = {};
+flag_file = 0;
+version = '';
+size_img = '';
 comment = [];
 % ==== Get parameters to read data
-
 
 
 % =  flag_identifier  ... does first column contain an identifier for each spot
@@ -20,7 +24,12 @@ else
     col_par = [];
 end
 
-%- Decide which file to load
+%- Check if file is present
+if ~exist(file_name)
+   return 
+end
+    
+%- Decide which file to load    
 filetext = fileread(file_name);
 
 if ~isempty(strfind(filetext,'CELL_START'))
