@@ -96,8 +96,11 @@ if not(isempty(varargin))
             mask_cell_2D = handles.img.cell_prop(handles.cell_ind_main).mask_cell_2D;       
             int_MIP_cell = handles.img_plot(mask_cell_2D);  %- Get all value of cell
             
-            th_int_max   = ceil(3*quantile(int_MIP_cell,0.99));
-            th_int_min   = floor(0.2*th_int_max);        
+            
+            val_mean  = mean(int_MIP_cell);
+            val_std   = std(int_MIP_cell);
+            th_int_max = ceil(3*quantile(int_MIP_cell,0.99));
+            th_int_min = floor(val_mean+1.5*val_std);        
         
             %- Take random samples
             y_random = datasample(int_MIP_cell,10000);

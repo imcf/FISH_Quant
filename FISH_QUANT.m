@@ -781,7 +781,7 @@ function button_outline_define_Callback(hObject, eventdata, handles)
 handles.img = FISH_QUANT_outline('HandlesMainGui',handles);
 
 %- Can be returned empty if outline designer is already open
-if ~isempty(handles.img.cell_prop)
+if ~isempty(handles.img)
     set(handles.checkbox_plot_outline,'Value',1);
     handles = analyze_cellprop(hObject, eventdata, handles); 
     guidata(hObject, handles);

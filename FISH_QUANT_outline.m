@@ -298,9 +298,13 @@ else
            guidata(hObject, handles);
            
           else
-             warndlg({'OUTLINE DESIGNER IS ALREADY OPEN'; 'Close it first before processing outlines from main FQ interface .'})
+             h_warn = warndlg({'OUTLINE DESIGNER IS ALREADY OPEN'; 'Close it first before processing outlines from main FQ interface .'});
              handles.child = -1 ; 
+             pause(2)             
              guidata(hObject, handles);
+             if ishandle(h_warn)
+                close(h_warn)
+             end
           end 
     end
 end
@@ -545,7 +549,7 @@ elseif not(isempty(handles.img.path_names.root))
 end
 
 if file_ident.status == 1 
-    name_FISH = handles.file_names.raw;
+    name_FISH = handles.img.file_names.raw;
     
     if isempty(name_FISH)
         default_name = [];
@@ -596,7 +600,7 @@ elseif not(isempty(handles.img.path_names.root))
 end
 
 if file_ident.status == 1 
-    name_FISH = handles.file_names.raw;
+    name_FISH = handles.img.file_names.raw;
     
     if isempty(name_FISH)
         default_name = [];

@@ -46,7 +46,32 @@ if exist(file_name,'file') == 2
     r     = bfGetReader(file_name);
     N_img = r.getImageCount();
     N_Z   = r.getSizeZ();
+    N_C   = r.getSizeC;
+    
+    %- Multi-channel images
+    %  Multi-file datasets.
+    if N_C > 1
+        
+        disp('Found multiple channels. Will open selected channel')
+        usedFiles     = r.getSeriesUsedFiles;
+        usedFilesMeta = r.getSeriesUsedFiles(1);
+        currentFile  = r.getCurrentFile;   
+        
+        %- Loop over all files
+        for i_F = 1:length(usedFiles)
+            if strcmp(usedFiles(i_F),currentFile)
+                file_ind = i_F;
+            end
+        end
+        
+        %- Subtract 2 (indexing starts with 0, and first file is meta file)
+        ch_ind = file_ind-2;         
+        par.range.start = r.getIndex(0,ch_ind,0)+1;
+        par.range.end   = par.range.start+N_Z-1;
 
+        N_img= N_Z;
+        N_Z = 1;
+    end
 
     %- If not loading range is specified and the z-stack is too large
     if isempty(par.range)
