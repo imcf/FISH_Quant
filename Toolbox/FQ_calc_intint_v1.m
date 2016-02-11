@@ -48,14 +48,14 @@ intint = [];
 %====  Get estimates from Gaussian fit
 
 %- Loop over all spots
-for i_spot = 1:size(cell_prop.spots_detected,1)
+for i_spot = 1:size(cell_prop.spots_fit,1)
 
     %= Integrated intensity of mRNA 
     par_mod_int(1)  = cell_prop.spots_fit(i_spot,par_fit.col_par.sigmax); % SIGMA-XY
     par_mod_int(2)  = cell_prop.spots_fit(i_spot,par_fit.col_par.sigmax); % SIGMA-XY
     par_mod_int(3)  = cell_prop.spots_fit(i_spot,par_fit.col_par.sigmaz); % SIGMA-Z
     par_mod_int(7)  = cell_prop.spots_fit(i_spot,par_fit.col_par.amp); % AMP
-    intint(i_spot)  = fun_Gaussian_3D_triple_integral_v1(par_fit.x_int,par_fit.y_int,par_fit.z_int,par_mod_int) / 10^9;
+    intint(i_spot,1)  = fun_Gaussian_3D_triple_integral_v1(par_fit.x_int,par_fit.y_int,par_fit.z_int,par_mod_int) / 10^9;
 end
 
 

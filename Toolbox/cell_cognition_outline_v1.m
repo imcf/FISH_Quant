@@ -19,7 +19,7 @@ for i_plate = 1:length(path_plate)
       
    %- List folder content and get only subfolders
    fold = dir(path_plate{i_plate});
-   isub = [fold(:).isdir]; %# returns logical vector
+   isub = [fold(:).isdir]; % returns logical vector
    fold = {fold(isub).name}';
    
    %- Find well subfolders
@@ -38,7 +38,7 @@ for i_plate = 1:length(path_plate)
    %- 
    file = dir(strcat(path_plate{i_plate},'/analyzed/images/_labels/',cell_identifier,'/',method_cell));
    file = file(arrayfun(@(x) x.name(1), file) ~= '.');
-   isub = [file(:).isdir]; %# returns logical vector
+   isub = [file(:).isdir]; % returns logical vector
    file = {file(~isub).name}';
    
 
@@ -321,7 +321,7 @@ function cell_prop = make_cell_prop(reg_cell,reg_nuc,img_size)
                 end
             end
 
-            if sum(cell_tot) >= 0.9*length(Nuc_X)   % Allow somewhat larger nuclei than cells - can help with imprecise conversion from segmentation masks to outlines
+            if sum(cell_tot) >= 0.5*length(Nuc_X)   % Allow somewhat larger nuclei than cells - can help with imprecise conversion from segmentation masks to outlines
                 ind_cell_Nuc = i_cell; 
             end
 

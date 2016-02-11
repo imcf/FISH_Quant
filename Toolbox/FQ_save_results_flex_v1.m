@@ -187,7 +187,7 @@ if name_save ~= 0
                          
                          %- Check if there are distance measurements
                          if ~(isempty(cell_prop(i_cell).intint))
-                                 spots_output   = [spots_output, cell_prop(i_cell).intint'];
+                                 spots_output   = [spots_output, cell_prop(i_cell).intint];
                                  str_text = [str_text,'\tIntInt'];
                          end
                          
