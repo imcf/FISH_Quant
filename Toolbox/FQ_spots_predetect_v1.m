@@ -315,7 +315,7 @@ spots_detected(:,1:3)  = pos_spots_GOOD;
 
 % %===  Extract immediate environment for each spot in 3d
 [sub_spots, sub_spots_filt, spots_detected] = FQ_spots_moscaic_v1(img,spots_detected);
-spots_detected(:,10)   = img.raw(pos_spots_GOOD_lin);
+%spots_detected(:,10)   = img.raw(pos_spots_GOOD_lin);  % Filtering might %move position of maximum pixel slightly - maximum is now estimated from sub_spots
 spots_detected(:,11)   = img.filt(pos_spots_GOOD_lin);
 
 %- Other values

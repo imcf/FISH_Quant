@@ -42,8 +42,10 @@ for i = 1:N_Spots
     if z_max > dim.Z; z_max = dim.Z; end        
 
     %- For raw data
-    sub_spots{i} = double(img.raw(y_min:y_max,x_min:x_max,z_min:z_max));
-
+    dum           = double(img.raw(y_min:y_max,x_min:x_max,z_min:z_max));
+    sub_spots{i}  = dum;
+    sub_spots_max(i,1) = max(dum(:));
+    
     %- For filtered data     
     if ~isempty(img.filt)
         sub_spots_filt{i} = double(img.filt(y_min:y_max,x_min:x_max,z_min:z_max));  
@@ -66,3 +68,4 @@ spots_detected(:,6)   = x_min_spots;
 spots_detected(:,7)   = x_max_spots;
 spots_detected(:,8)   = z_min_spots;
 spots_detected(:,9)   = z_max_spots; 
+spots_detected(:,10)  = sub_spots_max; 
