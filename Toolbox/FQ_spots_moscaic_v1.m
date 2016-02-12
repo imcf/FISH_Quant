@@ -20,6 +20,7 @@ z_max_spots = zeros(N_Spots,1);
 
 
 disp('... sub-spot mosaicing...');    
+sub_spots_max = [];
 
 for i = 1:N_Spots    
 
