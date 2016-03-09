@@ -32,7 +32,8 @@ classdef FQ_img < handle
         TS_label_proj_z
         
         %- Dimensions
-        dim
+        dim = struct('X', '','Y', '','Z', '')
+        
         status_3D              = 1;  % Analysis is 3D
         
         %- mRNA 
@@ -64,6 +65,7 @@ classdef FQ_img < handle
         %% === Constructor
         function img = FQ_img
             
+            dim        = struct('X', '','Y', '','Z', '');
             img.comment = {};    % Comment
             img.range   = [];    % Range for planes in a mult-plane image (e.g. 4D stack)
             
@@ -260,10 +262,11 @@ classdef FQ_img < handle
                 [img.path_names.img, file_name_only,ext] = fileparts(file_name);
                 
                 %- Dimensions
-                img.dim.X             = img_struct.NX;
-                img.dim.Y             = img_struct.NY;
-                img.dim.Z             = img_struct.NZ;
-                
+                if isempty(img.dim.X)
+                    img.dim.X             = img_struct.NX;
+                    img.dim.Y             = img_struct.NY;
+                    img.dim.Z             = img_struct.NZ;
+                end
                     
                %- Which type of image?
                 switch img_type
@@ -559,8 +562,7 @@ classdef FQ_img < handle
             end
         end
             
-       
-            
+        
         %% ==== Save results file
         function [file_save, path_save] = save_results(img,name_full,parameters)
             
@@ -712,7 +714,7 @@ classdef FQ_img < handle
                %- Double Gaussian filter
                case {'3D_DoG','3D_2xGauss','2xGauss'}
                    fprintf('3D Double Gaussian filter ...')
-                   flag.output = 0;
+                   flag.output = 1;
                    img.filt    = img_filter_Gauss_v5(img.raw,img.settings.filter.kernel_size,flag);        
                 
                %- 3D LoG (From Battich et al., Nature Methods)           

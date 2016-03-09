@@ -1,7 +1,7 @@
 function varargout = FISH_QUANT(varargin)
 % FISH_QUANT M-file for FISH_QUANT.fig
 
-% Last Modified by GUIDE v2.5 29-Jan-2016 11:22:11
+% Last Modified by GUIDE v2.5 09-Mar-2016 10:32:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -2586,6 +2586,11 @@ else
 end
 
 FISH_QUANT_list_folder(par_main,path_name);
+
+
+%== Create outlines in second color
+function menu_outlines_2nd_Callback(hObject, eventdata, handles)
+FQ_OutlineSecond;
 
 
 %== Batch processing - folders
