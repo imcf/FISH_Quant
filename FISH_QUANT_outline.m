@@ -200,9 +200,11 @@ if isempty(FQ_outline_open) || FQ_outline_open == 0
         elseif strcmp( varargin{1},'file')         
 
             %- Name of file
-            name_load   = varargin{2};
+            name_load                 = varargin{2};
             handles.outline_name_load = name_load;
 
+            fprintf('\n=== FISH-quant outline designer\nAttempting to load file: %s\n\n',name_load);
+            
             %- Path names   & parameters
             handles.img = FQ_img;
             handles.img.path_names     = varargin{3};    
