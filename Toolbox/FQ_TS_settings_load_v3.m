@@ -51,28 +51,6 @@ else
 
         %- Compare identifier before the equal sign to known identifier
         switch str_tag
-
-%             case 'lambda_EM'
-%                 settings.par_microscope.Em = str2double(str_val);
-% 
-%             case 'lambda_Ex'
-%                 settings.par_microscope.Ex = str2double(str_val);             
-% 
-%             case 'NA'            
-%                 settings.par_microscope.NA = str2double(str_val);            
-% 
-%             case 'RI'
-%                 settings.par_microscope.RI = str2double(str_val);            
-% 
-%             case 'Microscope'
-%                 settings.par_microscope.type = str_val;   
-% 
-%             case 'Pixel_XY'    
-%                 settings.par_microscope.pixel_size.xy = str2double(str_val);                 
-% 
-%             case 'Pixel_Z' 
-%                 settings.par_microscope.pixel_size.z = str2double(str_val);    
-     
                 
            case 'FLAG_quant_simple_only' 
                 img.settings.TS_quant.flags.quant_simple_only = str2double(str_val);    
@@ -143,8 +121,13 @@ else
           
             case 'crop_image_z_nm'
                 img.settings.TS_quant.crop_image.z_nm = str2double(str_val);            
-     
+
+            case 'crop_image_xy_pix'
+                img.settings.TS_quant.crop_image.xy_pix= str2double(str_val);      
           
+            case 'crop_image_z_pix'
+                img.settings.TS_quant.crop_image.z_pix = str2double(str_val);                  
+
             case 'factor_Q_ok'
                 img.settings.TS_quant.factor_Q_ok = str2double(str_val);  
             
@@ -178,23 +161,7 @@ else
                     settings.parameters_quant.BGD.amp = str2double(str_val);
                     status_bgd_read = 1;
                 end            
-           
-                
-%            %== Autodetection of TS     
-%                                
-%            case 'FLAG_auto_detect'
-%                 img.settings.TS_detect.FLAG_auto_detect = str2double(str_val);                  
-%                 
-%            case 'auto_detect_th_int'    
-%                 img.settings.TS_detect.int_th = str2double(str_val);
-%                       
-%            case 'auto_detect_conn'    
-%                 img.settings.TS_detect.conn = str2double(str_val);  
-%               
-%            case 'auto_min_dist'
-%                 img.settings.TS_detect.min_dist = str2double(str_val); 
-%                 
-%                 
+                         
            %== Region to sum of pixels               
            case 'OPT_QUANT_REG_PIX_SUM_XY'            
                 img.settings.TS_quant.N_pix_sum.xy= str2double(str_val);

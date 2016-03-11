@@ -1,19 +1,18 @@
-function parameters_quant = FQ_TS_settings_modify_v5(parameters_quant,flag_simple)
+function parameters_quant = FQ_TS_settings_modify_v6(parameters_quant,flag_simple)
 % Function to modify the settings of TS quantification
 
 
 if flag_simple
         %- User-dialog
     dlgTitle = 'Options for TxSite quantification';  
-    prompt_avg(1)  = {'[CROP] in XY +/- nm'};
-    prompt_avg(2) = {'[CROP] in Z +/- nm'};
+    prompt_avg(1)  = {'[CROP] in XY +/- pix'};
+    prompt_avg(2) = {'[CROP] in Z +/- pix'};
     prompt_avg(3) = {'[CROP] 0-no, 1-yes (with region)'};
     prompt_avg(4) = {'Size of region to sum intensity [XY]: center +/- pix'};
     prompt_avg(5) = {'Size of region to sum intensity [Z]: center +/- pix'};
 
-    
-    defaultValue_avg{1} = num2str(parameters_quant.crop_image.xy_nm);
-    defaultValue_avg{2} = num2str(parameters_quant.crop_image.z_nm);
+    defaultValue_avg{1} = num2str(parameters_quant.crop_image.xy_pix);
+    defaultValue_avg{2} = num2str(parameters_quant.crop_image.z_pix);
     defaultValue_avg{3} = num2str(parameters_quant.flags.crop);
     defaultValue_avg{4} = num2str(parameters_quant.N_pix_sum.xy);
     defaultValue_avg{5} = num2str(parameters_quant.N_pix_sum.z);
@@ -25,8 +24,8 @@ if flag_simple
     %- Return results if specified
     if( ~ isempty(userValue))
 
-        parameters_quant.crop_image.xy_nm      = str2double(userValue{1});
-        parameters_quant.crop_image.z_nm       = str2double(userValue{2});
+        parameters_quant.crop_image.xy_pix      = str2double(userValue{1});
+        parameters_quant.crop_image.z_pix       = str2double(userValue{2});
         parameters_quant.flags.crop            = str2double(userValue{3});
         parameters_quant.N_pix_sum.xy          = str2double(userValue{4});
         parameters_quant.N_pix_sum.z           = str2double(userValue{5});
@@ -36,8 +35,8 @@ else
     
     %- User-dialog
     dlgTitle = 'Options for TxSite quantification';
-    prompt_avg(1) = {'[CROP] in XY +/- nm'};
-    prompt_avg(2) = {'[CROP] in Z +/- nm'};
+    prompt_avg(1) = {'[CROP] in XY +/- pix'};
+    prompt_avg(2) = {'[CROP] in Z +/- pix'};
     prompt_avg(3) = {'[CROP] 0-no, 1-yes (with region)'};
     prompt_avg(4) = {'Size of region to sum intensity [XY]: center +/- pix'};
     prompt_avg(5) = {'Size of region to sum intensity [Z]: center +/- pix'};
@@ -49,8 +48,8 @@ else
     prompt_avg(11) = {'[BGD AUTO] Factor for minimum intensity'};
     prompt_avg(12) = {'[BGD AUTO] Factor for maximum intensity'};
     
-    defaultValue_avg{1} = num2str(parameters_quant.crop_image.xy_nm);
-    defaultValue_avg{2} = num2str(parameters_quant.crop_image.z_nm);
+    defaultValue_avg{1} = num2str(parameters_quant.crop_image.xy_pix);
+    defaultValue_avg{2} = num2str(parameters_quant.crop_image.z_pix);
     defaultValue_avg{3} = num2str(parameters_quant.flags.crop);
     defaultValue_avg{4} = num2str(parameters_quant.N_pix_sum.xy);
     defaultValue_avg{5} = num2str(parameters_quant.N_pix_sum.z);
@@ -71,8 +70,8 @@ else
 
     %- Return results if specified
     if( ~ isempty(userValue))
-        parameters_quant.crop_image.xy_nm      = str2double(userValue{1});
-        parameters_quant.crop_image.z_nm       = str2double(userValue{2});
+        parameters_quant.crop_image.xy_pix      = str2double(userValue{1});
+        parameters_quant.crop_image.z_pix       = str2double(userValue{2});
         parameters_quant.flags.crop            = str2double(userValue{3});
         parameters_quant.N_pix_sum.xy          = str2double(userValue{4});
         parameters_quant.N_pix_sum.z           = str2double(userValue{5});

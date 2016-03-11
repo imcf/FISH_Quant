@@ -98,7 +98,7 @@ if not(isempty(varargin))
             
             
             val_mean  = mean(int_MIP_cell);
-            val_std   = std(int_MIP_cell);
+            val_std   = std(double(int_MIP_cell));
             th_int_max = ceil(3*quantile(int_MIP_cell,0.99));
             th_int_min = floor(val_mean+1.5*val_std);        
         

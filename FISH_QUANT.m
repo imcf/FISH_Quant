@@ -376,7 +376,7 @@ current_dir = pwd;
 
 if    not(isempty(handles.img.path_names.img))
    cd(handles.img.path_names.img)
-elseif not(isempty(handles.path_name_root))
+elseif not(isempty(handles.img.path_names.root))
    cd(handles.img.path_names.root) 
 end
 
@@ -845,8 +845,11 @@ if N_cell > 0
                 dim_MIP_z = size(MIP_xz,1); 
             
                 %- Add zeros if not enough planes (for incomplete spots)
-                if dim_MIP_z < dim_sub_z
+                if     dim_MIP_z < dim_sub_z
                    MIP_xz(dim_MIP_z+1:dim_sub_z,:) = 0;
+                elseif dim_MIP_z > dim_sub_z
+                    errordlg('Cropping dimension for spots do not agree. This happens when the settings file was not saved at the same time as the spot detection results.')
+                    return
                 end
                 spots_proj.xz(:,:,1,k) = MIP_xz;
             end
@@ -1934,7 +1937,7 @@ current_dir = pwd;
 
 if    not(isempty(handles.img.path_names.results))
    cd(handles.img.path_names.results)
-elseif not(isempty(handles.path_name_root))
+elseif not(isempty(handles.img.path_names.root))
    cd(handles.img.path_names.root) 
 end
 
@@ -1953,7 +1956,7 @@ current_dir = pwd;
 
 if    not(isempty(handles.img.path_names.results))
    cd(handles.img.path_names.results)
-elseif not(isempty(handles.path_name_root))
+elseif not(isempty(handles.img.path_names.root))
    cd(handles.img.path_names.root) 
 end
 

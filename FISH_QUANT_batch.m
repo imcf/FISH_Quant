@@ -3173,14 +3173,9 @@ for i_file = 1:N_file
             disp(['Outline saved to: ',file_name_OUTLINE_full])
             
             parameters.path_save           = path_save;
-%             parameters.cell_prop           = cell_prop;
-%             parameters.par_microscope      = par_microscope;
-%             parameters.path_name_image     = handles.img.path_names.img;
-%             parameters.file_names          = file_names;
-             parameters.version             = handles.img.version;
-             parameters.flag_type           = 'outline'; 
+            parameters.version             = handles.img.version;
+            parameters.flag_type           = 'outline'; 
 
-            
             %- Parameters to save results
             handles.img.save_results(file_name_OUTLINE_full,parameters);
                    
@@ -3243,7 +3238,7 @@ cd(current_dir)
 %== Settings of quantification
 function menu_settings_TS_Callback(hObject, eventdata, handles)
 
-handles.parameters_quant = FQ_TS_settings_modify_v5(handles.img.settings.TS_quant,handles.img.settings.TS_quant.flags.quant_simple_only);
+handles.parameters_quant = FQ_TS_settings_modify_v6(handles.img.settings.TS_quant,handles.img.settings.TS_quant.flags.quant_simple_only);
 status_update(hObject, eventdata, handles,{'  ';'## Options for transcription site quantification modified'});         
 guidata(hObject, handles);
 
@@ -3401,9 +3396,8 @@ function handles = load_PSF(hObject, eventdata, handles)
 
 %- Same cropping as for TS quant
 par_crop_TS                     = handles.parameters_quant.crop_image;
-pixel_size                      = handles.par_microscope.pixel_size;
-parameters.par_crop_NS_quant.xy = ceil(par_crop_TS.xy_nm / pixel_size.xy);
-parameters.par_crop_NS_quant.z  = ceil(par_crop_TS.z_nm / pixel_size.z);
+parameters.par_crop_NS_quant.xy = par_crop_TS.xy_pix ;
+parameters.par_crop_NS_quant.z  = par_crop_TS.z_pix;
 
 %- Sum of pixels
 parameters.N_pix_sum            = handles.parameters_quant.N_pix_sum;
@@ -3552,34 +3546,6 @@ set(handles.h_gui_batch,'Pointer','watch'); %= Pointer to watch
 % %== Analyze PSF: load and sub-pixel placement
 handles.img = handles.img.load_mRNA_avg(fullfile(handles.img.mRNA_prop.path_name , handles.img.mRNA_prop.file_name));
 
-
-%handles = load_PSF(hObject, eventdata, handles);
-% 
-% %- Same cropping as for TS quant
-% par_crop_TS                     = handles.parameters_quant.crop_image;
-% pixel_size                      = handles.par_microscope.pixel_size;
-% parameters.par_crop_NS_quant.xy = ceil(par_crop_TS.xy_nm / pixel_size.xy);
-% parameters.par_crop_NS_quant.z  = ceil(par_crop_TS.z_nm / pixel_size.z);
-% 
-% %- Same cropping as for detection
-% parameters.par_crop_NS_detect   = handles.detect.region; 
-% 
-% %- Sum of pixels
-% parameters.N_pix_sum            = handles.parameters_quant.N_pix_sum;
-% 
-% %- Load PSF    
-% parameters.flags.output = 0;
-% parameters.flags.norm   = 0; 
-% handles = FQ_TS_analyze_PSF_v3(handles,parameters); 
-% 
-% %- Get mRNA properties 
-% handles.mRNA_prop.sigma_xy           = handles.img_PSF_OS_struct.PSF_fit.sigma_xy;
-% handles.mRNA_prop.sigma_z            = handles.img_PSF_OS_struct.PSF_fit.sigma_z;
-% handles.mRNA_prop.amp_mean_fit_QUANT = handles.img_PSF_OS_struct.PSF_fit.amp;
-% handles.mRNA_prop.sum_pix            = handles.PSF_sum_pix;
-% handles.mRNA_prop.bgd_value          = handles.bgd_value; 
-% handles.mRNA_prop.N_pix_sum          = (2*parameters.N_pix_sum.xy+1) * (2*parameters.N_pix_sum.xy+1)  * (2*parameters.N_pix_sum.z+1); 
-
 %- Update status for PSF
 if not(isempty(handles.img.mRNA_prop.PSF_shift))
     handles.status_settings_PSF_proc = 1; 
@@ -3722,6 +3688,7 @@ end
 
 %-- General parameters
 par_microscope   = handles.img.par_microscope;
+pixel_size = par_microscope.pixel_size;
 
 %===== PREPARATION FOR FIT 
 
@@ -3736,14 +3703,14 @@ parameters_quant.flags.output        = 0;
 
 
 %=== Integration range
-range_int.x_int.min =  - parameters_quant.crop_image.xy_nm;
-range_int.x_int.max =  + parameters_quant.crop_image.xy_nm;
+range_int.x_int.min =  - parameters_quant.crop_image.xy_pix*pixel_size.xy;
+range_int.x_int.max =  + parameters_quant.crop_image.xy_pix*pixel_size.xy;
 
-range_int.y_int.min =  - parameters_quant.crop_image.xy_nm;
-range_int.y_int.max =  + parameters_quant.crop_image.xy_nm;
+range_int.y_int.min =  - parameters_quant.crop_image.xy_pix*pixel_size.xy;
+range_int.y_int.max =  + parameters_quant.crop_image.xy_pix*pixel_size.xy;
 
-range_int.z_int.min =  - parameters_quant.crop_image.z_nm;
-range_int.z_int.max =  + parameters_quant.crop_image.z_nm;
+range_int.z_int.min =  - parameters_quant.crop_image.z_pix*pixel_size.z;
+range_int.z_int.max =  + parameters_quant.crop_image.z_pix*pixel_size.z;
 
 parameters_quant.range_int = range_int;
 
@@ -3775,16 +3742,11 @@ parameters_quant.col_par             = handles.img.col_par;
 %= mRNA properties
 parameters_quant.mRNA_prop           = handles.img.mRNA_prop;
 
-%= FLAGS for QUANTIFICATION
-parameters_quant.flags.parallel      = get(handles.checkbox_parallel_computing,'Value');
-
 %=== Which quantification methods: simple or all
 parameters_quant.flags.quant_simple_only = handles.img.settings.TS_quant.flags.quant_simple_only;
-%handles.status_TS_simple_only            = parameters_quant.flags.quant_simple_only;
 
 %- BGD for fitting of TS is a free fitting paramter 
 parameters_quant.flags.IntegInt_bgd_free = 1;   
-
 
 %=== Update status
 status_text = {' ';'== Transcription site quantification: STARTED.' ; '   See Workspace for details.'};
@@ -3920,10 +3882,7 @@ for i_file = i_start_file:i_end_file
 
                 %- Binary mask for outline of cell: needed for BGD estimation
                 parameters_quant.cell_bw =  roipoly(handles.img.raw(:,:,1),cell_prop(ind_cell).x,cell_prop(ind_cell).y);
-
-                %- Binary mask for image
-               % parameters_quant.cell_bw =  roipoly(image_struct.data(:,:,1),cell_prop(ind_cell).x,cell_prop(ind_cell).y);
-
+          
                 if not(isempty(cell_prop(ind_cell).pos_Nuc))
                     parameters_quant.nuc_bw =  roipoly(handles.img.raw(:,:,1),cell_prop(ind_cell).pos_Nuc.x,cell_prop(ind_cell).pos_Nuc.y);
                 else
@@ -3977,7 +3936,7 @@ for i_file = i_start_file:i_end_file
                     %- Quantify
                     image_struct.data = handles.img.raw;  % HAS TO BE CHANGED - but then in all functions in TS_quant_v16 ....
 
-                    [TxSite_quant REC_prop TS_analysis_results TS_rec Q_all] = TS_quant_v16(image_struct,pos_TS,PSF_shift,parameters_quant);
+                    [TxSite_quant REC_prop TS_analysis_results TS_rec Q_all] = TS_quant_v17(image_struct,pos_TS,PSF_shift,parameters_quant);
 
                     %== [3] Save results in summary file
                     TS_summary(TS_counter).file_name_list      = file_name_load;

@@ -31,12 +31,14 @@ img_TS_large(min_y:max_y,min_x:max_x,:) = image_struct.data(min_y:max_y,min_x:ma
 
 
 %=== Cropping region
-crop_xy_nm = parameters.crop_image.xy_nm;
-crop_z_nm  = parameters.crop_image.z_nm;
+% crop_xy_nm = parameters.crop_image.xy_nm;
+% crop_z_nm  = parameters.crop_image.z_nm;
+% 
+% crop_xy_pix = ceil(crop_xy_nm / pixel_size.xy);
+% crop_z_pix  = ceil(crop_z_nm / pixel_size.z);
 
-crop_xy_pix = ceil(crop_xy_nm / pixel_size.xy);
-crop_z_pix  = ceil(crop_z_nm / pixel_size.z);
-
+crop_xy_pix = parameters.crop_image.xy_pix;
+crop_z_pix  = parameters.crop_image.z_pix;
 
 xmin_crop = round(img_TS_large_max.X - crop_xy_pix);
 xmax_crop = round(img_TS_large_max.X + crop_xy_pix);

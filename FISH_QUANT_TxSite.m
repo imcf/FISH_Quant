@@ -56,11 +56,9 @@ handles.img.cell_prop    = {};
 handles.file_name_image = [];
 handles.status_TS_simple_only = 0;
 
-
 %- Default for PSF quantification
 handles.status_TS_simple_only = 1;
 handles.bgd_value  = 0;
-
 
 % File-names for PSF and BGD
 handles.PSF_path_name = [];
@@ -91,31 +89,14 @@ if not(isempty(varargin))
         handles_MAIN = varargin{2};
         
         %- Get folder structure of main interface
-        handles.img = handles_MAIN.img;
-        
-%         path_name_root     = handles_MAIN.path_name_root;
-%         handles.path_name_image    = handles_MAIN.path_name_image;
-%         handles.path_name_outline  = handles_MAIN.path_name_outline;
-%         handles.path_name_results  = handles_MAIN.path_name_results;
-%         
-%         handles.img.cell_prop          = handles_MAIN.cell_prop;   
-%         handles.par_crop_DETECT    = handles_MAIN.detect.region; 
-%         
+        handles.img = handles_MAIN.img;        
         
         if not(isempty(handles.img.cell_prop))
             ind_cell           = get(handles_MAIN.pop_up_outline_sel_cell,'Value');
             str_cells          = get(handles_MAIN.pop_up_outline_sel_cell,'String');
 
             %- Change name of GUI
-            set(handles.h_FQ_TxSite,'Name', ['FISH-QUANT ', handles.img.version, ': TxSite quantification']);
-            
-%             handles.par_microscope     = handles_MAIN.par_microscope;
-% 
-%             handles.file_names = handles_MAIN.file_names;
-% 
-%             %- Get image data
-%             global image_struct
-%             handles.image_struct = image_struct;  
+            set(handles.h_FQ_TxSite,'Name', ['FISH-QUANT ', handles.img.version, ': TxSite quantification']);           
 
             %- Save everything
             guidata(hObject, handles); 
@@ -363,7 +344,7 @@ if file_name_settings_TS ~= 0
     
     %- Check if only simple methods
     if ~handles.img.settings.TS_quant.flags.quant_simple_only
-        set(handles.checkbox_flag_GaussMix,'Value') = 1;
+        set(handles.checkbox_flag_GaussMix,'Value', 1);
         checkbox_flag_GaussMix_Callback(hObject, eventdata, handles)
     end
     
@@ -400,7 +381,7 @@ if file_name_settings_TS ~= 0
         handles.status_BGD = 1;        
    end
      
-   if parameters_quant.flags.bgd_local
+   if handles.img.settings.TS_quant.flags.bgd_local
        set(handles.button_TS_bgd,'Value',0);
    else
        set(handles.button_TS_bgd,'Value',1);
@@ -578,19 +559,15 @@ parameters_quant.file_name_save_STATUS    = [];
 parameters_quant.file_name_save_PLOTS_PS  = [];
 parameters_quant.file_name_save_PLOTS_PDF = [];
 
-
 %=== Integration range = cropping region!
-range_int.x_int.min =  - parameters_quant.crop_image.xy_nm;
-range_int.x_int.max =  + parameters_quant.crop_image.xy_nm;
+parameters_quant.range_int.x_int.min =  - parameters_quant.crop_image.xy_pix * par_microscope.pixel_size.xy;
+parameters_quant.range_int.x_int.max =  + parameters_quant.crop_image.xy_pix * par_microscope.pixel_size.xy;
 
-range_int.y_int.min =  - parameters_quant.crop_image.xy_nm;
-range_int.y_int.max =  + parameters_quant.crop_image.xy_nm;
+parameters_quant.range_int.y_int.min =  - parameters_quant.crop_image.xy_pix * par_microscope.pixel_size.xy;
+parameters_quant.range_int.y_int.max =  + parameters_quant.crop_image.xy_pix * par_microscope.pixel_size.xy;
 
-range_int.z_int.min =  - parameters_quant.crop_image.z_nm;
-range_int.z_int.max =  + parameters_quant.crop_image.z_nm;
-
-parameters_quant.range_int = range_int;
-
+parameters_quant.range_int.z_int.min =  - parameters_quant.crop_image.z_pix * par_microscope.pixel_size.z;
+parameters_quant.range_int.z_int.max =  + parameters_quant.crop_image.z_pix * par_microscope.pixel_size.z;
 
 %= mRNA properties
 parameters_quant.mRNA_prop         = handles.img.mRNA_prop;
@@ -603,8 +580,6 @@ parameters_quant.flags.IntegInt_bgd_free = 1;
 
 %- Boundaries for fit
 parameters_quant.flags.bound = 1;
-
-
 
 %- Which cell and which TS
 ind_cell  = get(handles.pop_up_outline_sel_cell,'Value');
@@ -623,11 +598,10 @@ if not(isempty(cell_prop(ind_cell).pos_TS))
         parameters_quant.nuc_bw =  [];
     end
     
-
     %- Start quantification
-    image_struct.data = handles.img.raw;  % HAS TO BE CHANGED - but then in all functions in TS_quant_v16 ....
+    image_struct.data = handles.img.raw;  % HAS TO BE CHANGED - but then in all functions in TS_quant_v17 ....
     
-    [TxSite_quant, REC_prop, TS_analysis_results, TS_rec, Q_all] = TS_quant_v16(image_struct,pos_TS,PSF_shift,parameters_quant);
+    [TxSite_quant, REC_prop, TS_analysis_results, TS_rec, Q_all] = TS_quant_v17(image_struct,pos_TS,PSF_shift,parameters_quant);
 
     handles.img.cell_prop(ind_cell).pos_TS(ind_TS).TxSite_quant         = TxSite_quant;
     handles.img.cell_prop(ind_cell).pos_TS(ind_TS).TS_rec               = TS_rec;
@@ -1096,7 +1070,7 @@ if not(isempty(handles.img.cell_prop(ind_cell).pos_TS))
     parameters.dist_max                = str2double(get(handles.text_TS_dist_max,'String'));
 
     %- Restrict analysis
-    [TxSite_quant REC_prop] = FQ_TS_analyze_results_v8(TS_rec,Q_all,TS_analysis, parameters);
+    [TxSite_quant, REC_prop] = FQ_TS_analyze_results_v8(TS_rec,Q_all,TS_analysis, parameters);
 
     %- Assign new parameters
     handles.img.cell_prop(ind_cell).pos_TS(ind_TS).TxSite_quant = TxSite_quant;
@@ -1131,15 +1105,14 @@ for i_TS = 1 : N_TS
     Q_all       = TS_summary(i_TS).Q_all;    
     TS_analysis = TS_summary(i_TS).TS_analysis_results;    
     
- 
     %====== Restrict analysis
-    [TxSite_quant REC_prop] = FQ_TS_analyze_results_v8(TS_rec,Q_all,TS_analysis, parameters);
+    [TxSite_quant, REC_prop] = FQ_TS_analyze_results_v8(TS_rec,Q_all,TS_analysis, parameters);
 
-    %- Asign results
+    %- Assign results
     TS_summary(i_TS).TxSite_quant = TxSite_quant;
     TS_summary(i_TS).REC_prop     = REC_prop;
     
-   end
+end
 
 %- Save results
 handles.TS_summary = TS_summary;
@@ -1152,7 +1125,7 @@ status_update(hObject, eventdata, handles,status_text);
 %=== Options for quantification
 function menu_options_Callback(hObject, eventdata, handles)
 
-handles.img.settings.TS_quant = FQ_TS_settings_modify_v5(handles.img.settings.TS_quant,handles.status_TS_simple_only);
+handles.img.settings.TS_quant = FQ_TS_settings_modify_v6(handles.img.settings.TS_quant,handles.status_TS_simple_only);
 
 handles.status_PSF = 0;
 status_update(hObject, eventdata, handles,{'  ';'## Options modified'});
@@ -1182,8 +1155,8 @@ if isfield(handles,'TS_summary')
     cd(path_save)
         
     %== Settings
-    if isempty(handles.path_name_settings_TS)
-        [handles.file_name_settings_TS, handles.path_name_settings_TS] = FQ_TS_settings_save_v9([],handles);
+    if isfield(handles,'path_name_settings_TS') || isempty(handles.path_name_settings_TS)
+        [handles.file_name_settings_TS, handles.path_name_settings_TS] = handles.img.save_settings_TS([]);
     end
     
     %== Parameters
@@ -1361,52 +1334,52 @@ hold off
 
 %=== Parallel computing
 function checkbox_parallel_computing_Callback(hObject, eventdata, handles)
-
-flag_parallel = get(handles.checkbox_parallel_computing,'Value');
-
-if exist('matlabpool')
-
-    %- Parallel computing - open MATLAB session for parallel computation 
-    if flag_parallel == 1    
-        isOpen = matlabpool('size') > 0;
-        if (isOpen==0)
-            
-            set(handles.h_FQ_TxSite,'Pointer','watch');
-            %- Update status
-            status_text = {' ';'== STARTING matlabpool for parallel computing ... please wait ... '};
-            status_update(hObject, eventdata, handles,status_text);
-
-            matlabpool open;
-
-            %- Update status
-            status_text = {' ';'    ... STARTED'};
-            status_update(hObject, eventdata, handles,status_text);        
-            set(handles.h_FQ_TxSite,'Pointer','arrow');
-        end
-
-    %- Parallel computing - close MATLAB session for parallel computation     
-    else
-        isOpen = matlabpool('size') > 0;
-        if (isOpen==1)
-            
-            set(handles.h_FQ_TxSite,'Pointer','watch');
-            %- Update status
-            status_text = {' ';'== STOPPING matlabpool for parallel computing ... please wait ... '};
-            status_update(hObject, eventdata, handles,status_text);
-
-            matlabpool close;
-
-            %- Update status
-            status_text = {' ';'    ... STOPPED'};
-            status_update(hObject, eventdata, handles,status_text);
-            set(handles.h_FQ_TxSite,'Pointer','arrow');
-        end
-    end
-    
-else
-    warndlg('Parallel toolbox not available','FISH_QUANT')
-    set(handles.checkbox_parallel_computing,'Value',0);
-end
+% 
+% flag_parallel = get(handles.checkbox_parallel_computing,'Value');
+% 
+% if exist('matlabpool')
+% 
+%     %- Parallel computing - open MATLAB session for parallel computation 
+%     if flag_parallel == 1    
+%         isOpen = matlabpool('size') > 0;
+%         if (isOpen==0)
+%             
+%             set(handles.h_FQ_TxSite,'Pointer','watch');
+%             %- Update status
+%             status_text = {' ';'== STARTING matlabpool for parallel computing ... please wait ... '};
+%             status_update(hObject, eventdata, handles,status_text);
+% 
+%             matlabpool open;
+% 
+%             %- Update status
+%             status_text = {' ';'    ... STARTED'};
+%             status_update(hObject, eventdata, handles,status_text);        
+%             set(handles.h_FQ_TxSite,'Pointer','arrow');
+%         end
+% 
+%     %- Parallel computing - close MATLAB session for parallel computation     
+%     else
+%         isOpen = matlabpool('size') > 0;
+%         if (isOpen==1)
+%             
+%             set(handles.h_FQ_TxSite,'Pointer','watch');
+%             %- Update status
+%             status_text = {' ';'== STOPPING matlabpool for parallel computing ... please wait ... '};
+%             status_update(hObject, eventdata, handles,status_text);
+% 
+%             matlabpool close;
+% 
+%             %- Update status
+%             status_text = {' ';'    ... STOPPED'};
+%             status_update(hObject, eventdata, handles,status_text);
+%             set(handles.h_FQ_TxSite,'Pointer','arrow');
+%         end
+%     end
+%     
+% else
+%     warndlg('Parallel toolbox not available','FISH_QUANT')
+%     set(handles.checkbox_parallel_computing,'Value',0);
+% end
 
 
 %== Update status

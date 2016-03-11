@@ -1,4 +1,4 @@
-function [TS_rec Q_all img_bgd] = TxSite_reconstruct_w_image_v9(TS_analysis,img_PSF,parameters)
+function [TS_rec, Q_all, img_bgd] = TxSite_reconstruct_w_image_v9(TS_analysis,img_PSF,parameters)
 
 %% Parameters
 flags               = parameters.flags;

@@ -277,7 +277,7 @@ for i_file = 1:size(file_list,1)
     file_name_load = file_list{i_file};
     image_struct = load_stack_data_v7(fullfile(path_name_list,file_name_load));
     
-    img_filt = img_filter_Gauss_v3(image_struct,kernel_size,flag);
+    img_filt = img_filter_Gauss_v5(image_struct,kernel_size,flag);
     
 
     %- Save filtered image

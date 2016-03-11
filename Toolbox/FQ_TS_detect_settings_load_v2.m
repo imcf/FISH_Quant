@@ -85,20 +85,20 @@ else
             case 'dist_max_offset_FISH_min_int'
                 settings.dist_max_offset_FISH_min_int = str2double(str_val);            
                 
-            %- Size of region: older version used a different identifier    
+            %- Size of region: old version used a different identifier    
             case 'crop_image_xy_nm'
                 settings.size_detect.xy_nm = str2double(str_val);               
              
             case 'crop_image_z_nm'
                 settings.size_detect.z_nm = str2double(str_val);    
                 
-                
+           %- Size of region: old version using still nm definition
             case 'size_detect_xy_nm'
                 settings.size_detect.xy_nm = str2double(str_val);               
              
             case 'size_detect_z_nm'
-                settings.size_detect.z_nm = str2double(str_val);                  
-       
+                settings.size_detect.z_nm = str2double(str_val);   
+                
         end      
 
     end

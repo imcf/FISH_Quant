@@ -1,4 +1,4 @@
-function [file_save, path_save] = FQ_TS_settings_save_v9(file_name_full,img)
+function [file_save, path_save] = FQ_TS_settings_save_v10(file_name_full,img)
 
 current_dir = pwd;
 
@@ -31,17 +31,14 @@ if file_save ~= 0
   
     %- General settings
     fprintf(fid,'FLAG_quant_simple_only=%g\n',  img.settings.TS_quant.flags.quant_simple_only);
-    fprintf(fid,'crop_image_xy_nm=%g\n', img.settings.TS_quant.crop_image.xy_nm);
-    fprintf(fid,'crop_image_z_nm=%g\n',  img.settings.TS_quant.crop_image.z_nm);
+    fprintf(fid,'crop_image_xy_pix=%g\n', img.settings.TS_quant.crop_image.xy_pix);
+    fprintf(fid,'crop_image_z_pix=%g\n',  img.settings.TS_quant.crop_image.z_pix);
   
     %- Size of region to sum of pixels
     fprintf(fid,'\n# REGION to sum of pixels \n'); 
     fprintf(fid,'OPT_QUANT_REG_PIX_SUM_XY=%g\n',  img.settings.TS_quant.N_pix_sum.xy );
     fprintf(fid,'OPT_QUANT_REG_PIX_SUM_Z=%g\n',   img.settings.TS_quant.N_pix_sum.z );
        
-    
-
-
     %== TS superposition approach
     if ~img.settings.TS_quant.flags.quant_simple_only 
       

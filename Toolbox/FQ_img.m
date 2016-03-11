@@ -173,8 +173,6 @@ classdef FQ_img < handle
             img.settings.TS_quant.N_run_prelim   = 5;
             img.settings.TS_quant.nBins          = 50;
             img.settings.TS_quant.per_avg_bgd    = 0.95;
-            img.settings.TS_quant.crop_image.xy_nm = 500;
-            img.settings.TS_quant.crop_image.z_nm  = 1000;
             img.settings.TS_quant.factor_Q_ok      = 1.5;
             
             %= Background auto calculation 
@@ -183,8 +181,8 @@ classdef FQ_img < handle
             img.settings.TS_quant.bgd_fact_max          = 1;
             
             %= Cropping
-            img.settings.TS_quant.crop_image.xy_nm      = 500;
-            img.settings.TS_quant.crop_image.z_nm       = 1000;
+            img.settings.TS_quant.crop_image.xy_pix      = ceil(2*img.settings.detect.reg_size.xy);
+            img.settings.TS_quant.crop_image.z_pix       = ceil(1.5*img.settings.detect.reg_size.z);
 
             %= Various flags to control detection
             img.settings.TS_quant.flags.posWeight   = 1;   % 1 to recalc position weighting vector after placement of each PSF, 0 to use only image of TS
@@ -197,10 +195,7 @@ classdef FQ_img < handle
             %= Control size of region to sum up pixel intensity
             img.settings.TS_quant.N_pix_sum.xy = 1;  % Size of region to sum pixel intensity for quantification
             img.settings.TS_quant.N_pix_sum.z = 1;  % Size of region to sum pixel intensity for quantification
-            
-            
-            
-            
+
             %==========================================================================
             % Spot averaging
             %==========================================================================
@@ -210,11 +205,9 @@ classdef FQ_img < handle
             img.settings.avg_spots.flags.bgd  = 0;
             
             %- Area to consider around the spots +/- in xy and z
-            img.settings.avg_spots.crop.xy = 1+ 2*ceil(img.settings.TS_quant.crop_image.xy_nm  / img.par_microscope.pixel_size.xy);
-            img.settings.avg_spots.crop.z  = 1+ 2*ceil(img.settings.TS_quant.crop_image.z_nm  / img.par_microscope.pixel_size.z);
+            img.settings.avg_spots.crop.xy = 1+ 2*img.settings.TS_quant.crop_image.xy_pix;
+            img.settings.avg_spots.crop.z  = 1+ 2*img.settings.TS_quant.crop_image.z_pix;
 
-    
-            
         end 
                 
         
@@ -387,7 +380,15 @@ classdef FQ_img < handle
             if ~isfield(img.mRNA_prop,'AMP_path_name') || isempty(img.mRNA_prop.AMP_path_name)
                 img.mRNA_prop.AMP_path_name = img.path_names.settings_TS;
             end
-  
+            
+            %- Convert old defintion of cropping region in nm in new definition in pixel                    
+            if isfield(img.settings.TS_quant.crop_image,'xy_nm')
+                img.settings.TS_quant.crop_image.xy_pix = ceil(img.settings.TS_quant.crop_image.xy_nm / img.par_microscope.pixel_size.xy);
+                img.settings.TS_quant.crop_image.z_pix  = ceil(img.settings.TS_quant.crop_image.z_nm / img.par_microscope.pixel_size.z);   
+                img.settings.TS_quant.crop_image.xy_nm  = [];
+                img.settings.TS_quant.crop_image.z_nm   = [];
+            end
+            
         end
         
             
@@ -402,7 +403,7 @@ classdef FQ_img < handle
         
         %% ==== Save settings
         function [file_save, path_save] = save_settings_TS(img,file_name_full)
-            [file_save, path_save] = FQ_TS_settings_save_v9(file_name_full,img);
+            [file_save, path_save] = FQ_TS_settings_save_v10(file_name_full,img);
             img.file_names.settings = file_save;
             img.path_names.settings = path_save;
         
@@ -775,7 +776,7 @@ classdef FQ_img < handle
             img.settings.TS_detect = FQ_TS_settings_detect_modify_v5(img.settings.TS_detect);
          end
         
-        
+     
         %% === TS detection: save settings
         function TS_detect_settings_save(img)
             
@@ -811,7 +812,7 @@ classdef FQ_img < handle
         end
         
         
-         %% === TS detection: save settings
+         %% === TS detection: load settings
         function status_ok = TS_detect_settings_load(img)
             
             %- Get current directory and go to directory with results/settings
@@ -1206,10 +1207,9 @@ classdef FQ_img < handle
                 img.mRNA_prop.path_name = PSF_path_name; 
                 
                 %- Same cropping as for TS quant
-                par_crop_TS                     = img.settings.TS_quant.crop_image;
-                pixel_size                      = img.par_microscope.pixel_size;
-                parameters.par_crop_NS_quant.xy = ceil(par_crop_TS.xy_nm / pixel_size.xy);
-                parameters.par_crop_NS_quant.z  = ceil(par_crop_TS.z_nm / pixel_size.z);
+                par_crop_TS                     = img.settings.TS_quant.crop_image;              
+                parameters.par_crop_NS_quant.xy = par_crop_TS.xy_pix;
+                parameters.par_crop_NS_quant.z  = par_crop_TS.z_pix;
 
                 %- Sum of pixels
                 parameters.N_pix_sum            = img.settings.TS_quant.N_pix_sum;
