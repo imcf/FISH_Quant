@@ -726,8 +726,12 @@ classdef FQ_img < handle
                    if img.settings.filter.LoG_H == 0 && img.settings.filter.LoG_sigma == 0
                         img.filt = img.raw;
                    else
+                        if mod(img.settings.filter.LoG_H,2) == 0
+                           warndlg('It is advisable to use odd numbers for the LoG filter size. Even numbers lead to a shift in the filtered image.')   
+                        end
+                            
                         filt_log = fspecialCP3D('3D LoG, Raj', img.settings.filter.LoG_H, img.settings.filter.LoG_sigma);
-                        img.filt = imfilter(double(img.raw), filt_log, 'replicate') *(-1);   %- Picture is inversed & has  negative elements;
+                        img.filt = imfilter(double(img.raw), filt_log,'symmetric') *(-1);   %- Picture is inversed & has  negative elements;
                                                 
                         
                    end
@@ -1051,56 +1055,58 @@ classdef FQ_img < handle
                 % =====================================================================  
 
                 %- Mask with relative distance and matrix with radius
-                data    = img.cell_prop(iC).spots_fit(:,1:3);
-                N_spots = size(data,1);
-                dum        = [];
-                dum(1,:,:) = data';
-                data_3D_1  = repmat(dum,[N_spots 1 1]);
-                data_3D_2  = repmat(data,[1 1 N_spots]);
+                if ~isempty(img.cell_prop(iC).spots_fit)
+                    
+                    data    = img.cell_prop(iC).spots_fit(:,1:3);
+                    N_spots = size(data,1);
+                    dum        = [];
+                    dum(1,:,:) = data';
+                    data_3D_1  = repmat(dum,[N_spots 1 1]);
+                    data_3D_2  = repmat(data,[1 1 N_spots]);
 
-                d_coord = data_3D_1-data_3D_2;
+                    d_coord = data_3D_1-data_3D_2;
 
-                r = sqrt(squeeze(d_coord(:,1,:).^2 + d_coord(:,2,:).^2 + d_coord(:,3,:).^2)); 
+                    r = sqrt(squeeze(d_coord(:,1,:).^2 + d_coord(:,2,:).^2 + d_coord(:,3,:).^2)); 
 
-                %- Determine spots that are too close
-                r_min =  img.settings.thresh.Spots_min_dist;
+                    %- Determine spots that are too close
+                    r_min =  img.settings.thresh.Spots_min_dist;
 
-                mask_close          = zeros(size(r));
-                mask_close(r<r_min) = 1;
-                mask_close_inv      = not(mask_close);
+                    mask_close          = zeros(size(r));
+                    mask_close(r<r_min) = 1;
+                    mask_close_inv      = not(mask_close);
 
-                %- Mask with intensity ratios
-                data_int     = img.cell_prop(iC).spots_detected(:,img.col_par.int_raw);
-                mask_int_3D1 = repmat(data_int,1,N_spots);
-                mask_int_3D2 = repmat(data_int',N_spots,1);
+                    %- Mask with intensity ratios
+                    data_int     = img.cell_prop(iC).spots_detected(:,img.col_par.int_raw);
+                    mask_int_3D1 = repmat(data_int,1,N_spots);
+                    mask_int_3D2 = repmat(data_int',N_spots,1);
 
-                mask_int_ratio = mask_int_3D2 ./ mask_int_3D1;
+                    mask_int_ratio = mask_int_3D2 ./ mask_int_3D1;
 
-                %- Find close spots and remove the ones with the dimmest pixel
-                m_diag = logical(diag(1*(1:N_spots)));
+                    %- Find close spots and remove the ones with the dimmest pixel
+                    m_diag = logical(diag(1*(1:N_spots)));
 
-                mask_close_spots = mask_int_ratio;
-                mask_close_spots(mask_close_inv) = inf;  % Set all spots that are not too close to inf 
-                mask_close_spots(m_diag)         = inf;  %- Set diagonal to inf;
+                    mask_close_spots = mask_int_ratio;
+                    mask_close_spots(mask_close_inv) = inf;  % Set all spots that are not too close to inf 
+                    mask_close_spots(m_diag)         = inf;  %- Set diagonal to inf;
 
-                %- Find ratios of spot that are <= 1 
-                [row,col] = find(mask_close_spots <= 1);
-                ind_spots_too_close2 = unique(col(2:end));
+                    %- Find ratios of spot that are <= 1 
+                    [row,col] = find(mask_close_spots <= 1);
+                    ind_spots_too_close2 = unique(col(2:end));
 
-                thresh_dist = true(size( img.cell_prop(iC).spots_fit,1),1);
-                thresh_dist(ind_spots_too_close2) = false;
-                
-              
+                    thresh_dist = true(size( img.cell_prop(iC).spots_fit,1),1);
+                    thresh_dist(ind_spots_too_close2) = false;
 
-                %=== Combine info about thresholding and spatial distance
-                thresh.in = thresh.in & thresh_dist;
-                
-                %=== Out are all the ones that are not in
-                thresh.out               = ~(thresh.in);                    
-                img.cell_prop(iC).thresh = thresh;
-  
-                fprintf('Number of spots after thresholding: %g\n', sum(thresh.in))
-                
+
+
+                    %=== Combine info about thresholding and spatial distance
+                    thresh.in = thresh.in & thresh_dist;
+
+                    %=== Out are all the ones that are not in
+                    thresh.out               = ~(thresh.in);                    
+                    img.cell_prop(iC).thresh = thresh;
+
+                    fprintf('Number of spots after thresholding: %g\n', sum(thresh.in))
+                end
             end
             
         end

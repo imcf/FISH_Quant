@@ -55,7 +55,7 @@ img_raw.dim.Y             = N_Y;
 img_raw.dim.Z             = N_Z;
 
 %- Check if their is an outline file
-file_outline  = fullfile(path_save,'_FQ_outline.txt');
+file_outline  = fullfile(path_save,[name_base,'__outline.txt']);
 if exist(file_outline,'file')
     img_raw.load_results(file_outline,[]);
     disp('== Found outline')
@@ -65,7 +65,7 @@ else
 end
 
 %- Load settings
-file_sett = '_FQ_settings_MATURE.txt';
+file_sett = [name_base,'__settings_MATURE.txt'];
 status_sett = img_raw.load_settings(fullfile(path_save,file_sett));
 img_raw.status_3D = 0;  % Set detection to 2d
 img_raw.file_names.settings = file_sett;
@@ -130,12 +130,13 @@ for iT = 1: N_img
     if flag_fit 
         
         %- Fit
-        fprintf('\n= Fit in OPB corrected image\n');
+        fprintf('\n= Fit \n');
         img_raw.spots_fit_3D(1); 
 
          %- Apply fitting threshold
         img_raw.spots_fit_th_apply;
     end 
+    
     %=== Save results
     name_save              = ['FQ_results_T-',sprintf('%02d',iT),'.txt']; 
     name_save              = fullfile(path_save,name_save);
@@ -150,31 +151,45 @@ for iT = 1: N_img
     %== Save movieInfo
     % Important for utrack
     
-    %- Use fit
-    if flag_fit 
-        movieInfo(iT).xCoord(:,1) = img_raw.cell_prop.spots_fit(:,2) / img_raw.par_microscope.pixel_size.xy +1 ;
-        movieInfo(iT).xCoord(:,2) = 0;
+    if ~isempty(img_raw.cell_prop.spots_fit)
     
-        movieInfo(iT).yCoord(:,1) = img_raw.cell_prop.spots_fit(:,1)/ img_raw.par_microscope.pixel_size.xy +1;
-        movieInfo(iT).yCoord(:,2) = 0;
-    
-        movieInfo(iT).amp(:,1) = img_raw.cell_prop.spots_fit(:,4);
-        movieInfo(iT).amp(:,2) = 0;
-    
-    %- Use predetected position without fit
+        %- Use fit
+        if flag_fit
+            movieInfo(iT).xCoord(:,1) = img_raw.cell_prop.spots_fit(:,2) / img_raw.par_microscope.pixel_size.xy +1 ;
+            movieInfo(iT).xCoord(:,2) = 0;
+
+            movieInfo(iT).yCoord(:,1) = img_raw.cell_prop.spots_fit(:,1)/ img_raw.par_microscope.pixel_size.xy +1;
+            movieInfo(iT).yCoord(:,2) = 0;
+
+            movieInfo(iT).amp(:,1) = img_raw.cell_prop.spots_fit(:,4);
+            movieInfo(iT).amp(:,2) = 0;
+
+        %- Use predetected position without fit
+        else
+            movieInfo(iT).xCoord(:,1) = img_raw.cell_prop.spots_detected(:,2);
+            movieInfo(iT).xCoord(:,2) = 0;
+
+            movieInfo(iT).yCoord(:,1) = img_raw.cell_prop.spots_detected(:,1);
+            movieInfo(iT).yCoord(:,2) = 0;
+
+            movieInfo(iT).amp(:,1) = img_raw.cell_prop.spots_detected(:,10);
+            movieInfo(iT).amp(:,2) = 0;
+        end
+        
     else
-        movieInfo(iT).xCoord(:,1) = img_raw.cell_prop.spots_detected(:,2);
-        movieInfo(iT).xCoord(:,2) = 0;
-    
-        movieInfo(iT).yCoord(:,1) = img_raw.cell_prop.spots_detected(:,1);
-        movieInfo(iT).yCoord(:,2) = 0;
-    
-        movieInfo(iT).amp(:,1) = img_raw.cell_prop.spots_detected(:,10);
-        movieInfo(iT).amp(:,2) = 0;
+        
+            movieInfo(iT).xCoord(:,1) = zeros(0,1);
+            movieInfo(iT).xCoord(:,2) = zeros(0,1);
+
+            movieInfo(iT).yCoord(:,1) = zeros(0,1);
+            movieInfo(iT).yCoord(:,2) = zeros(0,1);
+
+            movieInfo(iT).amp(:,1) = zeros(0,1);
+            movieInfo(iT).amp(:,2) = zeros(0,1);
     end
     
     %====  Calc average parameters from raw image
-     if flag_fit 
+     if flag_fit && ~isempty(img_raw.cell_prop.spots_fit)
         ind_in        = img_raw.cell_prop(1).thresh.in;
         amp_raw_th    = img_raw.cell_prop(1).spots_fit(ind_in,img_raw.col_par.amp);
         bgd_raw_th    = img_raw.cell_prop(1).spots_fit(ind_in,img_raw.col_par.bgd);

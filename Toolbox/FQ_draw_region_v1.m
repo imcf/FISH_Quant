@@ -9,7 +9,7 @@ reg_type = param.reg_type;
 switch reg_type;
     
     case 'Freehand'
-        h_fh = imfreehand(h_axes,pos);        
+        h_fh = imfreehand(h_axes);        
         setColor(h_fh,'b');        
         reg_pos = getPosition(h_fh);         
     

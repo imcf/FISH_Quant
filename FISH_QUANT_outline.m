@@ -71,9 +71,7 @@ if isempty(FQ_outline_open) || FQ_outline_open == 0
     handles.status_DAPI     = 0;
 
     handles.parameters_TS_detect = [];
-
-    handles.flag_show_cell_label = 1;
-    
+   
     %- Use identifiers to get DAPI and TS images automatically
     file_ident.status = 0;    %-1 not specified; 0 dont use; 1 use  -> will be overwritten below for certain calls of GU  
     file_ident.FISH   = '';
@@ -229,11 +227,11 @@ if isempty(FQ_outline_open) || FQ_outline_open == 0
             handles.img.par_microscope = varargin{4};
             
      
-           %- Load image results
-           handles.img.file_names.raw  = [img_name,ext];     
-           handles.img.path_names.img  = img_path;
+%            %- Load image results
+%            handles.img.file_names.raw  = [img_name,ext];     
+%            handles.img.path_names.img  = img_path;
 
-           handles = img_load_FISH(hObject, eventdata, handles);
+           handles = img_load_FISH(hObject, eventdata, handles,name_full);
 
         end 
     end
@@ -293,10 +291,10 @@ else
             handles.img.par_microscope       = varargin{4};
 
            %- Load image results
-           handles.img.file_names.raw  = [img_name,ext];     
-           handles.img.path_names.img = img_path;
+          % handles.img.file_names.raw  = [img_name,ext];     
+         %  handles.img.path_names.img = img_path;
 
-           handles = img_load_FISH(hObject, eventdata, handles);
+           handles = img_load_FISH(hObject, eventdata, handles,name_full);
            guidata(hObject, handles);
            
           else
@@ -318,13 +316,13 @@ function GUI_enable(handles)
 %- Image has to be loaded
 if isempty(handles.img.raw)
      set(handles.button_cell_new,'Enable', 'off');    
-     set(handles.button_cell_modify,'Enable', 'off');        
-     set(handles.button_cell_delete,'Enable', 'off');    
+   %  set(handles.button_cell_modify,'Enable', 'off');        
+     %set(handles.button_cell_delete,'Enable', 'off');    
      set(handles.listbox_cell,'Enable', 'off');   
 else
      set(handles.button_cell_new,'Enable', 'on');    
-     set(handles.button_cell_modify,'Enable', 'on');        
-     set(handles.button_cell_delete,'Enable', 'on');    
+    % set(handles.button_cell_modify,'Enable', 'on');        
+    % set(handles.button_cell_delete,'Enable', 'on');    
      set(handles.listbox_cell,'Enable', 'on');     
 end
 
@@ -338,7 +336,7 @@ end
 
 %- Delete/modify only possible if listbox populated
 if isempty(get(handles.listbox_cell,'String'))    
-     set(handles.button_cell_modify,'Enable', 'off');
+    % set(handles.button_cell_modify,'Enable', 'off');
      set(handles.button_cell_delete,'Enable', 'off'); 
 
      set(handles.button_nuc_modify,'Enable', 'off');        
@@ -350,7 +348,7 @@ if isempty(get(handles.listbox_cell,'String'))
      
      
 else
-     set(handles.button_cell_modify,'Enable', 'on');
+    % set(handles.button_cell_modify,'Enable', 'on');
      set(handles.button_cell_delete,'Enable', 'on');
      
      
@@ -488,7 +486,7 @@ elseif not(isempty(handles.img.path_names.root))
 end
 
 %- Load image
-handles = img_load_FISH(hObject, eventdata, handles);
+handles = img_load_FISH(hObject, eventdata, handles,[]);
 status_plot_first = 1;
 guidata(hObject, handles);
 
@@ -635,13 +633,13 @@ cd(current_dir);
 
 
 %== LOAD FISH IMAGE
-function handles = img_load_FISH(hObject, eventdata, handles)
+function handles = img_load_FISH(hObject, eventdata, handles,file_name)
 
 global status_plot_first    
 
 %- Load image and plot
 handles.img = handles.img.reinit;
-status_file = handles.img.load_img([],'raw');
+status_file = handles.img.load_img(file_name,'raw');
 
 if status_file
 
@@ -1498,6 +1496,22 @@ function handles = listbox_cell_Callback(hObject, eventdata, handles)
 %-Update list of transcription sites
 ind_sel  = get(handles.listbox_cell,'Value');
 
+%- Disable modify for freehand
+cell_prop = handles.img.cell_prop(ind_sel);
+
+%- Check if reg-type is defined
+is_reg_type = isfield(cell_prop,'reg_type');
+
+if is_reg_type    
+  
+    if strcmp(cell_prop.reg_type,'Freehand')
+        set(handles.button_cell_modify,'enable','off')
+    else
+        set(handles.button_cell_modify,'enable','on')
+    end
+end
+
+
 if not(isempty(handles.img.cell_prop))
     str_list = handles.img.cell_prop(ind_sel).str_list_TS;
     set(handles.listbox_TS,'String',str_list)
@@ -1870,7 +1884,7 @@ handles.img_FISH_disp  = [];
 handles.img_2nd_disp   = [];
 
 %- Show labels
-flag_show_cell_label = handles.flag_show_cell_label;
+flag_show_cell_label = get(handles.checkbox_show_labels,'Value');
 
 %- Only image without outlines
 status_show_outlines = get(handles.checkbox_show_outlines,'Value');
@@ -2133,6 +2147,11 @@ status_plot_first = 0;
 
 %= Check which elements should be enabled
 GUI_enable(handles)
+
+%== Labels: yes/no
+function checkbox_show_labels_Callback(hObject, eventdata, handles)
+handles = plot_image(handles,handles.axes_image);
+guidata(hObject, handles);
 
 %== Outlines: yes/no
 function checkbox_show_outlines_Callback(hObject, eventdata, handles)
@@ -2654,3 +2673,6 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
 end
 
 function checkbox_nuc_auto_in_curr_cell_Callback(hObject, eventdata, handles)
+
+
+% --- Executes on button press in checkbox_show_labels.

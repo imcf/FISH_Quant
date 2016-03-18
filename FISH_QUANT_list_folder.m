@@ -127,7 +127,7 @@ if strcmp(get(handles.figure1,'SelectionType'),'open')
                     end
                 end     
 
-            case {'.tif','.TIF'}    
+            case {'.tif','.TIF','.stk','.STK'}    
                 
                 name_load = fullfile(pwd,filename);
                 FISH_QUANT_outline('file_img',name_load, ...

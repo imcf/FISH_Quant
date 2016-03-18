@@ -11,16 +11,16 @@ dim        = img.dim;
 N_Spots        = size(spots_detected,1);
 sub_spots      = {};
 sub_spots_filt = {};
-y_min_spots = zeros(N_Spots,1);
-y_max_spots = zeros(N_Spots,1);
-x_min_spots = zeros(N_Spots,1);
-x_max_spots = zeros(N_Spots,1);
-z_min_spots = zeros(N_Spots,1);
-z_max_spots = zeros(N_Spots,1);
-
+y_min_spots   = zeros(N_Spots,1);
+y_max_spots   = zeros(N_Spots,1);
+x_min_spots   = zeros(N_Spots,1);
+x_max_spots   = zeros(N_Spots,1);
+z_min_spots   = zeros(N_Spots,1);
+z_max_spots   = zeros(N_Spots,1);
+sub_spots_max = zeros(N_Spots,1);
 
 disp('... sub-spot mosaicing...');    
-sub_spots_max = [];
+
 
 for i = 1:N_Spots    
 
@@ -43,8 +43,8 @@ for i = 1:N_Spots
     if z_max > dim.Z; z_max = dim.Z; end        
 
     %- For raw data
-    dum           = double(img.raw(y_min:y_max,x_min:x_max,z_min:z_max));
-    sub_spots{i}  = dum;
+    dum                = double(img.raw(y_min:y_max,x_min:x_max,z_min:z_max));
+    sub_spots{i}       = dum;
     sub_spots_max(i,1) = max(dum(:));
     
     %- For filtered data     
