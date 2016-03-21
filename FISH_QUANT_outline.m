@@ -226,11 +226,7 @@ if isempty(FQ_outline_open) || FQ_outline_open == 0
             handles.img.path_names     = varargin{3};    
             handles.img.par_microscope = varargin{4};
             
-     
-%            %- Load image results
-%            handles.img.file_names.raw  = [img_name,ext];     
-%            handles.img.path_names.img  = img_path;
-
+            %- Load image
            handles = img_load_FISH(hObject, eventdata, handles,name_full);
 
         end 
@@ -263,14 +259,8 @@ else
 
             handles.outline_name_load = name_load;
 
-            %- Path names
-            path_names                      = varargin{3};        
-            handles.img.path_names.root     = path_names.root;
-            handles.img.path_names.img      = path_names.img;
-            handles.img.path_names.outlines = path_names.outlines;
-            handles.img.path_names.results  = path_names.results;
-
-            %- Parameters
+            %- Path names and parameters     
+            handles.img.path_names = varargin{3};
             handles.par_microscope = varargin{4};
 
             %- Load outline file
@@ -286,14 +276,11 @@ else
             [img_path,img_name,ext] = fileparts(name_full);
 
             %- FQ class
-            handles.img                        = FQ_img;
-            handles.img.path_names.root        = varargin{3};
-            handles.img.par_microscope       = varargin{4};
+            handles.img                 = FQ_img;
+            handles.img.path_names      = varargin{3};
+            handles.img.par_microscope  = varargin{4};
 
            %- Load image results
-          % handles.img.file_names.raw  = [img_name,ext];     
-         %  handles.img.path_names.img = img_path;
-
            handles = img_load_FISH(hObject, eventdata, handles,name_full);
            guidata(hObject, handles);
            
@@ -336,7 +323,7 @@ end
 
 %- Delete/modify only possible if listbox populated
 if isempty(get(handles.listbox_cell,'String'))    
-    % set(handles.button_cell_modify,'Enable', 'off');
+     set(handles.button_cell_modify,'Enable', 'off');
      set(handles.button_cell_delete,'Enable', 'off'); 
 
      set(handles.button_nuc_modify,'Enable', 'off');        
@@ -348,7 +335,7 @@ if isempty(get(handles.listbox_cell,'String'))
      
      
 else
-    % set(handles.button_cell_modify,'Enable', 'on');
+      set(handles.button_cell_modify,'Enable', 'on');
      set(handles.button_cell_delete,'Enable', 'on');
      
      
@@ -981,8 +968,14 @@ if not(isempty(cell_prop.pos_Nuc))
             reg_type  = pos_Nuc.reg_type;
             reg_pos   = pos_Nuc.reg_pos;
 
+             %- Modify region region
+            if ~strcmp(reg_type,'Freehand')
+                 param.reg_type = reg_type;
+            else
+                 param.reg_type = 'Polygon';
+            end 
+
             %- Modify region region
-            param.reg_type = reg_type;
             param.h_axes   = gca;
             param.pos      = reg_pos;
 
@@ -1416,7 +1409,12 @@ if not(handles.status_draw)
         reg_pos   = cell_prop.reg_pos;
 
         %- Modify region region
-        param.reg_type = reg_type;
+        if ~strcmp(reg_type,'Freehand')
+             param.reg_type = reg_type;
+        else
+             param.reg_type = 'Polygon';
+        end 
+        
         param.h_axes   = gca;
         param.pos      = reg_pos;
 
@@ -1497,19 +1495,19 @@ function handles = listbox_cell_Callback(hObject, eventdata, handles)
 ind_sel  = get(handles.listbox_cell,'Value');
 
 %- Disable modify for freehand
-cell_prop = handles.img.cell_prop(ind_sel);
+%cell_prop = handles.img.cell_prop(ind_sel);
 
 %- Check if reg-type is defined
-is_reg_type = isfield(cell_prop,'reg_type');
-
-if is_reg_type    
-  
-    if strcmp(cell_prop.reg_type,'Freehand')
-        set(handles.button_cell_modify,'enable','off')
-    else
-        set(handles.button_cell_modify,'enable','on')
-    end
-end
+% is_reg_type = isfield(cell_prop,'reg_type');
+% 
+% if is_reg_type    
+%   
+%     if strcmp(cell_prop.reg_type,'Freehand')
+%         set(handles.button_cell_modify,'enable','off')
+%     else
+%         set(handles.button_cell_modify,'enable','on')
+%     end
+% end
 
 
 if not(isempty(handles.img.cell_prop))
