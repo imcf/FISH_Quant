@@ -58,8 +58,6 @@ set(handles.pop_up_image_select,'Value',1);
 set(handles.pop_up_image_spots,'Value',1)
 
 
-
-
 %- Status of current processing steps
 handles.status_filtered     = 0;    % Image filterd
 handles.status_image        = 0;    % Image loaded

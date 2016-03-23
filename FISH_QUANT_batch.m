@@ -1764,9 +1764,10 @@ if not(isempty(spots_fit))
     for ind_cell = 1: length(spots_range)
 
         %== Exclude spots that are too close
-
         spots_detected_cell = cell_summary(ind_cell,1).spots_detected;
         spots_fit_cell      = cell_summary(ind_cell,1).spots_fit;   
+        data                = spots_fit_cell(:,1:3);
+        N_spots              = size(data,1);
         
         %- Determine spots that are too close
         r_min = str2double(get(handles.text_min_dist_spots,'String'));
@@ -1775,9 +1776,7 @@ if not(isempty(spots_fit))
         if not(isempty(spots_fit_cell))
 
             if r_min > 0
-         
-                data    = spots_fit_cell(:,1:3);
-                N_spots = size(data,1);
+
                 dum = [];
                 dum(1,:,:) = data';
                 data_3D_1  = repmat(dum,[N_spots 1 1]);
@@ -1856,10 +1855,9 @@ if not(isempty(spots_fit))
                 y_Nuc = cell_summary(ind_cell).pos_Nuc.y*pixel_size.xy; 
 
                 spots_in = data(logical(thresh_in_cell),:);
-
+                
                 spots_y = spots_in(:,1);
                 spots_x = spots_in(:,2);
-
 
                 %- Find spots which are in nucleus
                 in_Nuc  = inpolygon(spots_x,spots_y,x_Nuc,y_Nuc); % Points defined in Positions inside the polygon
@@ -2820,7 +2818,7 @@ if not(isempty(handles))
     set(handles.listbox_files,'String',handles.str_list);
 
     set(handles.checkbox_use_filtered,'Value',handles.checkbox_filtered);
-    set(handles.checkbox_parallel_computing,'Value',handles.checkbox_parallel);    
+%    set(handles.checkbox_parallel_computing,'Value',handles.checkbox_parallel);    
     set(handles.checkbox_save_filtered,'Value',handles.checkbox_filtered_save);
     set(handles.status_save_results_TxSite_quant,'Value', handles.checkbox_save_TS_results);    
     set(handles.status_save_figures_TxSite_quant,'Value',handles.checkbox_save_TS_figure ); 
@@ -2834,10 +2832,10 @@ if not(isempty(handles))
     %- Enable controls
     controls_enable(hObject, eventdata, handles)
     
-    %- Activate parallel computing if specified
-    if handles.checkbox_parallel
-        checkbox_parallel_computing_Callback(hObject, eventdata, handles)
-    end
+%     %- Activate parallel computing if specified
+%     if handles.checkbox_parallel
+%         checkbox_parallel_computing_Callback(hObject, eventdata, handles)
+%     end
     
     %- Show messages to indicate what should be done
     if handles.i_file_proc_mature > 1 && handles.status_fit == 0
@@ -4213,57 +4211,57 @@ title(strcat('Thresholded # of spots: ',sprintf('%d' ,sum(thresh_all.in_display)
 % =========================================================================
 
 %== Activate parallel computing
-function checkbox_parallel_computing_Callback(hObject, eventdata, handles)
-
-flag_parallel = get(handles.checkbox_parallel_computing,'Value');
-
-if exist('gcp','file')
-
-    %- Parallel computing - open MATLAB session for parallel computation 
-    if flag_parallel == 1    
-        
-        p = gcp('nocreate'); % If no pool, do not create new one.
-
-        if isempty(p)
-            
-            %- Update status
-            set(handles.h_gui_batch,'Pointer','watch');
-            status_text = {' ';'== STARTING matlabpool for parallel computing ... please wait ... '};
-            status_update(hObject, eventdata, handles,status_text);
-
-            parpool;
-
-            %- Update status
-            status_text = {' ';'    ... STARTED'};
-            status_update(hObject, eventdata, handles,status_text);        
-            set(handles.h_gui_batch,'Pointer','arrow');
-        end
-
-    %- Parallel computing - close MATLAB session for parallel computation     
-    else
-        
-        p = gcp('nocreate'); % If no pool, do not create new one.
-        
-        if ~isempty(p)
-            
-            %- Update status
-            set(handles.h_gui_batch,'Pointer','watch');
-            status_text = {' ';'== STOPPING matlabpool for parallel computing ... please wait ... '};
-            status_update(hObject, eventdata, handles,status_text);
-
-            delete(p)
-
-            %- Update status
-            status_text = {' ';'    ... STOPPED'};
-            status_update(hObject, eventdata, handles,status_text);
-            set(handles.h_gui_batch,'Pointer','arrow');
-        end
-    end
-    
-else
-    warndlg('Parallel toolbox not available','FISH_QUANT')
-    set(handles.checkbox_parallel_computing,'Value',0);
-end
+% function checkbox_parallel_computing_Callback(hObject, eventdata, handles)
+% 
+% flag_parallel = get(handles.checkbox_parallel_computing,'Value');
+% 
+% if exist('gcp','file')
+% 
+%     %- Parallel computing - open MATLAB session for parallel computation 
+%     if flag_parallel == 1    
+%         
+%         p = gcp('nocreate'); % If no pool, do not create new one.
+% 
+%         if isempty(p)
+%             
+%             %- Update status
+%             set(handles.h_gui_batch,'Pointer','watch');
+%             status_text = {' ';'== STARTING matlabpool for parallel computing ... please wait ... '};
+%             status_update(hObject, eventdata, handles,status_text);
+% 
+%             parpool;
+% 
+%             %- Update status
+%             status_text = {' ';'    ... STARTED'};
+%             status_update(hObject, eventdata, handles,status_text);        
+%             set(handles.h_gui_batch,'Pointer','arrow');
+%         end
+% 
+%     %- Parallel computing - close MATLAB session for parallel computation     
+%     else
+%         
+%         p = gcp('nocreate'); % If no pool, do not create new one.
+%         
+%         if ~isempty(p)
+%             
+%             %- Update status
+%             set(handles.h_gui_batch,'Pointer','watch');
+%             status_text = {' ';'== STOPPING matlabpool for parallel computing ... please wait ... '};
+%             status_update(hObject, eventdata, handles,status_text);
+% 
+%             delete(p)
+% 
+%             %- Update status
+%             status_text = {' ';'    ... STOPPED'};
+%             status_update(hObject, eventdata, handles,status_text);
+%             set(handles.h_gui_batch,'Pointer','arrow');
+%         end
+%     end
+%     
+% else
+%     warndlg('Parallel toolbox not available','FISH_QUANT')
+%     set(handles.checkbox_parallel_computing,'Value',0);
+% end
 
 
 %=== Close request

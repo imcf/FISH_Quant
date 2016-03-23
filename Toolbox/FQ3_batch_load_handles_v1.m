@@ -148,7 +148,7 @@ if file_load ~= 0
     handles_GUI.str_list = handles.str_list;
     
     handles_GUI.checkbox_filtered          = handles.checkbox_filtered;
-    handles_GUI.checkbox_parallel          = handles.checkbox_parallel;
+%    handles_GUI.checkbox_parallel          = handles.checkbox_parallel;
     handles_GUI.checkbox_filtered_save     = handles.checkbox_filtered_save;
     handles_GUI.checkbox_save_TS_results   = handles.checkbox_save_TS_results;
     handles_GUI.checkbox_save_TS_figure    = handles.checkbox_save_TS_figure;     

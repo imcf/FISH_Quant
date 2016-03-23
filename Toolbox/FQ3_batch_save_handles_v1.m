@@ -37,7 +37,7 @@ if file_save ~= 0
     handles.str_list = get(handles.listbox_files,'String');
     
     handles.checkbox_filtered        = get(handles.checkbox_use_filtered,'Value');
-    handles.checkbox_parallel        = get(handles.checkbox_parallel_computing,'Value');    
+   % handles.checkbox_parallel        = get(handles.checkbox_parallel_computing,'Value');    
     handles.checkbox_filtered_save   = get(handles.checkbox_save_filtered,'Value');
     handles.checkbox_save_TS_results = get(handles.status_save_results_TxSite_quant,'Value');    
     handles.checkbox_save_TS_figure  = get(handles.status_save_figures_TxSite_quant,'Value'); 
