@@ -1,25 +1,40 @@
+function SCR_fit_2D_v1(file_name)
+
+
 flag_fit = 1;  % Fit spot position or not
 
 %% Define image
-[file_raw, path_img] = uigetfile('*.tif','Select image.');
+if nargin == 0
+    [file_raw, path_img] = uigetfile('*.tif','Select image.');
 
-if isequal(file_raw,0); 
-    return; 
+    if isequal(file_raw,0); 
+        return; 
+    end
+    file_name = fullfile(path_img,file_raw);
+else
+    [path_img, file_raw,ext] = fileparts(file_name);
+    file_raw = [file_raw,ext];
 end
-
+    
 %- Check if path with results is present
 [dum, name_base,ext] = fileparts(file_raw);
-path_save = fullfile(path_img,name_base,'FQ');
+path_detect = strrep(path_img,'images','detection');
+path_save = fullfile(path_detect,name_base);
+
 if ~exist(path_save)
     disp('Path to save results not present. Will exit')
     disp(path_save)
     return
 end
-cd(path_save)
+
 
 %- Generate folder for plots
-folder_plots = fullfile(path_save,['_Plots_',datestr(date,'yymmdd')]);
+folder_plots = fullfile(path_save,['FQ_plots_',datestr(date,'yymmdd')]);
 if not(exist(folder_plots)); mkdir(folder_plots); end
+
+%- Generate folder for FQ-results
+folder_results = fullfile(path_save,['FQ_results_',datestr(date,'yymmdd')]);
+if not(exist(folder_results)); mkdir(folder_results); end
 
 %% Get the channel filler for raw image
 
@@ -94,7 +109,8 @@ tic
 
 summary_img_raw = [];
 spots_max = 1;
-h_fig = figure; set(gcf,'color','w')
+h_fig_detect = figure(107); clf
+set(h_fig_detect,'color','w')
 title('Number of detected (blue) and fit (red) spots per time-point')
 axis([0 N_img 0 1.05*spots_max])
 
@@ -139,10 +155,10 @@ for iT = 1: N_img
     
     %=== Save results
     name_save              = ['FQ_results_T-',sprintf('%02d',iT),'.txt']; 
-    name_save              = fullfile(path_save,name_save);
+    name_save              = fullfile(folder_results,name_save);
     
     parameters.comment     = ['substack_',num2str(iT),'-',num2str(iT)]; 
-    parameters.path_save   = path_save; 
+    parameters.path_save   = folder_results; 
     parameters.version     = 'v3';
     parameters.flag_type   = 'spots';
       
@@ -222,26 +238,26 @@ end
 
 toc
 
-%% Save summary for utrack
+%==== Save settings file
+copyfile(fullfile(path_save,file_sett),fullfile(folder_results,file_sett))
 
-%- Check if folder exists, create if not
-path_save = fullfile(path_img,name_base,'Utrack');
-if not(exist(path_save)); mkdir(path_save); end
+%===== Save summary for utrack
 
 %- Save detection
-save(fullfile(path_save,'Detection_result'),'movieInfo')
-    
+image_name = file_name;
+save(fullfile(path_save,['Detection_',datestr(date,'yymmdd'),'.mat']),'movieInfo','image_name')
+save(fullfile(path_detect,[name_base,'__DETECT.mat']),'movieInfo','image_name')
 
-%% Save figure with number of detections
+%==== Save figure with number of detections
 name_save = fullfile(folder_plots,'FQ_number_detections');
-save2pdf(name_save,h_fig,300)
-saveas(h_fig,name_save,'fig')
+save2pdf(name_save,h_fig_detect,300)
+saveas(h_fig_detect,name_save,'fig')
 
 
-%% Plot summary figure of spot detection
+%====== Plot summary figure of spot detection
 N_plot = size(summary_img_raw,1);
 
-h_fig = figure; set(gcf,'color','w')
+h_fig = figure; set(gcf,'color','w'), set(gcf,'visible','off')
 subplot(2,3,1)
 plot(summary_img_raw(:,1))
 title('# detection [RAW]')
@@ -262,7 +278,8 @@ subplot(2,3,5)
 shadedErrorBar(1:N_plot,summary_img_raw(:,8),summary_img_raw(:,9),'b'); 
 title('bgd')
 
-%% Save figure with number of detections
+%===== Save figure with number of detections
 name_save = fullfile(folder_plots,'FQ_fit_parameters');
 save2pdf(name_save,h_fig,300)
 saveas(h_fig,name_save,'fig')
+close(h_fig)

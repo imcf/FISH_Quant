@@ -376,9 +376,10 @@ img_mask.max_xz    = squeeze(max(image_filt_mask_full,[],1));
 if flags.output
        
     %==== Actual plot
-    h_fig = figure;
-    
-    
+    h_fig = figure(198);
+    set(gcf,'Name','FISH-quant predetection')
+    set(gcf,'NumberTitle','off');
+
     %- All spots
     h1 = subplot(3,2,1);
     imshow(img_mask.max_xy,[]); hold on           

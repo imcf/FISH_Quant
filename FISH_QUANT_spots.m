@@ -445,14 +445,15 @@ if not(isnan(ind_spot))
     check_box = get(handles.checkbox_remove_man,'Value');
         
     if check_box == 1
-        handles.cell_prop(ind_cell).thresh.in(ind_spot) = -1;
+        handles.img.cell_prop(ind_cell).thresh.in(ind_spot) = -1;
      else
-        handles.cell_prop(ind_cell).thresh.in(ind_spot) = 1;
+        handles.img.cell_prop(ind_cell).thresh.in(ind_spot) = 1;
     end
-        
+       
+    
     %- Save everything and plot
     handles = plot_image(hObject, eventdata, handles);
-    guidata(hObject, handles);
+    guidata(hObject, handles); 
 end
 
 %- Uncheck check-box and start datacursormode again
@@ -929,9 +930,9 @@ guidata(hObject, handles);
 %- Update button down function
 set(handles.h_img, 'ButtonDownFcn', @axes_main_ButtonDownFcn)
 if not(isempty(spots_fit)) && flag_show_spots
-    set(handles.h_spots_in, 'ButtonDownFcn', @axes_main_ButtonDownFcn)
+    if handles.h_spots_in ~= 0;      set(handles.h_spots_in, 'ButtonDownFcn', @axes_main_ButtonDownFcn); end
     if handles.h_spots_out ~= 0 ;    set(handles.h_spots_out, 'ButtonDownFcn', @axes_main_ButtonDownFcn); end
-    if handles.h_spots_out_man ~= 0  ;set(handles.h_spots_out_man, 'ButtonDownFcn', @axes_main_ButtonDownFcn); end
+    if handles.h_spots_out_man ~= 0; set(handles.h_spots_out_man, 'ButtonDownFcn', @axes_main_ButtonDownFcn); end
 end
 
 

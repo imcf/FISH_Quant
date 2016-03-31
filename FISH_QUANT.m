@@ -960,7 +960,6 @@ function popup_filter_type_Callback(hObject, eventdata, handles)
 str = get(handles.popup_filter_type,'Value');
 val = get(handles.popup_filter_type,'String');
 
-
 switch val{str}
     
     case '3D_LoG'
@@ -1030,11 +1029,11 @@ end
 %= Apply filter
 handles.img.filter;
 handles.img.project_Z('filt','max');
-
-%handles.filter             = filter;
 handles.status_filtered    = 1;
-
+set(handles.pop_up_image_select,'Value',2);
 guidata(hObject, handles);
+
+
 
 %- Enable corresponding options in GUI
 FQ_enable_controls_v1(handles)
