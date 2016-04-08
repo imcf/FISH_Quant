@@ -205,8 +205,7 @@ for(i in 1:length(multifasta)){
                               MaxSizeProbe = TailleSondeMax,
                               Desireddg = dG37,
                               MinScoreValue = ScoreMin,
-                              IncBetwProb = DistanceMinInterSonde,
-                              
+                              IncBetwProb = DistanceMinInterSonde                              
     )) -> ProbesTmpTmp
     sprintf("%s_dG%.1f",getName(multifasta[[i]]),dG37) -> probesTmpTmpName
     cbind(ProbeName=rep(probesTmpTmpName,times=length(ProbesTmpTmp[[1]][,1])),ProbesTmpTmp[[1]]) -> theMatTmp

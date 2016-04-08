@@ -48,17 +48,11 @@ if  length(bgd_amp) > 1
         img_bgd  = bgd_loop*ones(size(img_TS_crop_xyz));
 
         %- Repeat reconstruction to reduce noise
-        if(flags.parallel)
-            parfor i=1:N_run_prelim
-                [N_MAX_loop(i) res_all{i}] =  TxSite_reconstruct_w_image_FUN_est_N_v3(img_TS_crop_xyz,img_bgd,img_PSF,parameters_rec);    
-                [min_res_loop(i) ind_min_res_loop(i)] = min(res_all{i});
-            end
-        else
-            for i=1:N_run_prelim
-                [N_MAX_loop(i) res_all{i}] =  TxSite_reconstruct_w_image_FUN_est_N_v3(img_TS_crop_xyz,img_bgd,img_PSF,parameters_rec);    
-                [min_res_loop(i) ind_min_res_loop(i)] = min(res_all{i});
-            end    
+        parfor i=1:N_run_prelim
+            [N_MAX_loop(i) res_all{i}] =  TxSite_reconstruct_w_image_FUN_est_N_v3(img_TS_crop_xyz,img_bgd,img_PSF,parameters_rec);    
+            [min_res_loop(i) ind_min_res_loop(i)] = min(res_all{i});
         end
+
 
         N_mRNA_analysis_MAX(i_bgd) = round(mean(N_MAX_loop));
         min_res_all(i_bgd)         = round(mean(min_res_loop));
@@ -185,47 +179,22 @@ TS_rec = struct('Q_min', [], 'N_mRNA', [],'data', [],'pos', [],'amp', [],'dist_3
 Q_all  = struct('data', []);
 
 %- Run loop and do reconstruction
-if(flags.parallel)
-     disp('Parallel computing ....')
-      
-     parfor iRun_p = 1 : N_reconstruct
-         %- Quantification
-         [TS_rec_loop Q_all(iRun_p).data]  = TxSite_reconstruct_w_image_FUN_v3(img_TS_crop_xyz,img_bgd,img_PSF,parameters_rec);
-     
-     
-        %- Analyse size distribution
-        TxSite_SIZE = TxSite_size_v4(TS_rec_loop.pos,coord,parameters_dist);
+ parfor iRun_p = 1 : N_reconstruct
+     %- Quantification
+     [TS_rec_loop Q_all(iRun_p).data]  = TxSite_reconstruct_w_image_FUN_v3(img_TS_crop_xyz,img_bgd,img_PSF,parameters_rec);
 
-        TS_rec_loop.dist_3D_shift  = TxSite_SIZE.dist_3D_shift;
-        TS_rec_loop.dist_3D        = TxSite_SIZE.dist_3D;
-        TS_rec_loop.dist_avg       = TxSite_SIZE.dist_avg;
-        TS_rec_loop.dist_avg_shift = TxSite_SIZE.dist_avg_shift;        
-        
-        TS_rec(iRun_p) = TS_rec_loop;
-     end
- 
- else
-    for iRun = 1 : N_reconstruct    
 
-        if (rem(iRun,10) == 0);
-            disp(['Configurations tested: ', num2str(100*(iRun/N_reconstruct)),'%']) 
-        end
-        
-        %- Quantification
-        [TS_rec_loop Q_all(iRun).data]  = TxSite_reconstruct_w_image_FUN_v3(img_TS_crop_xyz,img_bgd,img_PSF,parameters_rec);
-    
-        %- Analyse size distribution
-        TxSite_SIZE = TxSite_size_v4(TS_rec_loop.pos,coord,parameters_dist);
+    %- Analyse size distribution
+    TxSite_SIZE = TxSite_size_v4(TS_rec_loop.pos,coord,parameters_dist);
 
-        TS_rec_loop.dist_3D_shift  = TxSite_SIZE.dist_3D_shift;
-        TS_rec_loop.dist_3D        = TxSite_SIZE.dist_3D;
-        TS_rec_loop.dist_avg       = TxSite_SIZE.dist_avg;
-        TS_rec_loop.dist_avg_shift = TxSite_SIZE.dist_avg_shift;        
-        
-        TS_rec(iRun) = TS_rec_loop;
+    TS_rec_loop.dist_3D_shift  = TxSite_SIZE.dist_3D_shift;
+    TS_rec_loop.dist_3D        = TxSite_SIZE.dist_3D;
+    TS_rec_loop.dist_avg       = TxSite_SIZE.dist_avg;
+    TS_rec_loop.dist_avg_shift = TxSite_SIZE.dist_avg_shift;        
 
-    end
-end
+    TS_rec(iRun_p) = TS_rec_loop;
+ end
+
 
 disp(' .... ')
 disp('RECONSTRUCTION FINISHED')

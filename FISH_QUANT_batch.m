@@ -3419,6 +3419,7 @@ handles.mRNA_prop.N_pix_sum          = (2*parameters.N_pix_sum.xy+1) * (2*parame
 %- Save       
 guidata(hObject, handles);         
 
+
 %== Define amplitudes of individual mRNA
 function button_PSF_amp_Callback(hObject, eventdata, handles)
 
@@ -3496,8 +3497,8 @@ if not(strcmp(choice,''))
         
         %- Get amplitudes
         figure
-        parameters.h_plot  = gca;
-        parameters.col_par = handles.col_par;
+        parameters.h_plot      = gca;
+        parameters.col_par     = handles.img.col_par;
         handles.img.mRNA_prop  = FQ_AMP_analyze_v3(spots_fit,spots_detected,thresh,parameters,handles.img.mRNA_prop); 
          
         button = questdlg('Use distribution of mean value of mRNA amplitudes for quantification?','TxSite quantication','Distribution','Mean','Distribution');
@@ -3513,10 +3514,10 @@ if not(strcmp(choice,''))
         text_update = {'  '; ...
                        '## Amplitudes defined'; ...
                        'Fit with skewed normal distribution'; ...
-                       ['Mean:     ', num2str(handles.mRNA_prop.amp_mean )]; ...
-                       ['Sigma:    ', num2str(handles.mRNA_prop.amp_sigma)]; ...
-                       ['Skewness: ', num2str(handles.mRNA_prop.amp_skew)]; ...
-                       ['Kurtosis: ', num2str(handles.mRNA_prop.amp_kurt)]};        
+                       ['Mean:     ', num2str(handles.img.mRNA_prop.amp_mean )]; ...
+                       ['Sigma:    ', num2str(handles.img.mRNA_prop.amp_sigma)]; ...
+                       ['Skewness: ', num2str(handles.img.mRNA_prop.amp_skew)]; ...
+                       ['Kurtosis: ', num2str(handles.img.mRNA_prop.amp_kurt)]};        
         status_update(hObject, eventdata, handles,text_update);
         
     else
@@ -3590,8 +3591,8 @@ N_PSF_shift    = length(PSF_shift_all);
 %- Same cropping as for TS
 par_crop_TS     = handles.img.settings.TS_quant.crop_image;
 pixel_size      = handles.img.par_microscope.pixel_size;
-parameters_fit.par_crop.xy = ceil(par_crop_TS.xy_nm / pixel_size.xy);
-parameters_fit.par_crop.z  = ceil(par_crop_TS.z_nm / pixel_size.z);
+parameters_fit.par_crop.xy = par_crop_TS.xy_pix;
+parameters_fit.par_crop.z  = par_crop_TS.z_pix;
 parameters_fit.flags.crop      = 1;
 
 %- Parameters for fitting
@@ -3684,9 +3685,9 @@ else
     path_save_results  = handles.path_name_list;
 end
 
-%-- General parameters
-par_microscope   = handles.img.par_microscope;
-pixel_size = par_microscope.pixel_size;
+% %-- General parameters
+% par_microscope   = handles.img.par_microscope;
+% pixel_size = par_microscope.pixel_size;
 
 %===== PREPARATION FOR FIT 
 
@@ -3695,56 +3696,57 @@ status_save_results = get(handles.status_save_results_TxSite_quant,'Value');
 status_save_figures = get(handles.status_save_figures_TxSite_quant,'Value');
 status_save_auto    = get(handles.checkbox_auto_save,'Value');
 
-%== Quantification parameters
-parameters_quant                     = handles.img.settings.TS_quant;
-parameters_quant.flags.output        = 0;
+% %== Quantification parameters
+handles.img.settings.TS_quant.flags.output        = 0;
+% parameters_quant                     = handles.img.settings.TS_quant;
 
-
-%=== Integration range
-range_int.x_int.min =  - parameters_quant.crop_image.xy_pix*pixel_size.xy;
-range_int.x_int.max =  + parameters_quant.crop_image.xy_pix*pixel_size.xy;
-
-range_int.y_int.min =  - parameters_quant.crop_image.xy_pix*pixel_size.xy;
-range_int.y_int.max =  + parameters_quant.crop_image.xy_pix*pixel_size.xy;
-
-range_int.z_int.min =  - parameters_quant.crop_image.z_pix*pixel_size.z;
-range_int.z_int.max =  + parameters_quant.crop_image.z_pix*pixel_size.z;
-
-parameters_quant.range_int = range_int;
+% 
+% 
+% %=== Integration range
+% range_int.x_int.min =  - parameters_quant.crop_image.xy_pix*pixel_size.xy;
+% range_int.x_int.max =  + parameters_quant.crop_image.xy_pix*pixel_size.xy;
+% 
+% range_int.y_int.min =  - parameters_quant.crop_image.xy_pix*pixel_size.xy;
+% range_int.y_int.max =  + parameters_quant.crop_image.xy_pix*pixel_size.xy;
+% 
+% range_int.z_int.min =  - parameters_quant.crop_image.z_pix*pixel_size.z;
+% range_int.z_int.max =  + parameters_quant.crop_image.z_pix*pixel_size.z;
+% 
+% parameters_quant.range_int = range_int;
 
 %== Background
 status_bgd = get(handles.button_TS_bgd,'Value');
 
 if status_bgd == 1
-    parameters_quant.flags.bgd_local = 0;
-    parameters_quant.BGD.amp         = str2num(get(handles.txt_TS_bgd,'String'));   
+    handles.img.settings.TS_quant.flags.bgd_local = 0;
+    handles.img.settings.TS_quant.BGD.amp         = str2num(get(handles.txt_TS_bgd,'String'));   
 else
-    parameters_quant.flags.bgd_local = 2;
+    handles.img.settings.TS_quant.flags.bgd_local = 2;
 end
 
-%=== Parameters for quantificaiton
-fact_os           = handles.img.settings.avg_spots.fact_os;
-PSF_shift         = handles.img.mRNA_prop.PSF_shift;
-pixel_size_os.xy  = par_microscope.pixel_size.xy / fact_os.xy;
-pixel_size_os.z   = par_microscope.pixel_size.z  / fact_os.z;
+% %=== Parameters for quantificaiton
+% fact_os           = handles.img.settings.avg_spots.fact_os;
+% PSF_shift         = handles.img.mRNA_prop.PSF_shift;
+% pixel_size_os.xy  = par_microscope.pixel_size.xy / fact_os.xy;
+% pixel_size_os.z   = par_microscope.pixel_size.z  / fact_os.z;
+% 
+% parameters_quant.dist_max            = inf;
+% parameters_quant.pixel_size          = par_microscope.pixel_size;
+% parameters_quant.pixel_size_os       = pixel_size_os;
+% parameters_quant.N_mRNA_analysis_MAX = [];
+% parameters_quant.fact_os             = fact_os;
+% parameters_quant.par_microscope      = par_microscope;
+% parameters_quant.pad_image           = [];
+% parameters_quant.col_par             = handles.img.col_par;
 
-parameters_quant.dist_max            = inf;
-parameters_quant.pixel_size          = par_microscope.pixel_size;
-parameters_quant.pixel_size_os       = pixel_size_os;
-parameters_quant.N_mRNA_analysis_MAX = [];
-parameters_quant.fact_os             = fact_os;
-parameters_quant.par_microscope      = par_microscope;
-parameters_quant.pad_image           = [];
-parameters_quant.col_par             = handles.img.col_par;
+% %= mRNA properties
+% parameters_quant.mRNA_prop           = handles.img.mRNA_prop;
 
-%= mRNA properties
-parameters_quant.mRNA_prop           = handles.img.mRNA_prop;
-
-%=== Which quantification methods: simple or all
-parameters_quant.flags.quant_simple_only = handles.img.settings.TS_quant.flags.quant_simple_only;
-
-%- BGD for fitting of TS is a free fitting paramter 
-parameters_quant.flags.IntegInt_bgd_free = 1;   
+% %=== Which quantification methods: simple or all
+% parameters_quant.flags.quant_simple_only = handles.img.settings.TS_quant.flags.quant_simple_only;
+% 
+% %- BGD for fitting of TS is a free fitting paramter 
+% parameters_quant.flags.IntegInt_bgd_free = 1;   
 
 %=== Update status
 status_text = {' ';'== Transcription site quantification: STARTED.' ; '   See Workspace for details.'};
@@ -3855,10 +3857,10 @@ for i_file = i_start_file:i_end_file
                cd(folder_new)
             end
 
-            handles.parameters_quant = parameters_quant;
-            parameters_quant.flags.bound = 1;    % Boundaries for fitting parameters
+%             handles.parameters_quant = parameters_quant;
+%             parameters_quant.flags.bound = 1;    % Boundaries for fitting parameters
 
-            N_cell = length(img_dum.cell_prop);
+            N_cell    = length(img_dum.cell_prop);
             cell_prop = img_dum.cell_prop;
             
             %- Set parameters for loop
@@ -3878,20 +3880,18 @@ for i_file = i_start_file:i_end_file
                 disp(' ')
                 disp(['+++ Cell ', num2str(ind_cell), ' of ', num2str(N_cell)]);
 
-                %- Binary mask for outline of cell: needed for BGD estimation
-                parameters_quant.cell_bw =  roipoly(handles.img.raw(:,:,1),cell_prop(ind_cell).x,cell_prop(ind_cell).y);
-          
-                if not(isempty(cell_prop(ind_cell).pos_Nuc))
-                    parameters_quant.nuc_bw =  roipoly(handles.img.raw(:,:,1),cell_prop(ind_cell).pos_Nuc.x,cell_prop(ind_cell).pos_Nuc.y);
-                else
-                    parameters_quant.nuc_bw =  [];
-                end
+%                 %- Binary mask for outline of cell: needed for BGD estimation
+%                 parameters_quant.cell_bw =  roipoly(handles.img.raw(:,:,1),cell_prop(ind_cell).x,cell_prop(ind_cell).y);
+%           
+%                 if not(isempty(cell_prop(ind_cell).pos_Nuc))
+%                     parameters_quant.nuc_bw =  roipoly(handles.img.raw(:,:,1),cell_prop(ind_cell).pos_Nuc.x,cell_prop(ind_cell).pos_Nuc.y);
+%                 else
+%                     parameters_quant.nuc_bw =  [];
+%                 end
 
 
-                %- Loop over transcription site
-                pos_TS_all = cell_prop(ind_cell).pos_TS;
-                N_TS = length(pos_TS_all);
-
+%               %- Loop over transcription site
+                N_TS = length(cell_prop(ind_cell).pos_TS);
 
                 %- Set parameters for loops
                 if status_first_cell 
@@ -3907,44 +3907,44 @@ for i_file = i_start_file:i_end_file
                     %- Get transcription site
                     disp(' ')
                     disp(['+++ TxSite ', num2str(ind_TS), ' of ', num2str(N_TS)]);
-                    pos_TS = pos_TS_all(ind_TS); 
+                    pos_TS = cell_prop(ind_cell).pos_TS(ind_TS); 
 
                     %- Status of transcription sit quantification can be saved to a txt file
                     if status_save_results
 
-                        parameters_quant.file_name_save_STATUS = [cell_prop(ind_cell).label,'__',pos_TS.label , '__STATUS.txt'];
-                        parameters_quant.name_file  = file_name_load;
-                        parameters_quant.name_cell  = cell_prop(ind_cell).label;
-                        parameters_quant.name_TS    = pos_TS.label;
+                         img_dum.settings.TS_quant.file_name_save_STATUS = [cell_prop(ind_cell).label,'__',pos_TS.label , '__STATUS.txt'];
+                         img_dum.settings.TS_quant.name_file  = file_name_load;
+                         img_dum.settings.TS_quant.name_cell  = cell_prop(ind_cell).label;
+                         img_dum.settings.TS_quant.name_TS    = pos_TS.label;
 
                     else
-                        parameters_quant.file_name_save_STATUS = [];
+                         img_dum.settings.TS_quant.file_name_save_STATUS = [];
                     end
 
                     %- Save figure of reconstruction
                     if status_save_figures
-                        parameters_quant.file_name_save_PLOTS_PS  = [cell_prop(ind_cell).label,'__',pos_TS.label , '__PLOTS.PS'];
-                        parameters_quant.file_name_save_PLOTS_PDF = [cell_prop(ind_cell).label,'__',pos_TS.label , '__PLOTS.PDF'];
+                         img_dum.settings.TS_quant.file_name_save_PLOTS_PS  = [cell_prop(ind_cell).label,'__',pos_TS.label , '__PLOTS.PS'];
+                         img_dum.settings.TS_quant.file_name_save_PLOTS_PDF = [cell_prop(ind_cell).label,'__',pos_TS.label , '__PLOTS.PDF'];
                     else
-                        parameters_quant.file_name_save_PLOTS_PS  = [];
-                        parameters_quant.file_name_save_PLOTS_PDF = [];
-
+                         img_dum.settings.TS_quant.file_name_save_PLOTS_PS  = [];
+                         img_dum.settings.TS_quant.file_name_save_PLOTS_PDF = [];
                     end
-
+                    
                     %- Quantify
-                    image_struct.data = handles.img.raw;  % HAS TO BE CHANGED - but then in all functions in TS_quant_v16 ....
+                    img_dum.TS_quant(ind_cell,ind_TS)
+                    %image_struct.data = handles.img.raw;  % HAS TO BE CHANGED - but then in all functions in TS_quant_v16 ....
 
-                    [TxSite_quant REC_prop TS_analysis_results TS_rec Q_all] = TS_quant_v17(image_struct,pos_TS,PSF_shift,parameters_quant);
+                    %[TxSite_quant REC_prop TS_analysis_results TS_rec Q_all] = TS_quant_v17(image_struct,pos_TS,PSF_shift,parameters_quant);
 
                     %== [3] Save results in summary file
                     TS_summary(TS_counter).file_name_list      = file_name_load;
                     TS_summary(TS_counter).file_name_image     = img_dum.file_names.raw;
 
-                    TS_summary(TS_counter).TxSite_quant        = TxSite_quant;
-                    TS_summary(TS_counter).TS_analysis_results = TS_analysis_results;
-                    TS_summary(TS_counter).REC_prop            = REC_prop;
-                    TS_summary(TS_counter).TS_rec              = TS_rec;
-                    TS_summary(TS_counter).Q_all               = Q_all;
+                    TS_summary(TS_counter).TxSite_quant        = img_dum.cell_prop(ind_cell).pos_TS(ind_TS).TxSite_quant;
+                    TS_summary(TS_counter).TS_analysis_results = img_dum.cell_prop(ind_cell).pos_TS(ind_TS).TS_analysis_results;
+                    TS_summary(TS_counter).REC_prop            = img_dum.cell_prop(ind_cell).pos_TS(ind_TS).REC_prop;
+                    TS_summary(TS_counter).TS_rec              = img_dum.cell_prop(ind_cell).pos_TS(ind_TS).TS_rec;
+                    TS_summary(TS_counter).Q_all               = img_dum.cell_prop(ind_cell).pos_TS(ind_TS).Q_all;
 
                     TS_summary(TS_counter).cell_label          = cell_prop(ind_cell).label;
                     TS_summary(TS_counter).TS_label            = pos_TS.label;
@@ -3987,8 +3987,6 @@ handles.i_file_proc        = 1;
 handles.i_cell_proc        = 1;
 handles.i_TS_proc          = 1;
 
-%- Same parameters for detection and quantification
-handles.parameters_quant       = parameters_quant;
 
 %- Enable controls and update status
 controls_enable(hObject, eventdata, handles)
@@ -4023,7 +4021,9 @@ else
 end
 
 %- Parameters
-parameters                         = handles.parameters_quant;
+parameters                         = handles.img.settings.TS_quant;
+parameters.mRNA_prop               = handles.img.mRNA_prop;
+parameters.range_int               = handles.img.settings.TS_quant.range_int;
 parameters.fid                     = -1;
 parameters.flags.output            = 0;
 parameters.file_name_save_PLOTS_PS = [];

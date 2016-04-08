@@ -1,4 +1,4 @@
-function [TxSite_quant, REC_prop, TS_analysis_results, TS_rec, Q_all] = TS_quant_v17(image_struct,pos_TS,PSF_shift,parameters_quant)
+function [TxSite_quant, REC_prop, TS_analysis_results, TS_rec, Q_all] = FQ3_TS_quant_v1(img,pos_TS,PSF_shift,parameters_quant)
 % Function to quantify the number of nascent transcripts at the transcription site
 
 
@@ -21,8 +21,7 @@ end
 
         
 %=== Analysis of the transcription site
-[TS_analysis_results, PSF_shift]                = TxSite_reconstruct_ANALYSIS_v12(image_struct,pos_TS,PSF_shift,parameters_quant);
-
+[TS_analysis_results, PSF_shift]                = FQ3_TS_quant_analysis_v1(img,pos_TS,PSF_shift,parameters_quant);
 
 %=== Optional: quantification with PSF superposition approach
 if not(parameters_quant.flags.quant_simple_only)

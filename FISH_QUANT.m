@@ -1882,36 +1882,24 @@ FQ_enable_controls_v1(handles)
 %==== Fit averaged spots
 function handles = menu_avg_fit_Callback(hObject, eventdata, handles)
 
-%- Parameters needed for function call
-flag_crop      = 1;
-flag_output    = 2;
-img_PSF.data   = handles.img.spot_avg_os;
-pixel_size_os  = handles.img.par_microscope.pixel_size_os;
-par_microscope = handles.img.par_microscope;
-PSF_exp        = handles.img.PSF_exp;
+%- Get some parameters
+parameters_fit.flags.ns     = 0;  % Fit over-sampled (which will be identical to normal-sampling if no over-sampling has been specified)
+parameters_fit.flags.output = 2;
 
-%- Crop region for fit
-size_detect = handles.img.settings.detect.reg_size ;
-fact_os     = handles.img.settings.avg_spots.fact_os; 
+%- Image should be cropped to the size of the detection region
+parameters_fit.flags.crop  = 1;
+parameters_fit.par_crop.xy = handles.img.settings.detect.reg_size.xy; 
+parameters_fit.par_crop.z  = handles.img.settings.detect.reg_size.z; 
 
-par_crop_fit.xy = size_detect.xy * fact_os.xy;
-par_crop_fit.z  = size_detect.z  * fact_os.z;
-
-%- Fit with 3D Gaussian
-parameters.pixel_size     = pixel_size_os;
-parameters.par_microscope = par_microscope;
-parameters.flags.crop     = flag_crop;
-parameters.flags.output   = flag_output;
-parameters.par_crop       = par_crop_fit;
-
-[PSF_fit_os] = PSF_3D_Gauss_fit_v8(img_PSF,parameters);
+%- Average image
+handles.img.avg_spot_fit(parameters_fit)
 
 %- Update experimental PSF settings
-PSF_exp.sigmax_avg = PSF_fit_os.sigma_xy;
-PSF_exp.sigmay_avg = PSF_fit_os.sigma_xy;
-PSF_exp.sigmaz_avg = PSF_fit_os.sigma_z;
-PSF_exp.amp_avg    = PSF_fit_os.amp;
-PSF_exp.bgd_avg    = PSF_fit_os.bgd;
+PSF_exp.sigmax_avg = handles.img.spot_avg_fit_par.sigma_xy;
+PSF_exp.sigmay_avg = handles.img.spot_avg_fit_par.sigma_xy;
+PSF_exp.sigmaz_avg = handles.img.spot_avg_fit_par.sigma_z;
+PSF_exp.amp_avg    = handles.img.spot_avg_fit_par.amp;
+PSF_exp.bgd_avg    = handles.img.spot_avg_fit_par.bgd;
 
 set(handles.text_psf_fit_sigmaX,'String', num2str(PSF_exp.sigmax_avg,'%.0f'));
 set(handles.text_psf_fit_sigmaY,'String', num2str(PSF_exp.sigmay_avg,'%.0f'));
@@ -1922,10 +1910,10 @@ set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_avg,'%.0f'));
 set(handles.pop_up_select_psf,'Value',3);
 
 %- Save values
-handles.img.spot_avg_os_fit = PSF_fit_os;
+%handles.img.spot_avg_os_fit = PSF_fit_os;
 handles.status_avg_fit     = 1;
 handles.img.PSF_exp        = PSF_exp;
-guidata(hObject, handles);      % Update handles structure
+guidata(hObject, handles);     
 
 
 %=== Menu: save averaged spot with normal sampling as tiff

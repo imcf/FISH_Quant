@@ -22,8 +22,10 @@ classdef FQ_img < handle
         
         spot_avg
         spot_avg_fit
+        spot_avg_fit_par
         spot_avg_os
         spot_avg_os_fit
+        spot_avg_os_fit_par
         
         %-- Projections
         raw_proj_z
@@ -173,7 +175,7 @@ classdef FQ_img < handle
             img.settings.TS_quant.N_run_prelim   = 5;
             img.settings.TS_quant.nBins          = 50;
             img.settings.TS_quant.per_avg_bgd    = 0.95;
-            img.settings.TS_quant.factor_Q_ok      = 1.5;
+            img.settings.TS_quant.factor_Q_ok    = 1.5;
             
             %= Background auto calculation 
             img.settings.TS_quant.bgd_N_bins            = 10;
@@ -354,11 +356,20 @@ classdef FQ_img < handle
             [img, status] = FQ_load_settings_v1(file_name_full,img);
             
             if status
-                [img.path_names.settings, img.file_names.settings] = fileparts(file_name_full);
+                [img.path_names.settings, img.file_names.settings,ext] = fileparts(file_name_full);
+                img.file_names.settings = [img.file_names.settings,ext];
             end
         
         end
         
+        %% ==== Save settings
+        function [file_save, path_save] = save_settings(img,file_name_full)
+            [file_save, path_save] = FQ_save_settings_v1(file_name_full,img);
+            img.file_names.settings = file_save;
+            img.path_names.settings = path_save;
+        
+        end
+          
         
         %% ==== Load settings for TS quantification
         function [img, file_ok] = load_settings_TS(img,file_name)
@@ -391,17 +402,8 @@ classdef FQ_img < handle
             
         end
         
-            
-        %% ==== Save settings
-        function [file_save, path_save] = save_settings(img,file_name_full)
-            [file_save, path_save] = FQ_save_settings_v1(file_name_full,img);
-            img.file_names.settings = file_save;
-            img.path_names.settings = path_save;
-        
-        end
-         
-        
-        %% ==== Save settings
+
+        %% ==== Save settings for TS quantification
         function [file_save, path_save] = save_settings_TS(img,file_name_full)
             [file_save, path_save] = FQ_TS_settings_save_v10(file_name_full,img);
             img.file_names.settings = file_save;
@@ -409,6 +411,11 @@ classdef FQ_img < handle
         
         end
         
+        
+        %% ==== Modify settings for TS quantification
+        function modify_settings_TS(img,status_TS_simple_only)
+            img.settings.TS_quant = FQ_TS_settings_modify_v6(img.settings.TS_quant,status_TS_simple_only);
+        end
         
         %% ==== Load results file
         function status_open = load_results(img,file_name_open,path_img)
@@ -502,7 +509,6 @@ classdef FQ_img < handle
             end
         end
             
-        
         
         %% ==== Load outline of other color
         function status_open = load_existing_outline(img,file_name_open)
@@ -602,6 +608,7 @@ classdef FQ_img < handle
            [file_save, path_save] = FQ_save_results_flex_v1(name_full,parameters);
 
         end
+        
         
         %% ==== Define experimental parameters
         function define_par(img)
@@ -759,7 +766,7 @@ classdef FQ_img < handle
         
         
         %% === Make entire image one cell
-        function make_one_cell(img,ind_cell)
+        function make_one_cell(img,ind_cell,int_TS)
             
             %- Dimension of entire image
             w = img.dim.X;
@@ -775,6 +782,92 @@ classdef FQ_img < handle
         end
         
    
+        %% === Function for TS quantification
+        function [status, status_text] = TS_quant(img,ind_cell,ind_TS)
+        
+            %== Check if there is a TS
+            if isempty(img.cell_prop(ind_cell).pos_TS)
+                status       = 0;
+                status_text  = {'No transcription site in thise cell. ';'== .... FINSIHED'};
+                return
+            end
+            
+            %== Get quantification parameters
+            parameters_quant = img.settings.TS_quant;
+
+            %=== ASSIGN parameters for PSF superposition
+            if parameters_quant.flags.quant_simple_only
+                PSF_shift        = [];
+            else  
+                PSF_shift        = img.mRNA_prop.PSF_shift;
+            end
+
+            %=== Parameters for quantificaiton
+            parameters_quant.par_microscope      = img.par_microscope;
+            parameters_quant.pixel_size          = img.par_microscope.pixel_size;
+            parameters_quant.pixel_size_os.xy    = img.par_microscope.pixel_size.xy * img.settings.avg_spots.fact_os.xy;    
+            parameters_quant.pixel_size_os.z     = img.par_microscope.pixel_size.z  * img.settings.avg_spots.fact_os.z;   
+           % parameters_quant.fact_os             = img.settings.avg_spots.fact_os;
+            
+            parameters_quant.col_par                  = img.col_par;
+            parameters_quant.dist_max                 = inf;
+            parameters_quant.N_mRNA_analysis_MAX      = [];
+            parameters_quant.pad_image                = [];
+
+            %=== Integration range = cropping region!
+            parameters_quant.range_int.x_int.min =  - parameters_quant.crop_image.xy_pix * img.par_microscope.pixel_size.xy;
+            parameters_quant.range_int.x_int.max =  + parameters_quant.crop_image.xy_pix * img.par_microscope.pixel_size.xy;
+
+            parameters_quant.range_int.y_int.min =  - parameters_quant.crop_image.xy_pix * img.par_microscope.pixel_size.xy;
+            parameters_quant.range_int.y_int.max =  + parameters_quant.crop_image.xy_pix * img.par_microscope.pixel_size.xy;
+
+            parameters_quant.range_int.z_int.min =  - parameters_quant.crop_image.z_pix * img.par_microscope.pixel_size.z;
+            parameters_quant.range_int.z_int.max =  + parameters_quant.crop_image.z_pix * img.par_microscope.pixel_size.z;
+            
+            %- Save for later
+            img.settings.TS_quant.range_int = parameters_quant.range_int;
+            
+            
+            %= mRNA properties
+            parameters_quant.mRNA_prop = img.mRNA_prop;
+
+            %- BGD for fitting of TS is a free fitting paramter 
+            parameters_quant.flags.IntegInt_bgd_free = 1;
+
+            %- Boundaries for fit
+            parameters_quant.flags.bound = 1;
+
+           
+            %- Get transcription site to fit
+            pos_TS    = img.cell_prop(ind_cell).pos_TS(ind_TS);  
+
+            %- Binary mask for image
+            parameters_quant.cell_bw =  roipoly(img.raw(:,:,1),img.cell_prop(ind_cell).x,img.cell_prop(ind_cell).y);
+
+            if not(isempty(img.cell_prop(ind_cell).pos_Nuc))
+                parameters_quant.nuc_bw =  roipoly(img.raw(:,:,1),img.cell_prop(ind_cell).pos_Nuc.x,img.cell_prop(ind_cell).pos_Nuc.y);
+            else
+                parameters_quant.nuc_bw =  [];
+            end
+
+            %- Perform quantification
+            [TxSite_quant, REC_prop, TS_analysis_results, TS_rec, Q_all] = FQ3_TS_quant_v1(img,pos_TS,PSF_shift,parameters_quant);
+            
+            %- Save results
+            img.cell_prop(ind_cell).pos_TS(ind_TS).TxSite_quant         = TxSite_quant;
+            img.cell_prop(ind_cell).pos_TS(ind_TS).TS_rec               = TS_rec;
+            img.cell_prop(ind_cell).pos_TS(ind_TS).Q_all                = Q_all;
+
+            img.cell_prop(ind_cell).pos_TS(ind_TS).REC_prop             = REC_prop;
+            img.cell_prop(ind_cell).pos_TS(ind_TS).TS_analysis_results  = TS_analysis_results;  
+            img.cell_prop(ind_cell).pos_TS(ind_TS).status_QUANT         = 1;
+            
+            %- Status and status text            
+            status       = 1;
+            status_text  = {' ';'== .... FINSIHED'};
+            
+        end
+            
         %% === TS detection: change settings
          function TS_detect_settings_change(img)
             img.settings.TS_detect = FQ_TS_settings_detect_modify_v5(img.settings.TS_detect);
@@ -1172,6 +1265,41 @@ classdef FQ_img < handle
         end
         
         
+        %%  === Function to average all spots
+        function avg_spot_fit(img,parameters_fit)
+        
+            %-- parameters_fit
+            % Can contains already a number of parameters
+                                
+            if ~isfield(parameters_fit.flags,'ns')
+                parameters_fit.flags.ns = 1;
+            end
+            
+            %- Prepare data and other parameters for normal or over-sampling
+            if parameters_fit.flags.ns
+               avg_img.data = img.spot_avg ;
+               parameters_fit.pixel_size     = img.par_microscope.pixel_size;
+            else
+               avg_img.data = img.spot_avg_os;
+               parameters_fit.pixel_size     = img.par_microscope.pixel_size_os;
+               
+               if parameters_fit.flags.crop 
+                   parameters_fit.par_crop.xy = parameters_fit.par_crop.xy * img.settings.avg_spots.fact_os.xy;
+                   parameters_fit.par_crop.z  = parameters_fit.par_crop.z  * img.settings.avg_spots.fact_os.z;
+               end
+            end
+            
+            %- General parameters for fit
+            parameters_fit.par_microscope = img.par_microscope;
+            
+            %- Function call for fit
+            [fit_par, fit_img] = PSF_3D_Gauss_fit_v8(avg_img,parameters_fit);
+            img.spot_avg_fit_par = fit_par;
+            img.spot_avg_fit     = fit_img;
+
+        end
+            
+        
         %%  === Function to average all spots 
         function  avg_spots_plot(img)       
             spot_3D_avg_plot_v1(img)
@@ -1240,6 +1368,7 @@ classdef FQ_img < handle
            img = FQ_calc_loc_feature_v1(img);
   
         end
+        
         
              %% === Function to load PSF image
         function img = calc_intint(img)

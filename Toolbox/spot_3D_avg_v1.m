@@ -55,8 +55,8 @@ function [spot_avg, spot_avg_os, pixel_size_os,img_sum] = spot_3D_avg_v1(img,ind
             %- Calculate averaged image
             if not(isempty(img_sum))
 
-                spot_avg       = round(img_sum.spot_sum     /img_sum.N_sum);
-                spot_avg_os    = round(img_sum.spot_os_sum /img_sum.N_sum); 
+                spot_avg       = round(img_sum.spot_sum     / img_sum.N_sum);
+                spot_avg_os    = round(img_sum.spot_os_sum /  img_sum.N_sum); 
                 img.par_microscope.pixel_size_os = pixel_size_os;
 
                 %- Extract area without buffer zone
@@ -71,11 +71,7 @@ function [spot_avg, spot_avg_os, pixel_size_os,img_sum] = spot_3D_avg_v1(img,ind
                 img.spot_os_avg  = [];
 
             end
-
-
     end
-
-
 end
 
 
@@ -101,33 +97,46 @@ function [spot_avg, spot_os_avg,pixel_size_os,img_sum] = avg_spots_cell(img,ind_
         return
     end
     
-    %==== Decide which positions to use 
+    %==== Which positions to use
     img.cell_prop(ind_cell).thresh.in = logical(img.cell_prop(ind_cell).thresh.in);
     
     
-    %- Based on fit
-    if img.settings.avg_spots.fact_os.xy > 1 || img.settings.avg_spots.fact_os.z > 1
-
-        status_os = 1;
+    %- Use fitted positions if available
+    if ~isempty(img.cell_prop(ind_cell).spots_fit)
         spots_pos = img.cell_prop(ind_cell).spots_fit(img.cell_prop(ind_cell).thresh.in,[img.col_par.pos_y img.col_par.pos_x img.col_par.pos_z]);
 
         spots_pos(:,1) = spots_pos(:,1) + img.par_microscope.pixel_size.xy;
-        spots_pos(:,2) = spots_pos(:,2) +  img.par_microscope.pixel_size.xy;
-        spots_pos(:,3) = spots_pos(:,3) +  img.par_microscope.pixel_size.z;
-
-    %- Based on detection    
+        spots_pos(:,2) = spots_pos(:,2) + img.par_microscope.pixel_size.xy;
+        spots_pos(:,3) = spots_pos(:,3) + img.par_microscope.pixel_size.z;
     else
-        
-        status_os = 0;
         spots_pos(:,1) = (img.cell_prop(ind_cell).spots_detected(img.cell_prop(ind_cell).thresh.in,img.col_par.pos_y_det) -1) * img.par_microscope.pixel_size.xy;
         spots_pos(:,2) = (img.cell_prop(ind_cell).spots_detected(img.cell_prop(ind_cell).thresh.in,img.col_par.pos_x_det) -1) * img.par_microscope.pixel_size.xy;
         spots_pos(:,3) = (img.cell_prop(ind_cell).spots_detected(img.cell_prop(ind_cell).thresh.in,img.col_par.pos_z_det) -1) * img.par_microscope.pixel_size.z;
+    end
+    
+    %- With oversampling
+    if img.settings.avg_spots.fact_os.xy > 1 || img.settings.avg_spots.fact_os.z > 1
+
+        status_os = 1;
+        
+%         spots_pos = img.cell_prop(ind_cell).spots_fit(img.cell_prop(ind_cell).thresh.in,[img.col_par.pos_y img.col_par.pos_x img.col_par.pos_z]);
+% 
+%         spots_pos(:,1) = spots_pos(:,1) + img.par_microscope.pixel_size.xy;
+%         spots_pos(:,2) = spots_pos(:,2) + img.par_microscope.pixel_size.xy;
+%         spots_pos(:,3) = spots_pos(:,3) + img.par_microscope.pixel_size.z;
+
+    %- Without oversampling  
+    else
+        
+        status_os = 0;
+     %   spots_pos(:,1) = (img.cell_prop(ind_cell).spots_detected(img.cell_prop(ind_cell).thresh.in,img.col_par.pos_y_det) -1) * img.par_microscope.pixel_size.xy;
+     %   spots_pos(:,2) = (img.cell_prop(ind_cell).spots_detected(img.cell_prop(ind_cell).thresh.in,img.col_par.pos_x_det) -1) * img.par_microscope.pixel_size.xy;
+     %   spots_pos(:,3) = (img.cell_prop(ind_cell).spots_detected(img.cell_prop(ind_cell).thresh.in,img.col_par.pos_z_det) -1) * img.par_microscope.pixel_size.z;
 
     end
 
     N_spots   = size(spots_pos,1);
     
- 
     %- Get background only if bgd subtraction option is specified
     if img.settings.avg_spots.flags.bgd
         spots_bgd = img.cell_prop(ind_cell).spots_fit(img.cell_prop(ind_cell).thresh.in,img.col_par.bgd);
@@ -254,8 +263,6 @@ function [spot_avg, spot_os_avg,pixel_size_os,img_sum] = avg_spots_cell(img,ind_
             N_ignore = N_ignore+1;
 
         end
-
-
     end
 
     if flags.output

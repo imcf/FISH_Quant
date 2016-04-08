@@ -1,4 +1,4 @@
-function [results, img_PSF_all] = TxSite_reconstruct_ANALYSIS_v11(image_struct,pos_TS,img_PSF_all,parameters)
+function [results, img_PSF_all] = FQ3_TS_quant_analysis_v1(img,pos_TS,img_PSF_all,parameters)
 
 %== Some parameters
 flags               = parameters.flags;
@@ -14,7 +14,9 @@ min_y = round(min(pos_TS.y));
 max_y = round(max(pos_TS.y));
 
 %- Make sure cropping is within image
-[dim.Y dim.X dim.Z] = size(image_struct.data);
+dim = img.dim;
+
+[dim.Y dim.X dim.Z] = size(img.raw);
 
 if min_x < 1; min_x = 1; end
 if max_x > dim.X; max_x = dim.X; end
@@ -23,20 +25,14 @@ if min_y < 1; min_y = 1; end
 if max_y > dim.Y; max_y = dim.Y; end
 
 %- Generate image zero everywhere except at transcription site
-img_TS_large                            = zeros(size(image_struct.data));
-img_TS_large(min_y:max_y,min_x:max_x,:) = image_struct.data(min_y:max_y,min_x:max_x,:); 
+img_TS_large                            = zeros(size(img.raw));
+img_TS_large(min_y:max_y,min_x:max_x,:) = img.raw(min_y:max_y,min_x:max_x,:); 
 
 [img_TS_large_max.val img_TS_large_max.ind_lin]            = max(img_TS_large(:));
 [img_TS_large_max.Y,img_TS_large_max.X,img_TS_large_max.Z] = ind2sub(size(img_TS_large),img_TS_large_max.ind_lin(1));
 
 
 %=== Cropping region
-% crop_xy_nm = parameters.crop_image.xy_nm;
-% crop_z_nm  = parameters.crop_image.z_nm;
-% 
-% crop_xy_pix = ceil(crop_xy_nm / pixel_size.xy);
-% crop_z_pix  = ceil(crop_z_nm / pixel_size.z);
-
 crop_xy_pix = parameters.crop_image.xy_pix;
 crop_z_pix  = parameters.crop_image.z_pix;
 
@@ -59,7 +55,7 @@ if zmin_crop<1;     zmin_crop = 1;     end
 if zmax_crop>dim.Z; zmax_crop = dim.Z; end
 
 
-img_TS_crop_xyz = image_struct.data(ymin_crop:ymax_crop,xmin_crop:xmax_crop,zmin_crop:zmax_crop);
+img_TS_crop_xyz = img.raw(ymin_crop:ymax_crop,xmin_crop:xmax_crop,zmin_crop:zmax_crop);
 
         
 
@@ -192,7 +188,7 @@ elseif flags.bgd_local == 2
     
     int_all = [];
     for z_ind = zmin_crop:1:zmax_crop
-        img_loop = image_struct.data(:,:,zmin_crop:zmax_crop);
+        img_loop = img.raw(:,:,zmin_crop:zmax_crop);
         int_loop  = img_loop(bgd_bw);
         int_all   = [int_all;int_loop(:)];
     end

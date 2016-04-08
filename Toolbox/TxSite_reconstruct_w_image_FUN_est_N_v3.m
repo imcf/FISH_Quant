@@ -51,7 +51,7 @@ img_TS  = double(img_TS);
 img_bgd = double(img_bgd);
 
 %- Dimension of the respective images
-[dim_TS.Y dim_TS.X dim_TS.Z] = size(img_TS);
+[dim_TS.Y, dim_TS.X, dim_TS.Z] = size(img_TS);
 
 %- Linear representation of 3d matrix: Column-by-column (x,y) and then different z
 img_TS_lin  = img_TS(:);
@@ -104,21 +104,11 @@ while Q_It < Q_N0
      Q_It              = results_placement.Q_min;
      img_Fit_lin       = results_placement.img_Fit_lin;
      
-     
-%      disp([num2str(results_placement.amp_loop,'%10.2f')      , '  ', ... 
-%            num2str(results_placement.fit_amp,'%10.2f')       , '  ', ...
-%            num2str(results_placement.factor_scale)           , '  ', ...
-%            num2str(max(results_placement.psf_new(:)),'%10.2f') , '  ', ...
-%            num2str(results_placement.Q_min_in)               , '  ', ...
-%            num2str(results_placement.int_max_psf)            , '  ', ...
-%            num2str(max(img_Fit_lin(:)),'%10.2f')              ])
-  
-
      %- Save parameters
      Q_all(iP,1) = Q_It;   
      iP = iP+1;   
       
-         
+  
     %=== Plot images 
     if not(isempty(flags.output)) &&  sum(flags.output == iP-1)
         

@@ -492,154 +492,208 @@ end
 %=== Quantify transcription site
 function handles = button_process_Callback(hObject, eventdata, handles)
 
-global parameters_quant
-parameters_quant = handles.img.settings.TS_quant;
-
 
 %== Update status and change cursor
 status_text = {' ';'== Transcription site quantification: STARTED ...'};
 status_update(hObject, eventdata, handles,status_text); 
 set(handles.h_FQ_TxSite,'Pointer','watch'); %= Pointer to watch
 
+%== What type of quantification
+handles.img.settings.TS_quant.flags.quant_simple_only = not(get(handles.checkbox_flag_GaussMix,'Value'));
+handles.status_TS_simple_only                         = handles.img.settings.TS_quant.flags.quant_simple_only;
 
-%=== Which quantification methods: simple only or all
-parameters_quant.flags.quant_simple_only = not(get(handles.checkbox_flag_GaussMix,'Value'));
-handles.img.settings.TS_quant.flags.quant_simple_only = parameters_quant.flags.quant_simple_only ;
-handles.status_TS_simple_only            = parameters_quant.flags.quant_simple_only;  %- For plotting and other purposes
+%== Some flags
+handles.img.settings.TS_quant.flags.output      = get(handles.checkbox_output,'Value'); 
 
-%=== ASSIGN parameters for PSF superposition
-if parameters_quant.flags.quant_simple_only
-    PSF_shift        = [];
-else  
-    PSF_shift        = handles.img.mRNA_prop.PSF_shift;
-end
-
-%== Get parameters
-cell_prop         = handles.img.cell_prop;
-
-par_microscope   = handles.img.par_microscope;
-fact_os          = handles.fact_os;
-
-pixel_size_os.xy  = par_microscope.pixel_size.xy / fact_os.xy;
-pixel_size_os.z   = par_microscope.pixel_size.z  / fact_os.z;
-
-%== Determine how results are shown
-flag_plot = get(handles.checkbox_output,'Value');    % Can be a list - corresponding constructions will be plotted
-
-%- Display only results
-if flag_plot == 0
-    parameters_quant.flags.output = 0;
-    
-%- Display results and show plots
-else 
-    parameters_quant.flags.output = 1;
-end
-
-%=== BGD of TxSite
-status_bgd = get(handles.button_TS_bgd,'Value');
-
-if status_bgd == 1
+%== Background
+if get(handles.button_TS_bgd,'Value') == 1
     handles.img.settings.TS_quant.flags.bgd_local = 0;
-    parameters_quant.BGD.amp         = str2num(get(handles.txt_TS_bgd,'String'));  
+    handles.img.settings.TS_quant.BGD.amp         = str2num(get(handles.txt_TS_bgd,'String'));  
+
+else
+    handles.img.settings.TS_quant.flags.bgd_local = 2;    
+end
+   
+%== Specify files to save results
+handles.img.settings.TS_quant.file_name_save_STATUS    = [];
+handles.img.settings.TS_quant.file_name_save_PLOTS_PS  = [];
+handles.img.settings.TS_quant.file_name_save_PLOTS_PDF = [];
+
+%== Which cell and which TS
+ind_cell  = get(handles.pop_up_outline_sel_cell,'Value');            
+ind_TS    = get(handles.pop_up_outline_sel_TS,'Value');
+
+%== Start quantification
+status_text = handles.img.TS_quant(ind_cell,ind_TS);
+
+status_update(hObject, eventdata, handles,status_text);
+set(handles.h_FQ_TxSite,'Pointer','arrow');
+
+%- Save results
+guidata(hObject, handles); 
+
+%- Plot summary of quantification
+if ~handles.status_TS_simple_only
+    axes(handles.axes_main)
+    cla(handles.axes_main,'reset')
+    plot(handles.img.cell_prop(ind_cell).pos_TS(ind_TS).REC_prop.summary_Q_run_N_MRNA,  handles.img.cell_prop(ind_cell).pos_TS(ind_TS).REC_prop.mean_Q)
+    v = axis; axis(v)    
+    xlabel('Number of placed mRNA')
+    ylabel('Quality score')
+    title(['Estimated # of nascent transcripts: ', num2str(round(handles.img.cell_prop(ind_cell).pos_TS(ind_TS).TxSite_quant.N_mRNA_TS_global ))])
     
 else
-    parameters_quant.flags.bgd_local = 2;    
-end
-
-%=== Parameters for quantificaiton
-parameters_quant.pixel_size          = par_microscope.pixel_size;
-parameters_quant.pixel_size_os       = pixel_size_os;
-parameters_quant.N_mRNA_analysis_MAX = [];
-parameters_quant.fact_os             = fact_os;
-parameters_quant.par_microscope      = par_microscope;
-parameters_quant.pad_image           = [];
-parameters_quant.col_par             = handles.col_par;
-parameters_quant.dist_max            = inf;
-parameters_quant.file_name_save_STATUS    = [];
-parameters_quant.file_name_save_PLOTS_PS  = [];
-parameters_quant.file_name_save_PLOTS_PDF = [];
-
-%=== Integration range = cropping region!
-parameters_quant.range_int.x_int.min =  - parameters_quant.crop_image.xy_pix * par_microscope.pixel_size.xy;
-parameters_quant.range_int.x_int.max =  + parameters_quant.crop_image.xy_pix * par_microscope.pixel_size.xy;
-
-parameters_quant.range_int.y_int.min =  - parameters_quant.crop_image.xy_pix * par_microscope.pixel_size.xy;
-parameters_quant.range_int.y_int.max =  + parameters_quant.crop_image.xy_pix * par_microscope.pixel_size.xy;
-
-parameters_quant.range_int.z_int.min =  - parameters_quant.crop_image.z_pix * par_microscope.pixel_size.z;
-parameters_quant.range_int.z_int.max =  + parameters_quant.crop_image.z_pix * par_microscope.pixel_size.z;
-
-%= mRNA properties
-parameters_quant.mRNA_prop         = handles.img.mRNA_prop;
-
-%= FLAGS for QUANTIFICATION
-parameters_quant.flags.parallel    = get(handles.checkbox_parallel_computing,'Value');
-
-%- BGD for fitting of TS is a free fitting paramter 
-parameters_quant.flags.IntegInt_bgd_free = 1;
-
-%- Boundaries for fit
-parameters_quant.flags.bound = 1;
-
-%- Which cell and which TS
-ind_cell  = get(handles.pop_up_outline_sel_cell,'Value');
-
-if not(isempty(cell_prop(ind_cell).pos_TS))
-
-    ind_TS    = get(handles.pop_up_outline_sel_TS,'Value');
-    pos_TS    = cell_prop(ind_cell).pos_TS(ind_TS);  
-
-    %- Binary mask for image
-    parameters_quant.cell_bw =  roipoly(handles.img.raw(:,:,1),cell_prop(ind_cell).x,cell_prop(ind_cell).y);
-    
-    if not(isempty(cell_prop(ind_cell).pos_Nuc))
-        parameters_quant.nuc_bw =  roipoly(handles.img.raw(:,:,1),cell_prop(ind_cell).pos_Nuc.x,cell_prop(ind_cell).pos_Nuc.y);
-    else
-        parameters_quant.nuc_bw =  [];
-    end
-    
-    %- Start quantification
-    image_struct.data = handles.img.raw;  % HAS TO BE CHANGED - but then in all functions in TS_quant_v17 ....
-    
-    [TxSite_quant, REC_prop, TS_analysis_results, TS_rec, Q_all] = TS_quant_v17(image_struct,pos_TS,PSF_shift,parameters_quant);
-
-    handles.img.cell_prop(ind_cell).pos_TS(ind_TS).TxSite_quant         = TxSite_quant;
-    handles.img.cell_prop(ind_cell).pos_TS(ind_TS).TS_rec               = TS_rec;
-    handles.img.cell_prop(ind_cell).pos_TS(ind_TS).Q_all                = Q_all;
-
-    handles.img.cell_prop(ind_cell).pos_TS(ind_TS).REC_prop             = REC_prop;
-    handles.img.cell_prop(ind_cell).pos_TS(ind_TS).TS_analysis_results  = TS_analysis_results;  
-    handles.img.cell_prop(ind_cell).pos_TS(ind_TS).status_QUANT         = 1;
-    handles.status_QUANT = 1;
-
-    %- Save results
-    guidata(hObject, handles); 
-
-    %- Plot summary of quantification
-    if ~handles.status_TS_simple_only
-        axes(handles.axes_main)
-        cla(handles.axes_main,'reset')
-        plot(REC_prop.summary_Q_run_N_MRNA,REC_prop.mean_Q)
-        v = axis; axis(v)    
-        xlabel('Number of placed mRNA')
-        ylabel('Quality score')
-        title(['Estimated # of nascent transcripts: ', num2str(round(TxSite_quant.N_mRNA_TS_global ))])
-    end
-
-    %== Update status and change cursor
-    status_text = {' ';'== .... FINSIHED'};
-    status_update(hObject, eventdata, handles,status_text);
-    set(handles.h_FQ_TxSite,'Pointer','arrow');
-else
-    %== Update status and change cursor
-    status_text = {'No transcription site in thise cell. ';'== .... FINSIHED'};
-    status_update(hObject, eventdata, handles,status_text);
-    set(handles.h_FQ_TxSite,'Pointer','arrow');
-end
-
-if handles.status_TS_simple_only
     pop_up_outline_sel_TS_Callback(hObject, eventdata, handles)
 end
+
+% global parameters_quant
+% parameters_quant = handles.img.settings.TS_quant;
+% 
+% 
+% %== Update status and change cursor
+% status_text = {' ';'== Transcription site quantification: STARTED ...'};
+% status_update(hObject, eventdata, handles,status_text); 
+% set(handles.h_FQ_TxSite,'Pointer','watch'); %= Pointer to watch
+% 
+% 
+% %=== Which quantification methods: simple only or all
+% parameters_quant.flags.quant_simple_only = not(get(handles.checkbox_flag_GaussMix,'Value'));
+% handles.img.settings.TS_quant.flags.quant_simple_only = parameters_quant.flags.quant_simple_only ;
+% handles.status_TS_simple_only            = parameters_quant.flags.quant_simple_only;  %- For plotting and other purposes
+% 
+% %=== ASSIGN parameters for PSF superposition
+% if parameters_quant.flags.quant_simple_only
+%     PSF_shift        = [];
+% else  
+%     PSF_shift        = handles.img.mRNA_prop.PSF_shift;
+% end
+% 
+% %== Get parameters
+% cell_prop         = handles.img.cell_prop;
+% 
+% par_microscope   = handles.img.par_microscope;
+% fact_os          = handles.fact_os;
+% 
+% pixel_size_os.xy  = par_microscope.pixel_size.xy / fact_os.xy;
+% pixel_size_os.z   = par_microscope.pixel_size.z  / fact_os.z;
+% 
+% %== Determine how results are shown
+% flag_plot = get(handles.checkbox_output,'Value');    % Can be a list - corresponding constructions will be plotted
+% 
+% %- Display only results
+% if flag_plot == 0
+%     parameters_quant.flags.output = 0;
+%     
+% %- Display results and show plots
+% else 
+%     parameters_quant.flags.output = 1;
+% end
+% 
+% %=== BGD of TxSite
+% status_bgd = get(handles.button_TS_bgd,'Value');
+% 
+% if status_bgd == 1
+%     handles.img.settings.TS_quant.flags.bgd_local = 0;
+%     parameters_quant.BGD.amp         = str2num(get(handles.txt_TS_bgd,'String'));  
+%     
+% else
+%     parameters_quant.flags.bgd_local = 2;    
+% end
+% 
+% %=== Parameters for quantificaiton
+% parameters_quant.pixel_size          = par_microscope.pixel_size;
+% parameters_quant.pixel_size_os       = pixel_size_os;
+% parameters_quant.N_mRNA_analysis_MAX = [];
+% parameters_quant.fact_os             = fact_os;
+% parameters_quant.par_microscope      = par_microscope;
+% parameters_quant.pad_image           = [];
+% parameters_quant.col_par             = handles.col_par;
+% parameters_quant.dist_max            = inf;
+% parameters_quant.file_name_save_STATUS    = [];
+% parameters_quant.file_name_save_PLOTS_PS  = [];
+% parameters_quant.file_name_save_PLOTS_PDF = [];
+% 
+% %=== Integration range = cropping region!
+% parameters_quant.range_int.x_int.min =  - parameters_quant.crop_image.xy_pix * par_microscope.pixel_size.xy;
+% parameters_quant.range_int.x_int.max =  + parameters_quant.crop_image.xy_pix * par_microscope.pixel_size.xy;
+% 
+% parameters_quant.range_int.y_int.min =  - parameters_quant.crop_image.xy_pix * par_microscope.pixel_size.xy;
+% parameters_quant.range_int.y_int.max =  + parameters_quant.crop_image.xy_pix * par_microscope.pixel_size.xy;
+% 
+% parameters_quant.range_int.z_int.min =  - parameters_quant.crop_image.z_pix * par_microscope.pixel_size.z;
+% parameters_quant.range_int.z_int.max =  + parameters_quant.crop_image.z_pix * par_microscope.pixel_size.z;
+% 
+% %= mRNA properties
+% parameters_quant.mRNA_prop         = handles.img.mRNA_prop;
+% 
+% %= FLAGS for QUANTIFICATION
+% parameters_quant.flags.parallel    = get(handles.checkbox_parallel_computing,'Value');
+% 
+% %- BGD for fitting of TS is a free fitting paramter 
+% parameters_quant.flags.IntegInt_bgd_free = 1;
+% 
+% %- Boundaries for fit
+% parameters_quant.flags.bound = 1;
+% 
+% %- Which cell and which TS
+% ind_cell  = get(handles.pop_up_outline_sel_cell,'Value');
+
+% if not(isempty(handles.img.cell_prop(ind_cell).pos_TS))
+% 
+%     ind_TS    = get(handles.pop_up_outline_sel_TS,'Value');
+%     pos_TS    = handles.img.cell_prop(ind_cell).pos_TS(ind_TS);  
+% 
+%     %- Binary mask for image
+%     parameters_quant.cell_bw =  roipoly(handles.img.raw(:,:,1),handles.img.cell_prop(ind_cell).x,handles.img.cell_prop(ind_cell).y);
+%     
+%     if not(isempty(cell_prop(ind_cell).pos_Nuc))
+%         parameters_quant.nuc_bw =  roipoly(handles.img.raw(:,:,1),handles.img.cell_prop(ind_cell).pos_Nuc.x,handles.img.cell_prop(ind_cell).pos_Nuc.y);
+%     else
+%         parameters_quant.nuc_bw =  [];
+%     end
+%     
+%     %- Start quantification
+%     
+%     
+%     
+%     image_struct.data = handles.img.raw;  % HAS TO BE CHANGED - but then in all functions in TS_quant_v17 ....
+%     
+%     [TxSite_quant, REC_prop, TS_analysis_results, TS_rec, Q_all] = TS_quant_v17(image_struct,pos_TS,PSF_shift,parameters_quant);
+
+%     handles.img.cell_prop(ind_cell).pos_TS(ind_TS).TxSite_quant         = TxSite_quant;
+%     handles.img.cell_prop(ind_cell).pos_TS(ind_TS).TS_rec               = TS_rec;
+%     handles.img.cell_prop(ind_cell).pos_TS(ind_TS).Q_all                = Q_all;
+% 
+%     handles.img.cell_prop(ind_cell).pos_TS(ind_TS).REC_prop             = REC_prop;
+%     handles.img.cell_prop(ind_cell).pos_TS(ind_TS).TS_analysis_results  = TS_analysis_results;  
+%     handles.img.cell_prop(ind_cell).pos_TS(ind_TS).status_QUANT         = 1;
+%     handles.status_QUANT = 1;
+
+%     %- Save results
+%     guidata(hObject, handles); 
+% 
+%     %- Plot summary of quantification
+%     if ~handles.status_TS_simple_only
+%         axes(handles.axes_main)
+%         cla(handles.axes_main,'reset')
+%         plot(REC_prop.summary_Q_run_N_MRNA,REC_prop.mean_Q)
+%         v = axis; axis(v)    
+%         xlabel('Number of placed mRNA')
+%         ylabel('Quality score')
+%         title(['Estimated # of nascent transcripts: ', num2str(round(TxSite_quant.N_mRNA_TS_global ))])
+%     end
+
+%     %== Update status and change cursor
+%     status_text = {' ';'== .... FINSIHED'};
+%     status_update(hObject, eventdata, handles,status_text);
+%     set(handles.h_FQ_TxSite,'Pointer','arrow');
+% else
+%     %== Update status and change cursor
+%     status_text = {'No transcription site in thise cell. ';'== .... FINSIHED'};
+%     status_update(hObject, eventdata, handles,status_text);
+%     set(handles.h_FQ_TxSite,'Pointer','arrow');
+
+
 
 
 %=== Quantify transcription site
@@ -943,8 +997,8 @@ N_PSF_shift    = length(PSF_shift_all);
 %- Same cropping as for TS
 par_crop_TS                = handles.img.settings.TS_quant.crop_image;
 pixel_size                 = handles.img.par_microscope.pixel_size;
-parameters_fit.par_crop.xy = ceil(par_crop_TS.xy_nm / pixel_size.xy);
-parameters_fit.par_crop.z  = ceil(par_crop_TS.z_nm / pixel_size.z);
+parameters_fit.par_crop.xy = par_crop_TS.xy_pix;
+parameters_fit.par_crop.z  = par_crop_TS.z_pix;
 parameters_fit.flags.crop  = 1;
 
 %- Parameters for fitting
@@ -1049,7 +1103,6 @@ guidata(hObject, handles);
 %=== Restrict size of transcription site
 function button_TS_restrict_size_Callback(hObject, eventdata, handles)
 
-global parameters_quant
 
 %- Get results of analysis
 ind_cell  = get(handles.pop_up_outline_sel_cell,'Value');
@@ -1063,7 +1116,9 @@ if not(isempty(handles.img.cell_prop(ind_cell).pos_TS))
     TS_analysis = handles.img.cell_prop(ind_cell).pos_TS(ind_TS).TS_analysis_results;  
 
     %- Parameters for restriction
-    parameters                         = parameters_quant;
+    parameters                         = handles.img.settings.TS_quant;
+    parameters.mRNA_prop               = handles.img.mRNA_prop;
+    parameters.range_int               = handles.img.settings.TS_quant.range_int;
     parameters.fid                     = -1;
     parameters.flags.output            = 1;
     parameters.file_name_save_PLOTS_PS = [];
@@ -1125,7 +1180,7 @@ status_update(hObject, eventdata, handles,status_text);
 %=== Options for quantification
 function menu_options_Callback(hObject, eventdata, handles)
 
-handles.img.settings.TS_quant = FQ_TS_settings_modify_v6(handles.img.settings.TS_quant,handles.status_TS_simple_only);
+handles.img.modify_settings_TS(handles.status_TS_simple_only);
 
 handles.status_PSF = 0;
 status_update(hObject, eventdata, handles,{'  ';'## Options modified'});
@@ -1155,10 +1210,10 @@ if isfield(handles,'TS_summary')
     cd(path_save)
         
     %== Settings
-    if isfield(handles,'path_name_settings_TS') || isempty(handles.path_name_settings_TS)
+    if ~isfield(handles,'path_name_settings_TS') || isempty(handles.path_name_settings_TS)
         [handles.file_name_settings_TS, handles.path_name_settings_TS] = handles.img.save_settings_TS([]);
     end
-    
+  
     %== Parameters
     if not(isempty(handles.file_name_settings_TS))
         parameters.path_save          = path_save;
@@ -1427,8 +1482,6 @@ pop_up_outline_sel_TS_Callback(hObject, eventdata, handles)
 %= Pop-up to select TxSite
 function pop_up_outline_sel_TS_Callback(hObject, eventdata, handles)           
 
-global parameters_quant
-
 %- Get cell and transcription site
 ind_cell  = get(handles.pop_up_outline_sel_cell,'Value');
 ind_TS    = get(handles.pop_up_outline_sel_TS,'Value');
@@ -1493,7 +1546,7 @@ if not(isempty(handles.img.cell_prop(ind_cell).pos_TS))
          if flag_plot  
              parameters.flags.output = 2;
              parameters.file_name_save_PLOTS_PS = [];
-             parameters.factor_Q_ok  = parameters_quant.factor_Q_ok;         
+             parameters.factor_Q_ok  = handles.img.settings.TS_quant.factor_Q_ok;         
              TxSite_reconstruct_Output_v5(TxSite_quant, REC_prop, parameters)
          end
 
