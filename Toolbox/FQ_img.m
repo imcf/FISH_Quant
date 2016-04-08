@@ -183,8 +183,8 @@ classdef FQ_img < handle
             img.settings.TS_quant.bgd_fact_max          = 1;
             
             %= Cropping
-            img.settings.TS_quant.crop_image.xy_pix      = ceil(2*img.settings.detect.reg_size.xy);
-            img.settings.TS_quant.crop_image.z_pix       = ceil(1.5*img.settings.detect.reg_size.z);
+            img.settings.TS_quant.crop_image.xy_pix  = floor(2*img.settings.detect.reg_size.xy);
+            img.settings.TS_quant.crop_image.z_pix   = floor(1.5*img.settings.detect.reg_size.z);
 
             %= Various flags to control detection
             img.settings.TS_quant.flags.posWeight   = 1;   % 1 to recalc position weighting vector after placement of each PSF, 0 to use only image of TS
@@ -416,6 +416,7 @@ classdef FQ_img < handle
         function modify_settings_TS(img,status_TS_simple_only)
             img.settings.TS_quant = FQ_TS_settings_modify_v6(img.settings.TS_quant,status_TS_simple_only);
         end
+        
         
         %% ==== Load results file
         function status_open = load_results(img,file_name_open,path_img)
@@ -807,8 +808,7 @@ classdef FQ_img < handle
             parameters_quant.pixel_size          = img.par_microscope.pixel_size;
             parameters_quant.pixel_size_os.xy    = img.par_microscope.pixel_size.xy * img.settings.avg_spots.fact_os.xy;    
             parameters_quant.pixel_size_os.z     = img.par_microscope.pixel_size.z  * img.settings.avg_spots.fact_os.z;   
-           % parameters_quant.fact_os             = img.settings.avg_spots.fact_os;
-            
+                      
             parameters_quant.col_par                  = img.col_par;
             parameters_quant.dist_max                 = inf;
             parameters_quant.N_mRNA_analysis_MAX      = [];
@@ -826,8 +826,7 @@ classdef FQ_img < handle
             
             %- Save for later
             img.settings.TS_quant.range_int = parameters_quant.range_int;
-            
-            
+
             %= mRNA properties
             parameters_quant.mRNA_prop = img.mRNA_prop;
 
@@ -837,7 +836,6 @@ classdef FQ_img < handle
             %- Boundaries for fit
             parameters_quant.flags.bound = 1;
 
-           
             %- Get transcription site to fit
             pos_TS    = img.cell_prop(ind_cell).pos_TS(ind_TS);  
 
