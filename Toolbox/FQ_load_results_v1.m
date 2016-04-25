@@ -271,17 +271,16 @@ else
             
             %- 1st col contains NO identifier
             if ~flag_identifier
+                
+                
                 cell_prop(ind_cell).spots_fit       = spots_par(:,1:16);
                 cell_prop(ind_cell).spots_detected  = spots_par(:,17:30);
-
-                if N_col == 31
-                    cell_prop(ind_cell).thresh.in       = (spots_par(:,31));
-                    cell_prop(ind_cell).thresh.all      = ones(size(spots_par(:,31)));
-                    
-                elseif N_col == 32
-                    cell_prop(ind_cell).spots_in_nuc    = (spots_par(:,31));
-                    cell_prop(ind_cell).thresh.in       = (spots_par(:,32));
-                    cell_prop(ind_cell).thresh.all      = ones(size(spots_par(:,32)));
+                
+                cell_prop(ind_cell).thresh.in   = (spots_par(:,31));
+                cell_prop(ind_cell).thresh.all  = ones(size(spots_par(:,31)));
+                
+                if N_col == 32
+                	cell_prop(ind_cell).in_Nuc      = (spots_par(:,32));
                 end 
             
             %- First col contains identifier 
@@ -289,14 +288,12 @@ else
                 cell_prop(ind_cell).identifier      = spots_par(:,1);
                 cell_prop(ind_cell).spots_fit       = spots_par(:,2:17);
                 cell_prop(ind_cell).spots_detected  = spots_par(:,18:31);
-
-                if N_col == 31
-                    cell_prop(ind_cell).thresh.in       = (spots_par(:,31));
-                    cell_prop(ind_cell).thresh.all      = ones(size(spots_par(:,31)));
-                elseif N_col == 32
-                    cell_prop(ind_cell).spots_in_nuc    = (spots_par(:,31));
-                    cell_prop(ind_cell).thresh.in       = (spots_par(:,32));
-                    cell_prop(ind_cell).thresh.all      = ones(size(spots_par(:,32)));
+                    
+                cell_prop(ind_cell).thresh.in   = (spots_par(:,32));
+                cell_prop(ind_cell).thresh.all  = ones(size(spots_par(:,32)));
+                
+                if N_col == 33 
+                    cell_prop(ind_cell).in_Nuc     = (spots_par(:,33));
                 end                   
             end
         end

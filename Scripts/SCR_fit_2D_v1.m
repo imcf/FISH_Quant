@@ -127,7 +127,7 @@ for iT = 1: N_img
     
     %== Filter image
     flag_filter.output = 0;
-    status_filter = img_raw.filter(flag_filter);
+    status_filter      = img_raw.filter(flag_filter);
      
     
     %=== Detect and fit spots in OPB corrected image
@@ -244,9 +244,9 @@ copyfile(fullfile(path_save,file_sett),fullfile(folder_results,file_sett))
 %===== Save summary for utrack
 
 %- Save detection
-image_name = file_name;
-save(fullfile(path_save,['Detection_',datestr(date,'yymmdd'),'.mat']),'movieInfo','image_name')
-save(fullfile(path_detect,[name_base,'__DETECT.mat']),'movieInfo','image_name')
+analysisInfo.image_name = file_name;
+save(fullfile(path_save,['Detection_',datestr(date,'yymmdd'),'.mat']),'movieInfo','analysisInfo')
+save(fullfile(path_detect,[name_base,'__DETECT.mat']),'movieInfo','analysisInfo')
 
 %==== Save figure with number of detections
 name_save = fullfile(folder_plots,'FQ_number_detections');

@@ -605,7 +605,9 @@ else
     path_save = cd;
 end
 
-cd(path_save)
+if exist(path_save)
+    cd(path_save)
+end
 
 %- Get settings
 [file_name_settings,path_name_settings] = uigetfile({'*.txt'},'Select file with settings');
@@ -928,6 +930,10 @@ if strcmp(choice,'Yes')
                        cell_summary(ind_cell,1).pos_Nuc                  = cell_prop(i_C).pos_Nuc; 
                        cell_summary(ind_cell,1).spots_fit                = cell_prop(i_C).spots_fit;
                        cell_summary(ind_cell,1).spots_detected           = cell_prop(i_C).spots_detected;
+                       
+                       if isfield(cell_prop(i_C),'in_Nuc')
+                           cell_summary(ind_cell,1).in_Nuc           = cell_prop(i_C).in_Nuc;
+                       end
 
                        if not(isempty(cell_summary(ind_cell,1).spots_fit))
                            cell_summary(ind_cell,1).thresh.in = cell_prop(i_C).thresh.in;
@@ -1226,6 +1232,7 @@ for i_file = handles.i_file_proc_mature:N_file
             cell_summary(cell_counter,1).N_total                  = N_total;
             cell_summary(cell_counter,1).spots_fit                = handles.img.cell_prop(i_cell).spots_fit;
             cell_summary(cell_counter,1).spots_detected           = handles.img.cell_prop(i_cell).spots_detected;
+            cell_summary(cell_counter,1).in_Nuc                   = handles.img.cell_prop(i_cell).in_Nuc;
             cell_summary(cell_counter,1).thresh.in                = ones(size(handles.img.cell_prop(i_cell).spots_fit,1),1);
 
             cell_summary(cell_counter,1).label                    = handles.img.cell_prop(i_cell).label; 
@@ -1851,6 +1858,9 @@ if not(isempty(spots_fit))
             %== Get number of spots in nucleus 
 
             if not(isempty(cell_summary(ind_cell).pos_Nuc))
+                
+                %=== Look at spots after thresholding to get overall spot
+                %counts in the nucleus
                 x_Nuc = cell_summary(ind_cell).pos_Nuc.x*pixel_size.xy;
                 y_Nuc = cell_summary(ind_cell).pos_Nuc.y*pixel_size.xy; 
 
@@ -1860,17 +1870,18 @@ if not(isempty(spots_fit))
                 spots_x = spots_in(:,2);
 
                 %- Find spots which are in nucleus
-                in_Nuc  = inpolygon(spots_x,spots_y,x_Nuc,y_Nuc); % Points defined in Positions inside the polygon
-                N_nuc = sum(in_Nuc);
+                in_Nuc = inpolygon(spots_x,spots_y,x_Nuc,y_Nuc); % Points defined in Positions inside the polygon
+                N_nuc  = sum(in_Nuc);
+
 
             else
-                N_nuc = N_count;
+                N_nuc  = N_count;
             end
 
             %== Summary of spot counts
-            spot_count(ind_cell,:) = [N_count N_total N_nuc];
+            spot_count(ind_cell,:)           = [N_count N_total N_nuc];
             cell_summary(ind_cell,1).N_count = N_count;
-            cell_summary(ind_cell,1).N_nuc = N_nuc;
+            cell_summary(ind_cell,1).N_nuc   = N_nuc;
 
             %- Update status
             if status_update_cell
@@ -2623,19 +2634,29 @@ if( ~ isempty(userValue))
                 spots_fit      = cell_summary(i_abs,1).spots_fit;
                 spots_detected = cell_summary(i_abs,1).spots_detected;
                 thresh.in      = cell_summary(i_abs,1).thresh.in;
-                ind_save       = (thresh.in == 1);            
+
+                %- Is field with spots in nucleus defined
+                if isfield(cell_summary(i_abs,1),'in_Nuc') && not(isempty(cell_summary(i_abs,1).in_Nuc))
+                    in_Nuc = double(cell_summary(i_abs,1).in_Nuc);
+                else 
+                    N_spots = size(spots_fit,1);
+                    in_Nuc  = -ones(N_spots,1);
+                end
+                
                 
                 %- Thresholding or not
                 if flag_threshold
-                    cell_prop(i_rel).spots_fit      = spots_fit(ind_save,:); 
-                    cell_prop(i_rel).spots_detected = spots_detected(ind_save,:); 
-                    cell_prop(i_rel).thresh.in      = thresh.in(ind_save);
+                    ind_save       = (thresh.in == 1);  
                 else
-                    cell_prop(i_rel).spots_fit      = spots_fit; 
-                    cell_prop(i_rel).spots_detected = spots_detected; 
-                    cell_prop(i_rel).thresh.in      = thresh.in;
+                    ind_save       = true(size(thresh.in));  
                 end
-
+                
+              
+                cell_prop(i_rel).spots_fit      = spots_fit(ind_save,:); 
+                cell_prop(i_rel).spots_detected = spots_detected(ind_save,:); 
+                cell_prop(i_rel).thresh.in      = thresh.in(ind_save);
+                cell_prop(i_rel).in_Nuc         = in_Nuc(ind_save);
+              
                 %- Other properties of the cell
                 cell_prop(i_rel).x         = cell_summary(i_abs,1).x; 
                 cell_prop(i_rel).y         = cell_summary(i_abs,1).y;
@@ -2818,11 +2839,9 @@ if not(isempty(handles))
     set(handles.listbox_files,'String',handles.str_list);
 
     set(handles.checkbox_use_filtered,'Value',handles.checkbox_filtered);
-%    set(handles.checkbox_parallel_computing,'Value',handles.checkbox_parallel);    
     set(handles.checkbox_save_filtered,'Value',handles.checkbox_filtered_save);
     set(handles.status_save_results_TxSite_quant,'Value', handles.checkbox_save_TS_results);    
-    set(handles.status_save_figures_TxSite_quant,'Value',handles.checkbox_save_TS_figure ); 
-    
+    set(handles.status_save_figures_TxSite_quant,'Value',handles.checkbox_save_TS_figure );     
     set(handles.text_th_auto_detect,'String', handles.string_TS_th_auto  );    
     
     %- Update auto-save buttons 
@@ -2831,12 +2850,7 @@ if not(isempty(handles))
 
     %- Enable controls
     controls_enable(hObject, eventdata, handles)
-    
-%     %- Activate parallel computing if specified
-%     if handles.checkbox_parallel
-%         checkbox_parallel_computing_Callback(hObject, eventdata, handles)
-%     end
-    
+
     %- Show messages to indicate what should be done
     if handles.i_file_proc_mature > 1 && handles.status_fit == 0
          msgbox('Appears that mature mRNA detection did not finish. Press PROCESS in panel 3 to continue','Load FDQ analysis results','help') 

@@ -6,7 +6,6 @@ flag_label            = options.flag_label;
 file_id_start         = options.file_id_start;
 file_id_end           = options.file_id_end;
 
-
 %=== Determine file-name
 current_dir = pwd;
 
@@ -56,6 +55,15 @@ if file_save ~= 0
             spots_detected  = cell_summary(i_abs,1).spots_detected; 
             thresh.in       = cell_summary(i_abs,1).thresh.in;
             
+           %- Is field with spots in nucleus defined
+            if isfield(cell_summary(i_abs,1),'in_Nuc') && not(isempty(cell_summary(i_abs,1).in_Nuc))
+                in_Nuc = double(cell_summary(i_abs,1).in_Nuc);
+            else 
+                N_spots = size(spots_fit,1);
+                in_Nuc  = -ones(N_spots,1);
+            end
+            
+            
             cell_label = {};
             
             %=== Write out results (if specified)
@@ -63,7 +71,7 @@ if file_save ~= 0
             if not(isempty(spots_fit))
                 
                  % === Create cell array with data
-                 spots_output = [spots_fit, spots_detected,thresh.in];
+                 spots_output = [spots_fit, spots_detected,thresh.in,in_Nuc];
                  
                  %- Check if all spots or only thresholded spots should be saved
                  if flag_only_thresholded
@@ -81,6 +89,7 @@ if file_save ~= 0
                 
                 %- Each row is labeled with the image name followed by the name of the cell
                 N_spots                   = size(spots_output,1);
+                
                 if      flag_label == 1 
                      name_image      = cell_summary(i_abs,1).name_image;
                      name_cell       = cell_summary(i_abs,1).label;       
@@ -159,25 +168,25 @@ if file_save ~= 0
     %- Results of spot detection
     if not(isempty(cell_write_all))
         if      flag_label == 1 
-            fprintf(fid,'File\tCell\tPos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit\n');
+            fprintf(fid,'File\tCell\tPos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit\tin_Nuc\n');
             string_write   = ['%s\t%s',repmat('\t%g',1,N_par),'\n'];  
 
             cell_write_all = sortrows(cell_write_all,[1 2]);    %- Sort by column 1 and then by 2
 
         elseif  flag_label == 2
-            fprintf(fid,'File#\tPos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit\n');
+            fprintf(fid,'File#\tPos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit\tin_Nuc\n');
             string_write   = ['%s',repmat('\t%g',1,N_par),'\n']; 
 
             cell_write_all = sortrows(cell_write_all,1);    %- Sort by column 1 
 
         elseif  flag_label == 3
-            fprintf(fid,'Pos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit\n');
+            fprintf(fid,'Pos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit\tin_Nuc\n');
             string_write   = ['%g', repmat('\t%g',1,N_par-1),'\n']; 
 
             cell_write_all = sortrows(cell_write_all,1);    %- Sort by column 1 
             
         elseif  flag_label == 4
-            fprintf(fid,'File_Index#\tPos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit\n');
+            fprintf(fid,'File_Index#\tPos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit\tin_Nuc\n');
             string_write   = ['%s',repmat('\t%g',1,N_par),'\n']; 
 
             cell_write_all = sortrows(cell_write_all,1);    %- Sort by column 1 

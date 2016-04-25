@@ -353,14 +353,21 @@ classdef FQ_img < handle
         
         %% ==== Load settings
         function status = load_settings(img,file_name_full)
-            [img, status] = FQ_load_settings_v1(file_name_full,img);
+            [img, status,status_filter_method] = FQ_load_settings_v1(file_name_full,img);
             
+            %- If settings were loaded
             if status
                 [img.path_names.settings, img.file_names.settings,ext] = fileparts(file_name_full);
                 img.file_names.settings = [img.file_names.settings,ext];
             end
+            
+            %- No filtering method specified - Double-Gaussian as default
+            if ~status_filter_method
+                img.settings.filter.method = '3D_2xGauss';
+            end
         
         end
+        
         
         %% ==== Save settings
         function [file_save, path_save] = save_settings(img,file_name_full)
@@ -710,7 +717,7 @@ classdef FQ_img < handle
         function status_filter = filter(img,flag)
                    
             if nargin == 1
-                flag.output = 1;
+                flag.output = 0;
             end
             
            %- Output
@@ -723,7 +730,6 @@ classdef FQ_img < handle
                %- Double Gaussian filter
                case {'3D_DoG','3D_2xGauss','2xGauss'}
                    fprintf('3D Double Gaussian filter ...')
-                   flag.output = 1;
                    img.filt    = img_filter_Gauss_v5(img.raw,img.settings.filter.kernel_size,flag);        
                 
                %- 3D LoG (From Battich et al., Nature Methods)           
@@ -957,12 +963,13 @@ classdef FQ_img < handle
         
         
         %% === Predetect
-        function [spots_detected, img_mask, CC_best, sub_spots, sub_spots_filt] = spots_predect(img,ind_cell)
+        function [spots_detected, img_mask, CC_best, sub_spots, sub_spots_filt,CC_GOOD,prop_img_detect,in_Nuc] = spots_predect(img,ind_cell)
             
-            [spots_detected, sub_spots, sub_spots_filt, img_mask, CC_GOOD,prop_img_detect] = FQ_spots_predetect_v1(img,ind_cell);
+            [spots_detected, sub_spots, sub_spots_filt, img_mask, CC_GOOD,prop_img_detect,in_Nuc] = FQ_spots_predetect_v1(img,ind_cell);
             img.cell_prop(ind_cell).spots_detected  = spots_detected;
             img.cell_prop(ind_cell).sub_spots       = sub_spots;
             img.cell_prop(ind_cell).sub_spots_filt  = sub_spots_filt;
+            img.cell_prop(ind_cell).in_Nuc          = in_Nuc;
         end
         
         
@@ -1014,6 +1021,10 @@ classdef FQ_img < handle
                 if flag_remove             
                     spots_detected(ind_th_out,:) = [];
                     img.cell_prop(ind_cell).sub_spots(ind_th_out) = [];
+                    
+                    if isfield(img.cell_prop(ind_cell),'in_Nuc')
+                        img.cell_prop(ind_cell).in_Nuc(ind_th_out) = [];
+                    end
                 end
                 
                 

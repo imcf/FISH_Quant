@@ -1,4 +1,4 @@
-function  [spots_detected, sub_spots, sub_spots_filt, img_mask, CC_GOOD,prop_img_detect] = FQ_spots_predetect_v1(img,ind_cell)
+function  [spots_detected, sub_spots, sub_spots_filt, img_mask, CC_GOOD,prop_img_detect,in_Nuc] = FQ_spots_predetect_v1(img,ind_cell)
 % Function returns pixel location of local maximum
 %
 % spots_detected(:,1:3)   ... xyz position of detected local maximum in image
@@ -311,6 +311,28 @@ pos_spots_GOOD_lin = sub2ind(size(img.filt), pos_spots_GOOD(:,1),pos_spots_GOOD(
 
 %===  Assign positions
 spots_detected(:,1:3)  = pos_spots_GOOD;
+
+
+%=== Find which spots are in the nucleus
+   
+if not(isempty(img.cell_prop(ind_cell).pos_Nuc))
+
+    %=== Look at spots after thresholding to get overall spot
+    %counts in the nucleus
+
+    x_Nuc = img.cell_prop(ind_cell).pos_Nuc.x;
+    y_Nuc = img.cell_prop(ind_cell).pos_Nuc.y;
+
+    %=== Look at all spots       
+    spots_y = spots_detected(:,1);
+    spots_x = spots_detected(:,2);
+
+    %- Find spots which are in nucleus
+    in_Nuc = inpolygon(spots_x,spots_y,x_Nuc,y_Nuc); % Points defined in Positions inside the polygon
+
+else
+    in_Nuc = -ones(size(spots_detected,1),1);
+end
 
 
 % %===  Extract immediate environment for each spot in 3d

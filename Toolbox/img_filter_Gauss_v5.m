@@ -18,7 +18,8 @@ end
            
 %- Filter unless kernel-size is 0
 if kernel_xy
-    img_bgd   = gauss3filter(img_pad, [kernel_xy kernel_xy kernel_z]);
+    %img_bgd   = gauss3filter(img_pad, [kernel_xy kernel_xy kernel_z]);
+    img_bgd   = gaussSmooth(img_pad, [kernel_xy kernel_xy kernel_z], 'same');    
 else
     img_bgd = zeros(size(img_pad));
     
@@ -42,8 +43,10 @@ end
 if kernel_xy
         
     %- Filter image to enhance SNR    
-    img_filt  = gauss3filter( img_diff, [kernel_xy kernel_xy kernel_z]);        
+    %img_filt  = gauss3filter( img_diff, [kernel_xy kernel_xy kernel_z]);
+    img_filt  = gaussSmooth( img_diff, [kernel_xy kernel_xy kernel_z], 'same');     
     img_filt  = img_filt.*(img_filt>0); 
+    
 else
     img_filt = img_diff;
 end
@@ -53,7 +56,7 @@ img_filt = uint16(img_filt(filter.pad+1:end-filter.pad,filter.pad+1:end-filter.p
 
 %- Show results of filtering
 if flag.output
-    h_fig = figure;
+    h_fig = figure(107);
     set(h_fig,'Color','w')
 
     subplot(1,3,1)

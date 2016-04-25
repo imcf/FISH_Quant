@@ -1,4 +1,4 @@
-function [img, status] = FQ_load_settings_v1(file_name,img)
+function [img, status,status_filter_method] = FQ_load_settings_v1(file_name,img)
 % Function to read in settings for analysis of FISH data
 % Settings are stored in a simple format. Each property starts with the
 % name followed by a '='and the actual value. There is NO space inbetween
@@ -10,7 +10,8 @@ function [img, status] = FQ_load_settings_v1(file_name,img)
 % over-written while not defined ones will be untouched.
 
 
-status = 1;
+status               = 1;
+status_filter_method = 0;
 
 %- Open file
 fid  =  fopen(file_name,'r');
@@ -75,6 +76,7 @@ else
              % === Filtering: 2XGauss      
              case 'Filter_method'            
                 img.settings.filter.method            = str_val;
+                status_filter_method                  = 1; 
             
              case 'Kernel_bgd_xy'            
                 img.settings.filter.kernel_size.bgd_xy = str2double(str_val);

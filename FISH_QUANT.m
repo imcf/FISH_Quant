@@ -1027,7 +1027,8 @@ end
  
 
 %= Apply filter
-handles.img.filter;
+flag.output = 1;
+handles.img.filter(flag);
 handles.img.project_Z('filt','max');
 handles.status_filtered    = 1;
 set(handles.pop_up_image_select,'Value',2);
@@ -1558,14 +1559,14 @@ if not(isempty(spots_fit))
     % =====================================================================   
     % Exclude spots that are too close
     % =====================================================================  
-
+    data    = spots_fit(:,1:3);
+    N_spots = size(data,1);
+    
     r_min = str2double(get(handles.text_min_dist_spots,'String'));
     
     if r_min > 0
     
         %- Mask with relative distance and matrix with radius
-        data    = spots_fit(:,1:3);
-        N_spots = size(data,1);
         dum        = [];
         dum(1,:,:) = data';
         data_3D_1  = repmat(dum,[N_spots 1 1]);
@@ -1644,10 +1645,31 @@ if not(isempty(spots_fit))
 
     thresh.out = (thresh.in == 0) | (thresh.in == -1);
 
+%     %=== Chech which spots are in the nucleus
+%     if not(isempty(handles.img.cell_prop(ind_cell).pos_Nuc))
+% 
+%         %=== Look at spots after thresholding to get overall spot
+%         %counts in the nucleus
+%         
+%         x_Nuc = handles.img.cell_prop(ind_cell).pos_Nuc.x * handles.img.par_microscope.pixel_size.xy;
+%         y_Nuc = handles.img.cell_prop(ind_cell).pos_Nuc.y * handles.img.par_microscope.pixel_size.xy;
+% 
+%         %=== Look at all spots       
+%         spots_y = data(:,1);
+%         spots_x = data(:,2);
+% 
+%         %- Find spots which are in nucleus
+%         in_Nuc = inpolygon(spots_x,spots_y,x_Nuc,y_Nuc); % Points defined in Positions inside the polygon
+% 
+%     else
+%         in_Nuc = zeros(size(data,1),1);
+%     end
+    
     %=== Spots which are in considering the current selection even if it is not locked
     thresh.in_display = thresh.in_sel  & thresh.logic_in & ~(thresh.in == -1); 
     
     handles.img.cell_prop(ind_cell).thresh  = thresh;
+    %handles.img.cell_prop(ind_cell).in_Nuc  = in_Nuc;
     handles.img.settings.thresh   = th_sett;
     handles.thresh.Spots_min_dist = r_min;
     
@@ -2488,7 +2510,7 @@ if isfield(handles,'flag_MIJ')
     end
 else
    Miji;                          % Start MIJ/ImageJ by running the Matlab command: MIJ.start("imagej-path")
-   handles.flag_MIJ = 1; e
+   handles.flag_MIJ = 1;
 end
 guidata(hObject, handles);
 

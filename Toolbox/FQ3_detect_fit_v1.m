@@ -168,8 +168,8 @@ end
 %- Filter image    
 if not(status_use_filtered)
     
-    flag_filter.output = 0;
-    status_filter = img.filter(flag_filter);%(img.settings.filter.method,img.settings.filt.kernel_size,flag_filter);
+    flag.output = 0;
+    status_filter = img.filter(flag);%(img.settings.filter.method,img.settings.filt.kernel_size,flag_filter);
     
     %- Continue only if filtering was succesfull
     if not(status_filter)

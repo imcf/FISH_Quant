@@ -169,27 +169,37 @@ if name_save ~= 0
             % NOTE: fprintf works on columns - transformation is therefore needed
             if strcmp(flag_type,'spots')
 
-                if isfield(cell_prop(i_cell),'spots_fit')
-                    if not(isempty(cell_prop(i_cell).spots_fit));
-                        spots_output   = [cell_prop(i_cell).spots_fit,cell_prop(i_cell).spots_detected,cell_prop(i_cell).thresh.in];
-
-                        if flag_th_only
-                            th_out = not(cell_prop(i_cell).thresh.in);       
-                            spots_output(th_out,:) = [];     
-                        end
-
-                        if not(isempty(spots_output))
-                            N_par = size(spots_output,2);            
-                            string_output = [repmat('%g\t',1,N_par-1),'%g\n'];
-
-                            fprintf(fid,'%s\n', 'SPOTS_START');          
-                            fprintf(fid,'Pos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit\n');
-
-                            fprintf(fid, string_output,spots_output');  
-                            fprintf(fid,'%s\n', 'SPOTS_END'); 
-                        end
+                %- Are spots detected
+                if isfield(cell_prop(i_cell),'spots_fit') && not(isempty(cell_prop(i_cell).spots_fit));
+                    
+                 
+                    %- Is field with spots in nucleus defined
+                    if isfield(cell_prop(i_cell),'in_Nuc') && not(isempty(cell_prop(i_cell).in_Nuc))
+                        in_Nuc = double(cell_prop(i_cell).in_Nuc);
+                    else 
+                        N_spots = size(cell_prop(i_cell).spots_fit,1);
+                        in_Nuc  = -ones(N_spots,1);
                     end
-                end
+
+                    %- Save spots
+                    spots_output   = [cell_prop(i_cell).spots_fit,cell_prop(i_cell).spots_detected,cell_prop(i_cell).thresh.in,in_Nuc];
+
+                    if flag_th_only
+                        th_out = not(cell_prop(i_cell).thresh.in);       
+                        spots_output(th_out,:) = [];     
+                    end
+
+                    if not(isempty(spots_output))
+                        N_par = size(spots_output,2);            
+                        string_output = [repmat('%g\t',1,N_par-1),'%g\n'];
+
+                        fprintf(fid,'%s\n', 'SPOTS_START');          
+                        fprintf(fid,'Pos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit\tIN_nuc\n');
+
+                        fprintf(fid, string_output,spots_output');  
+                        fprintf(fid,'%s\n', 'SPOTS_END'); 
+                    end
+                end 
             end
 
 
