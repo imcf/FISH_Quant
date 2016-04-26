@@ -741,13 +741,12 @@ classdef FQ_img < handle
                         img.filt = img.raw;
                    else
                         if mod(img.settings.filter.LoG_H,2) == 0
-                           warndlg('It is advisable to use odd numbers for the LoG filter size. Even numbers lead to a shift in the filtered image.')   
+                           h_wrn = warndlg('It is advisable to use odd numbers for the LoG filter size. Even numbers lead to a shift in the filtered image.');   
                         end
                             
                         filt_log = fspecialCP3D('3D LoG, Raj', img.settings.filter.LoG_H, img.settings.filter.LoG_sigma);
-                        img.filt = imfilter(double(img.raw), filt_log,'symmetric') *(-1);   %- Picture is inversed & has  negative elements;
-                                                
-                        
+                        img.filt = imfilter(double(img.raw), filt_log,'symmetric') *(-1);   %- Picture is inversed & has  negative elements;                                                
+            
                    end
                    
                %- No valid filter found

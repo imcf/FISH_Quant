@@ -937,7 +937,6 @@ if not(handles.status_draw)
 end
 
 
-
 %== Modify nucleus (only for manually defined ones)
 function button_nuc_modify_Callback(hObject, eventdata, handles)
 

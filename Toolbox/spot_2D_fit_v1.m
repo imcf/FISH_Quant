@@ -118,13 +118,13 @@ if flag_struct.output
     %== FITTING RESULTS
     disp(' ')
     disp('= FIT TO 3D GAUSSIAN ')
-    disp(['Sigma (xy): ', num2str(round(result.sigmaX))])
-    disp(['Sigma (z) : ', num2str(round(result.sigmaY))])
+    disp(['Sigma (xy): ', num2str((result.sigmaX))])
+    disp(['Sigma (z) : ', num2str((result.sigmaY))])
     disp(['Amplitude : ', num2str(round(result.amp))])
     disp(['Background: ', num2str(round(result.bgd))])
-    disp(['Center (x): ', num2str(result.mu_x)])
-    disp(['Center (y): ', num2str(result.mu_y)])
-    disp(['Center (z): ', num2str(result.mu_z)])
+    disp(['Center (x): ', num2str(result.muX)])
+    disp(['Center (y): ', num2str(result.muY)])
+    disp(['Center (z): ', num2str(result.muZ)])
     disp(' ')
     
     

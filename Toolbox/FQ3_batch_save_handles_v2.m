@@ -1,35 +1,56 @@
-function [handles_GUI, status_load] = FQ3_batch_load_handles_v1(handles_GUI)
-% Function to read analysis results from .mat file
+function FQ3_batch_save_handles_v2(file_name_full,handles)
 
-status_load = 0;
+% Function to write handles structure of GUI to m-file
 
-%== Get current directory and go to directory with results
-if  not(isempty(handles_GUI.img.path_names.results)); 
-    path_save = handles_GUI.img.path_names.results;
-elseif not(isempty(handles_GUI.img.path_names.root)); 
-    path_save = handles_GUI.img.path_names.root;
+current_dir = pwd;
+
+%== Go to results folder
+if  not(isempty(handles.img.path_names.results)); 
+    path_save = handles.img.path_names.results;
+elseif not(isempty(handles.img.path_names.root)); 
+    path_save = handles.img.path_names.root;
 else
-    path_save = pwd;
+    path_save = cd;
+end
+
+cd(path_save)
+    
+
+%== Ask for file-name if it's not specified
+if isempty(file_name_full)
+     
+    %- Ask user for file-name   
+    file_name_default = ['_FQ_batch_ANALYSIS_', datestr(date,'yymmdd'),'.mat'];
+    [file_save,path_save] = uiputfile(file_name_default,'Save results of analysis [mat file]');
+    file_name_full = fullfile(path_save,file_save);
+    
+else   
+    file_save = 1;
 end
 
 
-%- Ask user for file-name for spot results
-[file_load,path_load] =  uigetfile('*.mat','Results of analysis [.mat file]',path_save);
+%==== Save information of sites
 
-if file_load ~= 0
-
-    load(fullfile(path_load,file_load));
-
-    %=== CHECK IF GOOD VERSION
-    if ~isfield(handles,'img')
-        warndlg('OLD version of autosave file. Not compatible with this version of FQ.',mfilename)
-        status_load = 0;
-        return
-    end
+if file_save ~= 0
     
-    %======================================================================
-    % === Assign parameters that are initiated at the beginning
+    %- Save some additional parameters
+    handles_GUI.str_list = get(handles.listbox_files,'String');
     
+    handles_GUI.checkbox_filtered        = get(handles.checkbox_use_filtered,'Value');   
+    handles_GUI.checkbox_filtered_save   = get(handles.checkbox_save_filtered,'Value');
+    handles_GUI.checkbox_save_TS_results = get(handles.status_save_results_TxSite_quant,'Value');    
+    handles_GUI.checkbox_save_TS_figure  = get(handles.status_save_figures_TxSite_quant,'Value'); 
+        
+    handles_GUI.string_TS_th_auto        = get(handles.text_th_auto_detect,'String');
+       
+    handles_GUI.val_auto_save_TS     = get(handles.checkbox_auto_save,'Value'); 
+    handles_GUI.val_auto_save_mature = get(handles.checkbox_auto_save_mature,'Value'); 
+       
+    %- Save handles
+    handles_GUI.img.raw = [];
+    handles_GUI.img.filt = [];
+    handles_GUI.img.DAPI = [];
+    handles_GUI.img.TS_label = [];
     
     %- Image structure
     handles_GUI.img = handles.img;
@@ -86,8 +107,7 @@ if file_load ~= 0
         handles_GUI.val_autosave_TS     = 0;
         handles_GUI.val_autosave_mature = 0;
     end
-    
-    
+
     %=== Options for TxSite quantification
     handles_GUI.i_file_proc          = handles.i_file_proc;
     handles_GUI.i_cell_proc          = handles.i_cell_proc;
@@ -140,32 +160,22 @@ if file_load ~= 0
         handles_GUI.settings_save.file_id_start = handles.settings_save.N_ident;
         handles_GUI.settings_save.file_id_end   = 0;    
     else
-        handles_GUI.settings_save.file_id_start = handles_GUI.settings_save.file_id_start;
-        handles_GUI.settings_save.file_id_end   = handles_GUI.settings_save.file_id_end; 
+        handles_GUI.settings_save.file_id_start = handles.settings_save.file_id_start;
+        handles_GUI.settings_save.file_id_end   = handles.settings_save.file_id_end; 
     end
     
     %- Plot rendering
     handles_GUI.settings_rendering           = handles.settings_rendering;
    
-        
-    %=== Other parameters
-    handles_GUI.str_list = handles.str_list;
-    
-    handles_GUI.checkbox_filtered          = handles.checkbox_filtered;
-    handles_GUI.checkbox_filtered_save     = handles.checkbox_filtered_save;
-    handles_GUI.checkbox_save_TS_results   = handles.checkbox_save_TS_results;
-    handles_GUI.checkbox_save_TS_figure    = handles.checkbox_save_TS_figure;     
-    handles_GUI.string_TS_th_auto          = handles.string_TS_th_auto;
-
-    
     if isfield(handles,'saved_checkbox_flag_GaussMix')
         handles_GUI.saved_checkbox_flag_GaussMix = handles.saved_checkbox_flag_GaussMix;
     else
         handles_GUI.saved_checkbox_flag_GaussMix = 1;
-    end
- 
-else
-    handles_GUI = {};
+    end  
+
+    %- Remove field
+    handles = handles_GUI;
+    eval('save(file_name_full,''handles'',''-v6'')')
 end
 
-status_load = 1;
+cd(current_dir)

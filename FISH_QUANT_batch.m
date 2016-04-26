@@ -51,6 +51,7 @@ if not(isfield(handles,'img'))
     handles.TS_counter     = 1;
 
     handles.spots_fit_all  = [];
+    handles.spots_detected_all  = [];    
     handles.spots_range    = [];
 
     %- Status flags
@@ -446,6 +447,7 @@ if strcmp(choice,'Yes')
     handles.TS_counter     = 1;
 
     handles.spots_fit_all  = [];
+    handles.spots_detected_all  = [];    
     handles.spots_range    = [];
 
     %- Status flags
@@ -465,7 +467,7 @@ if strcmp(choice,'Yes')
     handles.status_settings_TS_detect    = 0;
 
     %- File-names for settings
-    handles.path_name_list         = []
+    handles.path_name_list         = [];
     handles.file_name_settings_new = [];
     handles.file_name_settings     = [];
     handles.file_name_settings_TS  = [];
@@ -1159,6 +1161,8 @@ if handles.i_file_proc_mature ~= 1
 end
 
 %=== LOOP OVER ALL FILES and ALL CELLS
+handles.status_fit = 0;
+
 for i_file = handles.i_file_proc_mature:N_file
     
     %- Make new FQ object and reinitiate
@@ -1176,7 +1180,7 @@ for i_file = handles.i_file_proc_mature:N_file
     status_update(hObject, eventdata, handles,status_text);        
     
     %- Check if separate detection settings are specified
-    parameters.detect  = handles.detect;
+   % parameters.detect  = handles.detect;
     
     if isfield(handles,'detect_file')
         if isfield(handles.detect_file,'name')
@@ -1273,7 +1277,7 @@ for i_file = handles.i_file_proc_mature:N_file
    if status_save_auto 
         file_name      = ['_FQ_analysis_AUTOSAVE_', datestr(date,'yymmdd'), '.mat'];
         file_name_full = fullfile(path_save_results,file_name);       
-        FQ3_batch_save_handles_v1(file_name_full,handles);
+        FQ3_batch_save_handles_v2(file_name_full,handles);
    end   
     
 end
@@ -1302,7 +1306,7 @@ end
 if status_save_auto 
     file_name      = ['_FQ_analysis_AUTOSAVE_', datestr(date,'yymmdd'), '.mat'];
     file_name_full = fullfile(path_save_results,file_name);       
-    FQ3_batch_save_handles_v1(file_name_full,handles);
+    FQ3_batch_save_handles_v2(file_name_full,handles);
 end  
 
 
@@ -2820,7 +2824,7 @@ cd(current_dir)
 
 %== Save GUI handles structure
 function menu_save_handles_Callback(hObject, eventdata, handles)
-FQ3_batch_save_handles_v1([],handles)
+FQ3_batch_save_handles_v2([],handles)
 
 
 %== LOAD GUI handles structure
@@ -3980,7 +3984,7 @@ for i_file = i_start_file:i_end_file
                     if status_save_auto 
                         file_name      = ['_FQ_analysis_AUTOSAVE_', datestr(date,'yymmdd'), '.mat'];
                         file_name_full = fullfile(path_save_results,file_name);       
-                        FQ3_batch_save_handles_v1(file_name_full,handles);
+                        FQ3_batch_save_handles_v2(file_name_full,handles);
                     end                
 
                 end
