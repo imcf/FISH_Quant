@@ -1777,15 +1777,18 @@ if not(isempty(spots_fit))
         %== Exclude spots that are too close
         spots_detected_cell = cell_summary(ind_cell,1).spots_detected;
         spots_fit_cell      = cell_summary(ind_cell,1).spots_fit;   
-        data                = spots_fit_cell(:,1:3);
-        N_spots              = size(data,1);
-        
-        %- Determine spots that are too close
-        r_min = str2double(get(handles.text_min_dist_spots,'String'));
+       
         
         %- Mask with relative distance and matrix with radius
         if not(isempty(spots_fit_cell))
-
+                        
+            %- Get spot data
+            data      = spots_fit_cell(:,1:3);
+            N_spots   = size(data,1);
+        
+            %- Determine spots that are too close
+            r_min = str2double(get(handles.text_min_dist_spots,'String'));
+            
             if r_min > 0
 
                 dum = [];
