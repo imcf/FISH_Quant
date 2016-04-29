@@ -93,21 +93,12 @@ if file_save ~= 0
     handles_GUI.PSF               = handles.PSF;
     handles_GUI.flag_fit          = handles.flag_fit;
 
-    %=== Options for autosave of mRNA quantification (new in v2b)
-    if isfield(handles,'i_file_proc_mature')
-        handles_GUI.i_file_proc_mature =  handles.i_file_proc_mature;
-        handles_GUI.cell_counter       =  handles.cell_counter; 
+    handles_GUI.i_file_proc_mature =  handles.i_file_proc_mature;
+    handles_GUI.cell_counter       =  handles.cell_counter; 
     
-        handles_GUI.val_auto_save_TS     = handles.val_auto_save_TS;
-        handles_GUI.val_auto_save_mature = handles.val_auto_save_mature;
-        
-    else
-        handles_GUI.i_file_proc_mature  =  1;
-        handles_GUI.cell_counter        =  1;
-        handles_GUI.val_autosave_TS     = 0;
-        handles_GUI.val_autosave_mature = 0;
-    end
-
+    handles_GUI.val_auto_save_TS     = get(handles.checkbox_auto_save,'Value'); 
+    handles_GUI.val_auto_save_mature = get(handles.checkbox_auto_save_mature,'Value'); 
+       
     %=== Options for TxSite quantification
     handles_GUI.i_file_proc          = handles.i_file_proc;
     handles_GUI.i_cell_proc          = handles.i_cell_proc;
