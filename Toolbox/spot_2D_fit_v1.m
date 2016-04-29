@@ -28,7 +28,7 @@ N_pix                 = dim.X*dim.Y;
 %- Generate vectors describing the image    (unless already provided)
 if isempty(xdata) || N_pix ~=size(xdata,2)
       
-    [Xs,Ys,Zs] = meshgrid(dim.Y:2*dim.Y-1,dim.X:2*dim.X-1);  % Pixel-grid has on offset from 0 to allow for negative values in center position
+    [Xs,Ys] = meshgrid(dim.Y:2*dim.Y-1,dim.X:2*dim.X-1);  % Pixel-grid has on offset from 0 to allow for negative values in center position
 
     xdata      = [];
     xdata(1,:) = double(reshape(Xs,1,N_pix))*pixel_size.xy;

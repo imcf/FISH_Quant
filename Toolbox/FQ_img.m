@@ -56,7 +56,7 @@ classdef FQ_img < handle
         
         
         %- Cell geometry
-        cell_prop = struct('label', {}, 'x', {}, 'y', {}, 'pos_Nuc', {}, 'pos_TS', {}, 'spots_fit', [],'spots_detected',[],'thresh',{},'sub_spots',{},'sub_spots_filt',{},'spots_proj',{},'FIT_Result',{},'intint',[],'loc_features',{},'dist_all',[]);
+        cell_prop = struct('label', {}, 'x', {}, 'y', {}, 'pos_Nuc', {}, 'pos_TS', {}, 'spots_fit', [],'spots_detected',[],'thresh',{},'sub_spots',{},'sub_spots_filt',{},'spots_proj',{},'FIT_Result',{},'intint',[],'in_Nuc',[],'loc_features',{},'dist_all',[]);
     end
 
 
