@@ -166,7 +166,7 @@ if file_save ~= 0
 
     %- Remove field
     handles = handles_GUI;
-    eval('save(file_name_full,''handles'',''-v6'')')
+    eval('save(file_name_full,''handles'',''-v7.3'')')
 end
 
 cd(current_dir)

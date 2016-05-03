@@ -109,6 +109,7 @@ function [spot_avg, spot_os_avg,pixel_size_os,img_sum] = avg_spots_cell(img,ind_
         spots_pos(:,2) = spots_pos(:,2) + img.par_microscope.pixel_size.xy;
         spots_pos(:,3) = spots_pos(:,3) + img.par_microscope.pixel_size.z;
     else
+
         spots_pos(:,1) = (img.cell_prop(ind_cell).spots_detected(img.cell_prop(ind_cell).thresh.in,img.col_par.pos_y_det) -1) * img.par_microscope.pixel_size.xy;
         spots_pos(:,2) = (img.cell_prop(ind_cell).spots_detected(img.cell_prop(ind_cell).thresh.in,img.col_par.pos_x_det) -1) * img.par_microscope.pixel_size.xy;
         spots_pos(:,3) = (img.cell_prop(ind_cell).spots_detected(img.cell_prop(ind_cell).thresh.in,img.col_par.pos_z_det) -1) * img.par_microscope.pixel_size.z;

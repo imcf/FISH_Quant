@@ -22,7 +22,7 @@ function varargout = FISH_QUANT_spots(varargin)
 
 % Edit the above text to modify the response to help FISH_QUANT_spots
 
-% Last Modified by GUIDE v2.5 08-Apr-2014 15:14:20
+% Last Modified by GUIDE v2.5 03-May-2016 11:04:08
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -180,6 +180,129 @@ if handles.status_child
 else    
     delete(handles.h_fishquant_spots)
 end
+
+
+
+
+% =========================================================================
+% TOOLBAR
+% =========================================================================
+
+%=== LOAD OUTLINES
+function tool_load_ClickedCallback(hObject, eventdata, handles)
+
+%- Go to directory with results
+current_dir = pwd;
+
+if not(isempty(handles.img.path_names.results))
+   cd(handles.img.path_names.results)
+elseif not(isempty(handles.img.path_names.root))
+   cd(handles.img.path_names.root) 
+end
+
+%- Get directory with images
+if  not(isempty(handles.img.path_names.img)); 
+    path_image = handles.img.path_names.img;
+elseif not(isempty(handles.img.path_names.root)); 
+    path_image = handles.img.path_names.root;
+else
+    path_image = cd;
+end
+
+%- Ge results
+[file_name_results,path_name_results] = uigetfile({'*.txt'},'Select file with results of spot detection');
+
+if file_name_results ~= 0
+    file_load.path = path_name_results;
+    file_load.name = file_name_results;
+    file_load.path_img = path_image;
+    handles = load_results_file(file_load,hObject, eventdata, handles);
+    guidata(hObject, handles); 
+end
+
+%- Go back to original directory
+cd(current_dir)
+
+%=== SAVE OUTLINES
+function tool_save_ClickedCallback(hObject, eventdata, handles)
+
+%- Get current directory and go to directory with outlines
+current_dir = cd;
+
+if     not(isempty(handles.img.path_names.results)); 
+    path_save = handles.img.path_names.results;
+elseif not(isempty(handles.img.path_names.root)); 
+    path_save = handles.img.path_names.root;
+else
+    path_save = cd;
+end
+
+cd(path_save)
+
+
+%- Parameters to save results
+parameters.path_save           = path_save;
+parameters.path_save_settings  = path_save;
+parameters.path_name_image     = handles.img.path_names.img;
+parameters.version             = handles.img.version;
+parameters.flag_type           = 'spots';  
+
+handles.img.save_results([],parameters);
+guidata(hObject, handles);
+
+%- Go back to original directory
+cd(current_dir)
+
+
+%=== Options
+function tool_options_ClickedCallback(hObject, eventdata, handles)
+dlgTitle = 'Different parameters for visualization';
+
+prompt(1) = {'Size for circles to show spots'};
+prompt(2) = {'[Z-stack] show spots for +/- frames'};
+
+defaultValue{1} = num2str(handles.marker_size_spot);
+defaultValue{2} = num2str(handles.marker_extend_z);
+
+userValue = inputdlg(prompt,dlgTitle,1,defaultValue);
+
+if( ~ isempty(userValue))
+    handles.marker_size_spot = str2double(userValue{1}); 
+    handles.marker_extend_z = str2double(userValue{2});     
+end
+
+guidata(hObject, handles);
+
+
+%=== Data cursor
+function tool_cursor_ClickedCallback(hObject, eventdata, handles)
+
+%- Delete region inspector if present
+if isfield(handles,'h_impixregion')   
+    if ishandle(handles.h_impixregion)
+        delete(handles.h_impixregion)
+    end
+end
+
+% %- Deactivate zoom
+% if ishandle(handles.h_zoom)
+%     set(handles.h_zoom,'Enable','off');  
+% end
+% 
+% %- Deactivate pan
+% if ishandle(handles.h_pan)
+%     set(handles.h_pan,'Enable','off');  
+% end
+
+%- Datacursormode
+dcm_obj = datacursormode;
+drawnow;
+
+set(dcm_obj,'SnapToDataVertex','off');
+set(dcm_obj,'DisplayStyle','window');
+set(dcm_obj,'UpdateFcn',@(x,y)myupdatefcn(x,y,hObject,handles))
+
+
 
 % =========================================================================
 % Load and save
@@ -450,15 +573,18 @@ if not(isnan(ind_spot))
         handles.img.cell_prop(ind_cell).thresh.in(ind_spot) = 1;
     end
        
+    %- Uncheck check-box and start datacursormode again
+    set(handles.checkbox_remove_man,'Value',0);
+%     zoom off
+%     pan off
     
     %- Save everything and plot
     handles = plot_image(hObject, eventdata, handles);
     guidata(hObject, handles); 
 end
 
-%- Uncheck check-box and start datacursormode again
-set(handles.checkbox_remove_man,'Value',0);
-button_image_data_cursor_Callback(hObject, eventdata, handles)
+
+%button_image_data_cursor_Callback(hObject, eventdata, handles)
 
 
 %=== Options
@@ -497,7 +623,8 @@ end
 
 %=== Plot image
 function handles = plot_image(hObject, eventdata, handles)
-datacursormode off
+
+%datacursormode off
 
 col_par    = handles.img.col_par;
 pixel_size = handles.img.par_microscope.pixel_size;
@@ -517,7 +644,6 @@ flag_bad_only  = get(handles.checkbox_bad_only,'Value');
 
 %= Flag to determine if spot ID is shown or not
 flag_spot_ID = get(handles.checkbox_show_spot_ID,'Value');
-
 
 %== Select output axis
 axes(handles.axes_main)
@@ -1070,15 +1196,15 @@ if isfield(handles,'h_impixregion')
     end
 end
 
-%- Deactivate zoom
-if ishandle(handles.h_zoom)
-    set(handles.h_zoom,'Enable','off');  
-end
-
-%- Deactivate pan
-if ishandle(handles.h_pan)
-    set(handles.h_pan,'Enable','off');  
-end
+% %- Deactivate zoom
+% if ishandle(handles.h_zoom)
+%     set(handles.h_zoom,'Enable','off');  
+% end
+% 
+% %- Deactivate pan
+% if ishandle(handles.h_pan)
+%     set(handles.h_pan,'Enable','off');  
+% end
 
 %- Datacursormode
 dcm_obj = datacursormode;
@@ -1245,13 +1371,10 @@ end
     
 
 
-
 %=== Function for Cell selector
 function FQ_plot_spots_axes(h_ax,img,pixel,spot_pos)
-
 imshow(img,[ ],'XData',[0 (size(img,2)-1)*pixel.x],'YData',[0 (size(img,1)-1)*pixel.y],'Parent', h_ax)  
 % colorbar('peer',handles.axes_zoom_xy)   
-
 
 
 %=== Function for Cell selector
@@ -1384,3 +1507,8 @@ h = zoom;
 function h_fishquant_spots_ButtonDownFcn(hObject, eventdata, handles)
 
 function uipanel2_ButtonDownFcn(hObject, eventdata, handles)
+
+
+
+
+          
