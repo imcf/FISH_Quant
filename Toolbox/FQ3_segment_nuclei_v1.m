@@ -143,9 +143,12 @@ for i = 1: length(B)
         cell_prop(ind_cell_Nuc).pos_Nuc.coord    = coord_nuc;
         cell_prop(ind_cell_Nuc).pos_Nuc.x        = x_nuc;
         cell_prop(ind_cell_Nuc).pos_Nuc.y        = y_nuc;
+        cell_prop(ind_cell_Nuc).pos_Nuc.reg_pos(:,1) = x_nuc;
+        cell_prop(ind_cell_Nuc).pos_Nuc.reg_pos(:,2) = y_nuc;
         cell_prop(ind_cell_Nuc).pos_Nuc.label    = ['NUC_auto_', num2str(i)];
         cell_prop(ind_cell_Nuc).pos_Nuc.auto     = 1;
         cell_prop(ind_cell_Nuc).pos_Nuc.ind_cell = ind_cell_Nuc;
+        cell_prop(ind_cell_Nuc).pos_Nuc.reg_type = 'Freehand';
 
     end
 end

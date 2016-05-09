@@ -778,243 +778,6 @@ end
 
 
 % =========================================================================
-% Detect nucleus
-% =========================================================================
-
-%== Detect nucleus
-function button_detect_nucleus_Callback(hObject, eventdata, handles)
-
-par_detect = handles.par_nuc_detect;
-par_detect.flags.plot   = 1;
-par_detect.flags.dialog = 0;
-par_detect.th_DAPI = str2double(get(handles.text_th_nucleus,'String'))/100;
-
-if par_detect.th_DAPI > 0 && par_detect.th_DAPI < 1
-
-    %- Restrict to current cell
-    status_current_cell = get(handles.checkbox_nuc_auto_in_curr_cell,'Value');    
-    if status_current_cell
-        status_current_cell = get(handles.listbox_cell,'Value');
-        
-    end
-        
-    par_detect.status_current_cell = status_current_cell;
-    
-    %- Perform Z projection
-    if isempty(handles.img.DAPI_proj_z)
-        handles.img.project_Z('DAPI','max')
-    end
-    
-    %- Perform segmentation
-    handles.img.segment_nuclei(par_detect)   
-
-    %- Plot image and save data
-    handles = plot_image(handles,handles.axes_image); 
-    guidata(hObject, handles); 
-else
-    warndlg('Value has to be between 0 and 100.','FISH-QUANT outline')
-end
-
-
-%== Detect nucleus
-function button_nuc_delete_Callback(hObject, eventdata, handles)
-
-%- Show plot
-handles = plot_image(handles,handles.axes_image);
-guidata(hObject, handles);
-
-%- Ask user to confirm choice
-choice = questdlg('Do you really want to delete this nucleus?', 'FISH-QUANT', 'Yes','No','No');
-
-if strcmp(choice,'Yes')
-    
-    %- Extract index of highlighted cell
-    ind_sel  = get(handles.listbox_cell,'Value');
-    
-    %- Delete nucleus in highlighted cell
-    handles.img.cell_prop(ind_sel).pos_Nuc = [];   
-    
-    %- Show plot
-    handles = plot_image(handles,handles.axes_image);
-    
-    %- Save results
-    guidata(hObject, handles);
-end
-
-
-%== New nucleus
-function button_nuc_new_Callback(hObject, eventdata, handles)
-   
-if not(handles.status_draw)
-
-    %- Set status that one object is currently constructed
-    handles.status_draw = 1;
-    guidata(hObject, handles);
-
-    %- Determine if plot should be done in separate figure
-    fig_sep = get(handles.checkbox_sep_window,'Value');
-    handles = plot_decide_window(hObject, eventdata, handles);
-
-    %- Draw region
-    str = get(handles.pop_up_region, 'String');
-    val = get(handles.pop_up_region,'Value');
-
-    param.reg_type = str{val};
-    param.h_axes   = gca;
-    param.pos      = [];
-
-    reg_result = FQ_draw_region_v1(param);
-    position   = reg_result.position;
-
-    %-Analyse region
-    Nuc_X = round(position(:,1))';   % Has to be a row vector to agree with read-in from files
-    Nuc_Y = round(position(:,2))';
-
-
-    %- Find cell to which this nucleus belongs       
-    ind_cell_Nuc = [];
-    cell_prop = handles.img.cell_prop;
-    N_cells  = length(cell_prop);
-    
-    
-    for i_cell = 1:N_cells
-        cell_X = cell_prop(i_cell).x;
-        cell_Y = cell_prop(i_cell).y;   
-
-        in_cell = inpolygon(Nuc_X,Nuc_Y,cell_X,cell_Y);
-
-        if sum(in_cell) == length(Nuc_X)
-            ind_cell_Nuc = i_cell; 
-        end
-    end
-
-        
-    %- Assign to cell
-    if not(isempty(ind_cell_Nuc))
-
-        %- If nucleus is already defined ask if old one should be deleted
-        if not(isempty(handles.img.cell_prop(ind_cell_Nuc).pos_Nuc))         
-            choice = questdlg('Nucleus already defined in this cell. Delete old one?','FISH-quant - outline','No','Yes','Yes');         
-        else
-            choice = 'Yes';        
-        end
-        
-        if strcmp(choice, 'Yes')
-            
-            %- Save position
-            pos_Nuc.x        = Nuc_X;  
-            pos_Nuc.y        = Nuc_Y;  
-            pos_Nuc.label    = 'Nucleus_manual'; 
-            pos_Nuc.reg_type = reg_result.reg_type;  
-            pos_Nuc.reg_pos  = reg_result.reg_pos;     
-
-            %- Update information of this cell
-            handles.img.cell_prop(ind_cell_Nuc).pos_Nuc = pos_Nuc; 
-
-            if fig_sep
-                handles.v_axis = axis(handles.axes_sep);
-            end     
-        end  
-    else
-        warndlg('Nucleus could not be assigned to any cell. Must be ENTIRELY within the cell.','FISH-QUANT')
-        handles = plot_image(handles,handles.axes_image);  
-        guidata(hObject, handles);
-    end    
-    
-    
-    %- Save results and show plot       
-    handles.status_draw = 0;
-    handles = plot_image(handles,handles.axes_image);
-    guidata(hObject, handles);
-
-
-    %- UIWAIT makes FISH_QUANT_outline wait for user response (see UIRESUME)
-    %- New call is necessary since impoly breaks first call
-    if handles.child;  
-        uiwait(handles.h_fishquant_outline);
-    end
-
-end
-
-
-%== Modify nucleus (only for manually defined ones)
-function button_nuc_modify_Callback(hObject, eventdata, handles)
-
-%- Extract index and properties of highlighted cell
-ind_sel  = get(handles.listbox_cell,'Value');
-cell_prop = handles.img.cell_prop(ind_sel);
-
-%- Check if there is a nucleus
-if not(isempty(cell_prop.pos_Nuc))
-
-    pos_Nuc = cell_prop.pos_Nuc(1);
-    
-    if not(handles.status_draw)
-
-        %- Set status that one object is currently constructed
-        handles.status_draw = 1;
-        guidata(hObject, handles);
-
-        %- Determine if plot should be done in separate figure
-        fig_sep = get(handles.checkbox_sep_window,'Value');
-        handles = plot_decide_window(hObject, eventdata, handles);
-
-        %- Check if reg-type is defined
-        is_reg_type = isfield(pos_Nuc,'reg_type');
-
-        if is_reg_type    
-
-            reg_type  = pos_Nuc.reg_type;
-            reg_pos   = pos_Nuc.reg_pos;
-
-             %- Modify region region
-            if ~strcmp(reg_type,'Freehand')
-                 param.reg_type = reg_type;
-            else
-                 param.reg_type = 'Polygon';
-            end 
-
-            %- Modify region region
-            param.h_axes   = gca;
-            param.pos      = reg_pos;
-
-            reg_result = FQ_draw_region_v1(param);
-
-            position            = reg_result.position;
-            pos_Nuc.reg_type  = reg_result.reg_type;
-            pos_Nuc.reg_pos   = reg_result.reg_pos;
-
-            pos_Nuc.x = round(position(:,1))';  % v3: Has to be a row vector to agree with read-in from files
-            pos_Nuc.y = round(position(:,2))';  % v3: Has to be a row vector to agree with read-in from files
-
-            handles.img.cell_prop(ind_sel).pos_Nuc(1) = pos_Nuc;
-            handles.axis_fig     = axis;
-
-            if fig_sep
-                handles.v_axis = axis(handles.axes_sep);
-            end
-
-            %- Save results
-            handles.status_draw = 0;
-
-            handles=plot_image(handles,handles.axes_image);
-            guidata(hObject, handles);
-
-            %- UIWAIT makes FISH_QUANT_outline wait for user response (see UIRESUME)
-            %- New call is necessary since impoly breaks first call
-            if handles.child;
-                uiwait(handles.h_fishquant_outline);    
-            end
-        else
-            msgbox('Geometry cannot be modified - only deleted','Outline definition','warn'); 
-        end
-    end
-else
-    warndlg('No nucleus defined for this cell.','FISH-QUANT')
-end
-
-
-% =========================================================================
 % Load and save
 % =========================================================================
 
@@ -1260,6 +1023,243 @@ handles.cell_counter   = size(cell_prop,2)+1;
 %- Show plot
 handles = listbox_cell_Callback(hObject, eventdata, handles);
 guidata(hObject, handles);
+
+
+% =========================================================================
+% Nuclei
+% =========================================================================
+
+%== Detect nucleus
+function button_detect_nucleus_Callback(hObject, eventdata, handles)
+
+par_detect = handles.par_nuc_detect;
+par_detect.flags.plot   = 1;
+par_detect.flags.dialog = 0;
+par_detect.th_DAPI = str2double(get(handles.text_th_nucleus,'String'))/100;
+
+if par_detect.th_DAPI > 0 && par_detect.th_DAPI < 1
+
+    %- Restrict to current cell
+    status_current_cell = get(handles.checkbox_nuc_auto_in_curr_cell,'Value');    
+    if status_current_cell
+        status_current_cell = get(handles.listbox_cell,'Value');
+        
+    end
+        
+    par_detect.status_current_cell = status_current_cell;
+    
+    %- Perform Z projection
+    if isempty(handles.img.DAPI_proj_z)
+        handles.img.project_Z('DAPI','max')
+    end
+    
+    %- Perform segmentation
+    handles.img.segment_nuclei(par_detect)   
+
+    %- Plot image and save data
+    handles = plot_image(handles,handles.axes_image); 
+    guidata(hObject, handles); 
+else
+    warndlg('Value has to be between 0 and 100.','FISH-QUANT outline')
+end
+
+
+%== Detect nucleus
+function button_nuc_delete_Callback(hObject, eventdata, handles)
+
+%- Show plot
+handles = plot_image(handles,handles.axes_image);
+guidata(hObject, handles);
+
+%- Ask user to confirm choice
+choice = questdlg('Do you really want to delete this nucleus?', 'FISH-QUANT', 'Yes','No','No');
+
+if strcmp(choice,'Yes')
+    
+    %- Extract index of highlighted cell
+    ind_sel  = get(handles.listbox_cell,'Value');
+    
+    %- Delete nucleus in highlighted cell
+    handles.img.cell_prop(ind_sel).pos_Nuc = [];   
+    
+    %- Show plot
+    handles = plot_image(handles,handles.axes_image);
+    
+    %- Save results
+    guidata(hObject, handles);
+end
+
+
+%== New nucleus
+function button_nuc_new_Callback(hObject, eventdata, handles)
+   
+if not(handles.status_draw)
+
+    %- Set status that one object is currently constructed
+    handles.status_draw = 1;
+    guidata(hObject, handles);
+
+    %- Determine if plot should be done in separate figure
+    fig_sep = get(handles.checkbox_sep_window,'Value');
+    handles = plot_decide_window(hObject, eventdata, handles);
+
+    %- Draw region
+    str = get(handles.pop_up_region, 'String');
+    val = get(handles.pop_up_region,'Value');
+
+    param.reg_type = str{val};
+    param.h_axes   = gca;
+    param.pos      = [];
+
+    reg_result = FQ_draw_region_v1(param);
+    position   = reg_result.position;
+
+    %-Analyse region
+    Nuc_X = round(position(:,1))';   % Has to be a row vector to agree with read-in from files
+    Nuc_Y = round(position(:,2))';
+
+
+    %- Find cell to which this nucleus belongs       
+    ind_cell_Nuc = [];
+    cell_prop = handles.img.cell_prop;
+    N_cells  = length(cell_prop);
+    
+    
+    for i_cell = 1:N_cells
+        cell_X = cell_prop(i_cell).x;
+        cell_Y = cell_prop(i_cell).y;   
+
+        in_cell = inpolygon(Nuc_X,Nuc_Y,cell_X,cell_Y);
+
+        if sum(in_cell) == length(Nuc_X)
+            ind_cell_Nuc = i_cell; 
+        end
+    end
+
+        
+    %- Assign to cell
+    if not(isempty(ind_cell_Nuc))
+
+        %- If nucleus is already defined ask if old one should be deleted
+        if not(isempty(handles.img.cell_prop(ind_cell_Nuc).pos_Nuc))         
+            choice = questdlg('Nucleus already defined in this cell. Delete old one?','FISH-quant - outline','No','Yes','Yes');         
+        else
+            choice = 'Yes';        
+        end
+        
+        if strcmp(choice, 'Yes')
+            
+            %- Save position
+            pos_Nuc.x        = Nuc_X;  
+            pos_Nuc.y        = Nuc_Y;  
+            pos_Nuc.label    = 'Nucleus_manual'; 
+            pos_Nuc.reg_type = reg_result.reg_type;  
+            pos_Nuc.reg_pos  = reg_result.reg_pos;     
+
+            %- Update information of this cell
+            handles.img.cell_prop(ind_cell_Nuc).pos_Nuc = pos_Nuc; 
+
+            if fig_sep
+                handles.v_axis = axis(handles.axes_sep);
+            end     
+        end  
+    else
+        warndlg('Nucleus could not be assigned to any cell. Must be ENTIRELY within the cell.','FISH-QUANT')
+        handles = plot_image(handles,handles.axes_image);  
+        guidata(hObject, handles);
+    end    
+    
+    
+    %- Save results and show plot       
+    handles.status_draw = 0;
+    handles = plot_image(handles,handles.axes_image);
+    guidata(hObject, handles);
+
+
+    %- UIWAIT makes FISH_QUANT_outline wait for user response (see UIRESUME)
+    %- New call is necessary since impoly breaks first call
+    if handles.child;  
+        uiwait(handles.h_fishquant_outline);
+    end
+
+end
+
+
+%== Modify nucleus (only for manually defined ones)
+function button_nuc_modify_Callback(hObject, eventdata, handles)
+
+%- Extract index and properties of highlighted cell
+ind_sel  = get(handles.listbox_cell,'Value');
+cell_prop = handles.img.cell_prop(ind_sel);
+
+%- Check if there is a nucleus
+if not(isempty(cell_prop.pos_Nuc))
+    
+    if not(handles.status_draw)
+
+        pos_Nuc = cell_prop.pos_Nuc(1);
+
+        %- Check if reg-type is defined
+        is_reg_type = isfield(pos_Nuc,'reg_type');
+
+        if is_reg_type    
+
+             %- Set status that one object is currently constructed
+            handles.status_draw = 1;
+            guidata(hObject, handles);
+
+            %- Determine if plot should be done in separate figure
+            fig_sep = get(handles.checkbox_sep_window,'Value');
+            handles = plot_decide_window(hObject, eventdata, handles);
+            
+            reg_type  = pos_Nuc.reg_type;
+            reg_pos   = pos_Nuc.reg_pos;
+
+             %- Modify region region
+            if ~strcmp(reg_type,'Freehand')
+                 param.reg_type = reg_type;
+            else
+                 param.reg_type = 'Polygon';
+            end 
+
+            %- Modify region region
+            param.h_axes   = gca;
+            param.pos      = reg_pos;
+
+            reg_result = FQ_draw_region_v1(param);
+
+            position          = reg_result.position;
+            pos_Nuc.reg_type  = reg_result.reg_type;
+            pos_Nuc.reg_pos   = reg_result.reg_pos;
+
+            pos_Nuc.x = round(position(:,1))';  % v3: Has to be a row vector to agree with read-in from files
+            pos_Nuc.y = round(position(:,2))';  % v3: Has to be a row vector to agree with read-in from files
+
+            handles.img.cell_prop(ind_sel).pos_Nuc(1) = pos_Nuc;
+            handles.axis_fig     = axis;
+
+            if fig_sep
+                handles.v_axis = axis(handles.axes_sep);
+            end
+
+            %- Save results
+            handles.status_draw = 0;
+
+            handles=plot_image(handles,handles.axes_image);
+            guidata(hObject, handles);
+
+            %- UIWAIT makes FISH_QUANT_outline wait for user response (see UIRESUME)
+            %- New call is necessary since impoly breaks first call
+            if handles.child;
+                uiwait(handles.h_fishquant_outline);    
+            end
+        else
+            msgbox('Geometry cannot be modified - only deleted','Outline definition','warn'); 
+        end
+    end
+else
+    warndlg('No nucleus defined for this cell.','FISH-QUANT')
+end
 
 
 % =========================================================================
