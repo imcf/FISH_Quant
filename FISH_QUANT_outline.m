@@ -187,7 +187,7 @@ if isempty(FQ_outline_open) || FQ_outline_open == 0
 
             file_ident.status = -1;
             
-            
+
             handles.img = FQ_img;
             
             par_main                   = varargin{2};
@@ -434,23 +434,27 @@ guidata(hObject, handles);
 
 %== key press on figure
 function h_fishquant_outline_KeyPressFcn(hObject, eventdata, handles)
-switch eventdata.Key     
-        case {'X','x'}
-            button_cell_delete_Callback(hObject, eventdata, handles)
-            
-        case {'N','n'}
-            button_cell_new_Callback(hObject, eventdata, handles)     
-end
+key_short_cuts(hObject, eventdata, handles)
+
 
 %== key press on listbox for cells
 function listbox_cell_KeyPressFcn(hObject, eventdata, handles)
+key_short_cuts(hObject, eventdata, handles)
+
+%== Summarize all short cuts
+function key_short_cuts(hObject, eventdata, handles)
 switch eventdata.Key     
-        case {'X','x'}
+        
+    case {'X','x'}
             button_cell_delete_Callback(hObject, eventdata, handles)
             
-        case {'N','n'}
-            button_cell_new_Callback(hObject, eventdata, handles)           
+    case {'C','c'}
+            button_cell_new_Callback(hObject, eventdata, handles)   
+            
+    case {'N','n'}    
+            button_nuc_new_Callback(hObject, eventdata, handles)
 end
+
 
 
 % =========================================================================
@@ -554,13 +558,12 @@ if file_name_image ~= 0
 
     %- Save results
     handles.img.file_names.DAPI  = file_name_image;
-    handles.path_name_DAPI   = path_name_image;
-    handles                  = img_load_DAPI(hObject, eventdata, handles);
+    handles.path_name_DAPI       = path_name_image;
+    handles                      = img_load_DAPI(hObject, eventdata, handles);
     guidata(hObject, handles);
     
     %- Check for second stack
     set(handles.checkbox_second_stack,'Value',1);
-    select_second_stack_Callback(hObject, eventdata, handles)
     handles = plot_image(handles,handles.axes_image); 
     guidata(hObject, handles); 
 end
@@ -698,10 +701,16 @@ else
     handles.img_DAPI_min  =  min(handles.img.DAPI(:)); 
     handles.img_DAPI_max  =  max(handles.img.DAPI(:)); 
     handles.img_DAPI_diff =  handles.img_DAPI_max-handles.img_DAPI_min;                 
-
-    handles.img_DAPI_min_show = handles.img_DAPI_min;
-    handles.img_DAPI_max_show = handles.img_DAPI_max;
-
+    
+    contr_min = double(quantile(handles.img_DAPI_plot(:),0.05));
+    contr_max = double(quantile(handles.img_DAPI_plot(:),0.95));    
+         
+    slider_min = double(contr_min - handles.img_DAPI_min) / double(handles.img_DAPI_diff);       
+    slider_max = double(contr_max - handles.img_DAPI_min) / double(handles.img_DAPI_diff); 
+    
+    set(handles.slider_contrast_min_2nd,'Value',slider_min);
+    set(handles.slider_contrast_max_2nd,'Value',slider_max); 
+           
     %- Calc automated threshold
     th_auto = graythresh(uint16(handles.img_DAPI_plot));
     set(handles.text_th_nucleus,'String',num2str(round(100*th_auto)));
@@ -1172,9 +1181,9 @@ if not(handles.status_draw)
     
     %- Save results and show plot       
     handles.status_draw = 0;
-    handles = plot_image(handles,handles.axes_image);
+    listbox_cell_Callback(hObject, eventdata, handles);
+   % handles = plot_image(handles,handles.axes_image);
     guidata(hObject, handles);
-
 
     %- UIWAIT makes FISH_QUANT_outline wait for user response (see UIRESUME)
     %- New call is necessary since impoly breaks first call
@@ -1293,9 +1302,7 @@ set(handles.listbox_cell,'String',str_list)
 set(handles.listbox_cell,'Value',ind_cell)
 listbox_cell_Callback(hObject, eventdata, handles);
 
-
 %- Save and show results
-handles = plot_image(handles,handles.axes_image);
 guidata(hObject, handles);
 
 %- UIWAIT makes FISH_QUANT_outline wait for user response (see UIRESUME)
@@ -1372,6 +1379,7 @@ if not(handles.status_draw)
         handles.status_draw = 0;
         guidata(hObject, handles);
     end
+    
     %- UIWAIT makes FISH_QUANT_outline wait for user response (see UIRESUME)
     %- New call is necessary since impoly breaks first call
     if handles.child;
@@ -1435,9 +1443,10 @@ if not(handles.status_draw)
         
         %- Save results
         handles.status_draw = 0;
-        
-        handles=plot_image(handles,handles.axes_image);
         guidata(hObject, handles);
+        
+        %- Update list-box - includes drawing
+        listbox_cell_Callback(hObject, eventdata, handles);
 
         %- UIWAIT makes FISH_QUANT_outline wait for user response (see UIRESUME)
         %- New call is necessary since impoly breaks first call
@@ -1480,7 +1489,6 @@ if strcmp(choice,'Yes')
     
     %- Show plot
     listbox_cell_Callback(hObject, eventdata, handles);   
-    handles = plot_image(handles,handles.axes_image);
     
     %- Save results
     guidata(hObject, handles);
@@ -1493,22 +1501,6 @@ function handles = listbox_cell_Callback(hObject, eventdata, handles)
 %-Update list of transcription sites
 ind_sel  = get(handles.listbox_cell,'Value');
 
-%- Disable modify for freehand
-%cell_prop = handles.img.cell_prop(ind_sel);
-
-%- Check if reg-type is defined
-% is_reg_type = isfield(cell_prop,'reg_type');
-% 
-% if is_reg_type    
-%   
-%     if strcmp(cell_prop.reg_type,'Freehand')
-%         set(handles.button_cell_modify,'enable','off')
-%     else
-%         set(handles.button_cell_modify,'enable','on')
-%     end
-% end
-
-
 if not(isempty(handles.img.cell_prop))
     str_list = handles.img.cell_prop(ind_sel).str_list_TS;
     set(handles.listbox_TS,'String',str_list)
@@ -1516,7 +1508,7 @@ if not(isempty(handles.img.cell_prop))
 end
 
 %- Update plot
-handles = plot_image(handles,handles.axes_image);
+plot_outlines(handles,handles.axes_image);
 guidata(hObject, handles);
 
 
@@ -1673,9 +1665,9 @@ if not(handles.status_draw)
 
         %- Show updated plot
         set(handles.listbox_cell,'Value',ind_cell_TS);
-        handles = listbox_cell_Callback(hObject, eventdata, handles);
         set(handles.listbox_TS,'Value',ind_TS);
-        handles = plot_image(handles,handles.axes_image);
+        handles = listbox_cell_Callback(hObject, eventdata, handles);   
+        %handles = plot_image(handles,handles.axes_image);
         guidata(hObject, handles);
     end
 
@@ -1824,7 +1816,6 @@ guidata(hObject, handles);
 
 
 
-
 % =========================================================================
 % Plot
 % =========================================================================
@@ -1880,9 +1871,6 @@ global status_plot_first
 handles.img_FISH_disp  = [];
 handles.img_2nd_disp   = [];
 
-%- Show labels
-flag_show_cell_label = get(handles.checkbox_show_labels,'Value');
-
 %- Only image without outlines
 status_show_outlines = get(handles.checkbox_show_outlines,'Value');
 
@@ -1902,7 +1890,6 @@ if  status_second
             if handles.status_DAPI
                 img2_plot   =  handles.img_DAPI_plot;
                 img_2nd_min =  handles.img_DAPI_min;
-                img_2nd_max =  handles.img_DAPI_max;
                 img_2nd_diff = handles.img_DAPI_diff;
 
             else
@@ -1914,7 +1901,6 @@ if  status_second
             if handles.status_TS_label
                 img2_plot   =  handles.img_TS_plot;
                 img_2nd_min =  handles.img_TS_min;
-                img_2nd_max  = handles.img_TS_max;
                 img_2nd_diff = handles.img_TS_diff;
 
             else
@@ -2059,77 +2045,7 @@ end
 
 %- Plot outline of cell and TS
 if status_show_outlines
-
-    hold on
-    %if isfield(handles.img,'cell_prop')    
-        cell_prop = handles.img.cell_prop;    
-        if not(isempty(cell_prop))  
-            for i_cell = 1:size(cell_prop,2)
-                x = cell_prop(i_cell).x;
-                y = cell_prop(i_cell).y;
-                plot([x,x(1)],[y,y(1)],'b','Linewidth', 2)  
-
-               % Show cell labels
-               if flag_show_cell_label
-
-                    [ geom] = polygeom( x, y ); 
-                    x_pos = geom(2); y_pos = geom(3);
-
-                    if x_pos > x_min && x_pos < x_max && y_pos > y_min && y_pos < y_max
-                        text(x_pos,y_pos,cell_prop(i_cell).label,'Color','w','FontSize',12, 'Interpreter', 'none','BackgroundColor',[0 0 0],'FontWeight','bold');
-                    end
-                end     
-                
-                %- Nucleus
-                pos_Nuc   = cell_prop(i_cell).pos_Nuc;   
-                if not(isempty(pos_Nuc))  
-                    for i_nuc = 1:size(pos_Nuc,2)
-                        x = pos_Nuc(i_nuc).x;
-                        y = pos_Nuc(i_nuc).y;
-                        plot([x,x(1)],[y,y(1)],':b','Linewidth', 2)  
-                   end                
-                end           
-
-                %- TS
-                pos_TS   = cell_prop(i_cell).pos_TS;   
-                if not(isempty(pos_TS))  
-                    for i_TS = 1:size(pos_TS,2)
-                        x = pos_TS(i_TS).x;
-                        y = pos_TS(i_TS).y;
-                        plot([x,x(1)],[y,y(1)],'b','Linewidth', 2)  
-                    end 
-                end           
-            end
-
-            %- Plot selected cell in different color
-            ind_cell = get(handles.listbox_cell,'Value');
-            x = cell_prop(ind_cell).x;
-            y = cell_prop(ind_cell).y;
-            plot([x,x(1)],[y,y(1)],'g','Linewidth', 2)  
-            
-            %- Nucleus
-            pos_Nuc   = cell_prop(ind_cell).pos_Nuc;   
-            if not(isempty(pos_Nuc))  
-                for i_nuc = 1:size(pos_Nuc,2)
-                    x = pos_Nuc(i_nuc).x;
-                    y = pos_Nuc(i_nuc).y;
-                    plot([x,x(1)],[y,y(1)],':g','Linewidth', 2)  
-               end                
-            end           
-            
-            %- TS
-            pos_TS   = cell_prop(ind_cell).pos_TS;   
-            if not(isempty(pos_TS)) 
-                          
-                %- Plot selected TS in different color
-                ind_sel = get(handles.listbox_TS,'Value');
-                x = pos_TS(ind_sel).x;
-                y = pos_TS(ind_sel).y;
-                plot([x,x(1)],[y,y(1)],'g','Linewidth', 2)             
-            end               
-        end                
-    %end 
-    hold off
+    plot_outlines(handles,axes_select)
 end
 
 %- Same zoom as before
@@ -2145,15 +2061,111 @@ status_plot_first = 0;
 %= Check which elements should be enabled
 GUI_enable(handles)
 
+
+%== Labels: yes/no
+function plot_outlines(handles,axes_select)
+   
+
+%- Show labels
+flag_show_cell_label = get(handles.checkbox_show_labels,'Value');
+
+
+%- Select output axis
+if isempty(axes_select)
+    figure
+else
+    axes(axes_select)
+end
+
+%- Get all line objects and delete them
+h_line = findobj(gca,'type','line');
+
+if ~isempty(h_line)
+    delete(h_line)
+end
+
+%- Plot outlines
+hold on
+    cell_prop = handles.img.cell_prop;    
+    if not(isempty(cell_prop))  
+        for i_cell = 1:size(cell_prop,2)
+            x = cell_prop(i_cell).x;
+            y = cell_prop(i_cell).y;
+            plot([x,x(1)],[y,y(1)],'b','Linewidth', 2)  
+
+           % Show cell labels
+           if flag_show_cell_label
+
+                [ geom] = polygeom( x, y ); 
+                x_pos = geom(2); y_pos = geom(3);
+
+                if x_pos > x_min && x_pos < x_max && y_pos > y_min && y_pos < y_max
+                    text(x_pos,y_pos,cell_prop(i_cell).label,'Color','w','FontSize',12, 'Interpreter', 'none','BackgroundColor',[0 0 0],'FontWeight','bold');
+                end
+            end     
+
+            %- Nucleus
+            pos_Nuc   = cell_prop(i_cell).pos_Nuc;   
+            if not(isempty(pos_Nuc))  
+                for i_nuc = 1:size(pos_Nuc,2)
+                    x = pos_Nuc(i_nuc).x;
+                    y = pos_Nuc(i_nuc).y;
+                    plot([x,x(1)],[y,y(1)],':b','Linewidth', 2)  
+               end                
+            end           
+
+            %- TS
+            pos_TS   = cell_prop(i_cell).pos_TS;   
+            if not(isempty(pos_TS))  
+                for i_TS = 1:size(pos_TS,2)
+                    x = pos_TS(i_TS).x;
+                    y = pos_TS(i_TS).y;
+                    plot([x,x(1)],[y,y(1)],'b','Linewidth', 2)  
+                end 
+            end           
+        end
+
+        %- Plot selected cell in different color
+        ind_cell = get(handles.listbox_cell,'Value');
+        x = cell_prop(ind_cell).x;
+        y = cell_prop(ind_cell).y;
+        plot([x,x(1)],[y,y(1)],'g','Linewidth', 2)  
+
+        %- Nucleus
+        pos_Nuc   = cell_prop(ind_cell).pos_Nuc;   
+        if not(isempty(pos_Nuc))  
+            for i_nuc = 1:size(pos_Nuc,2)
+                x = pos_Nuc(i_nuc).x;
+                y = pos_Nuc(i_nuc).y;
+                plot([x,x(1)],[y,y(1)],':g','Linewidth', 2)  
+           end                
+        end           
+
+        %- TS
+        pos_TS   = cell_prop(ind_cell).pos_TS;   
+        if not(isempty(pos_TS)) 
+
+            %- Plot selected TS in different color
+            ind_sel = get(handles.listbox_TS,'Value');
+            x = pos_TS(ind_sel).x;
+            y = pos_TS(ind_sel).y;
+            plot([x,x(1)],[y,y(1)],'g','Linewidth', 2)             
+        end               
+    end                
+hold off
+
+
 %== Labels: yes/no
 function checkbox_show_labels_Callback(hObject, eventdata, handles)
 handles = plot_image(handles,handles.axes_image);
 guidata(hObject, handles);
 
+
 %== Outlines: yes/no
 function checkbox_show_outlines_Callback(hObject, eventdata, handles)
 handles = plot_image(handles,handles.axes_image);
 guidata(hObject, handles);
+
 
 %== FISH image: yes/no
 function checkbox_show_FISH_Callback(hObject, eventdata, handles)
@@ -2670,6 +2682,3 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
 end
 
 function checkbox_nuc_auto_in_curr_cell_Callback(hObject, eventdata, handles)
-
-
-% --- Executes on button press in checkbox_show_labels.

@@ -9,10 +9,12 @@ reg_type = param.reg_type;
 switch reg_type;
     
     case 'Freehand'
-        h_fh = imfreehand(h_axes);        
+        fcn = makeConstrainToRectFcn('imfreehand',get(h_axes,'XLim'),get(h_axes,'YLim'));         
+        h_fh = imfreehand(h_axes,'PositionConstraintFcn',fcn);        
         setColor(h_fh,'b');        
         reg_pos = getPosition(h_fh);         
-    
+        delete(h_fh)
+        
         if size(reg_pos,1) == 1
            position = []; 
         else
@@ -20,15 +22,19 @@ switch reg_type;
         end
         
     case 'Polygon'
-        h_poly = impoly(h_axes,pos);        
+        fcn = makeConstrainToRectFcn('impoly',get(h_axes,'XLim'),get(h_axes,'YLim'));    
+        h_poly = impoly(h_axes,pos,'PositionConstraintFcn',fcn);         
         setColor(h_poly,'b');
         wait(h_poly);
         reg_pos = getPosition(h_poly);         
-    
+        
         position = reg_pos;
         
-    case 'Rectangle'        
-        h_rect = imrect(h_axes,pos);
+        delete(h_poly)
+        
+    case 'Rectangle'       
+        fcn = makeConstrainToRectFcn('imrect',get(h_axes,'XLim'),get(h_axes,'YLim'));    
+        h_rect = imrect(h_axes,pos,'PositionConstraintFcn',fcn);    
         setColor(h_rect,'b');
         wait(h_rect);  
         reg_pos = getPosition(h_rect);
@@ -41,13 +47,16 @@ switch reg_type;
         position(:,1) = [xmin xmin+w xmin+w xmin];
         position(:,2) = [ymin ymin   ymin+h ymin+h];
 
-        
-    case 'Ellipse'        
-        h_ell    = imellipse(h_axes,pos);
+        delete(h_rect)
+    case 'Ellipse' 
+        fcn = makeConstrainToRectFcn('imellipse',get(h_axes,'XLim'),get(h_axes,'YLim')); 
+        h_ell    = imellipse(h_axes,pos,'PositionConstraintFcn',fcn);    
         setColor(h_ell,'b');
         wait(h_ell); 
         reg_pos  = getPosition(h_ell);
         position = getVertices(h_ell);
+        
+        delete(h_ell)
 end
 
 

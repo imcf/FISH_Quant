@@ -1777,7 +1777,6 @@ if not(isempty(spots_fit))
         %== Exclude spots that are too close
         spots_detected_cell = cell_summary(ind_cell,1).spots_detected;
         spots_fit_cell      = cell_summary(ind_cell,1).spots_fit;   
-       
         
         %- Mask with relative distance and matrix with radius
         if not(isempty(spots_fit_cell))
@@ -2538,7 +2537,11 @@ handles = save_settings(hObject, eventdata, handles);
 
 %- User-dialog for file-name
 dlgTitle      = 'File with all spots';
-default_name  = ['_FISH-QUANT__all_spots_', datestr(date,'yymmdd'), '.txt'];;
+if flag_threshold
+    default_name  = ['_FISH-QUANT__threshold_spots_', datestr(date,'yymmdd'), '.txt'];
+else
+    default_name  = ['_FISH-QUANT__all_spots_', datestr(date,'yymmdd'), '.txt'];
+end
 [name_default path_default] = uiputfile(default_name,dlgTitle);
 
 
