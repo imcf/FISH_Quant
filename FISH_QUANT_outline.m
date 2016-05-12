@@ -172,6 +172,9 @@ if isempty(FQ_outline_open) || FQ_outline_open == 0
             %- Check for second stack
             select_second_stack_Callback(hObject, eventdata, handles)
             
+            %- Plot image
+            plot_image(handles,handles.axes_image);
+            
             %- Analyze outline
             if not(isempty(handles.img.file_names.raw))
                 handles = analyze_outline(hObject, eventdata, handles);
@@ -210,6 +213,7 @@ if isempty(FQ_outline_open) || FQ_outline_open == 0
 
             %- Load outline file
             handles = load_outline_file(name_load,hObject, eventdata, handles); 
+            plot_image(handles,handles.axes_image);
             handles = analyze_outline(hObject, eventdata, handles); 
 
 
@@ -265,6 +269,7 @@ else
 
             %- Load outline file
             handles = load_outline_file(name_load,hObject, eventdata, handles); 
+            plot_image(handles,handles.axes_image);
             handles = analyze_outline(hObject, eventdata, handles); 
             guidata(hObject, handles);
 
