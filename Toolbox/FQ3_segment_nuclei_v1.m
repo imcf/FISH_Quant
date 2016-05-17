@@ -23,7 +23,6 @@ end
 %% Use threshold to find nucleus
 button = 'No';
 
-
 while strcmp(button,'No')
 
     %=== Threshood and connected components
@@ -105,7 +104,6 @@ L     = labelmatrix(CC_new);
 
 %% Loop over all cells
 
-
 %- Loop over all nuclei and assign to cells
 for i = 1: length(B)
 
@@ -118,6 +116,7 @@ for i = 1: length(B)
     ind_cell_Nuc = [];
     
     %- Restrict to currently selected cell
+    %  Determines looping range
     if status_current_cell
         ind_start = status_current_cell;
         ind_end   = status_current_cell;    
@@ -143,6 +142,7 @@ for i = 1: length(B)
         cell_prop(ind_cell_Nuc).pos_Nuc.coord    = coord_nuc;
         cell_prop(ind_cell_Nuc).pos_Nuc.x        = x_nuc;
         cell_prop(ind_cell_Nuc).pos_Nuc.y        = y_nuc;
+        cell_prop(ind_cell_Nuc).pos_Nuc.reg_pos = [];
         cell_prop(ind_cell_Nuc).pos_Nuc.reg_pos(:,1) = x_nuc;
         cell_prop(ind_cell_Nuc).pos_Nuc.reg_pos(:,2) = y_nuc;
         cell_prop(ind_cell_Nuc).pos_Nuc.label    = ['NUC_auto_', num2str(i)];

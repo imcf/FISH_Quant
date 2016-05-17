@@ -308,18 +308,14 @@ function GUI_enable(handles)
 %- Image has to be loaded
 if isempty(handles.img.raw)
      set(handles.button_cell_new,'Enable', 'off');    
-   %  set(handles.button_cell_modify,'Enable', 'off');        
-     %set(handles.button_cell_delete,'Enable', 'off');    
      set(handles.listbox_cell,'Enable', 'off');   
 else
-     set(handles.button_cell_new,'Enable', 'on');    
-    % set(handles.button_cell_modify,'Enable', 'on');        
-    % set(handles.button_cell_delete,'Enable', 'on');    
+     set(handles.button_cell_new,'Enable', 'on');       
      set(handles.listbox_cell,'Enable', 'on');     
 end
 
 %- DAPI has to be loaded for auto detection of nucleus
-if not(isempty(handles.img.raw)) && handles.status_DAPI
+if not(isempty(handles.img.raw)) && handles.status_DAPI && ~isempty(get(handles.listbox_cell,'String'))    
       set(handles.button_detect_nucleus,'Enable', 'on');    
 else
      set(handles.button_detect_nucleus,'Enable', 'off');     
@@ -338,11 +334,9 @@ if isempty(get(handles.listbox_cell,'String'))
      set(handles.button_TS_new,'Enable', 'off'); 
      set(handles.button_auto_detect,'Enable', 'off'); 
      
-     
 else
       set(handles.button_cell_modify,'Enable', 'on');
      set(handles.button_cell_delete,'Enable', 'on');
-     
      
      set(handles.button_nuc_modify,'Enable', 'on');        
      set(handles.button_nuc_delete,'Enable', 'on');    
@@ -446,8 +440,10 @@ key_short_cuts(hObject, eventdata, handles)
 function listbox_cell_KeyPressFcn(hObject, eventdata, handles)
 key_short_cuts(hObject, eventdata, handles)
 
+
 %== Summarize all short cuts
 function key_short_cuts(hObject, eventdata, handles)
+
 switch eventdata.Key     
         
     case {'X','x'}
@@ -458,6 +454,10 @@ switch eventdata.Key
             
     case {'N','n'}    
             button_nuc_new_Callback(hObject, eventdata, handles)
+            
+    case {'S','s'}    
+            button_quick_save_Callback(hObject, eventdata, handles)
+            
 end
 
 
@@ -846,13 +846,20 @@ parameters.version             = handles.img.version;
 parameters.flag_type           = 'outline';
 
 %- Generate automated name
-if isempty(handles.outline_name_load)
-    [dum, name_file]      = fileparts(handles.img.file_names.raw);
-    name_default          = [name_file,'__',parameters.flag_type,'.txt'];
-    name_default_full     = fullfile(path_save,name_default);
-    [file_save,path_save] = uiputfile(name_default_full,'Save outline / results of spot detection');
+if ~isfield(handles.img.file_names,'outline_auto') || isempty(handles.img.file_names.outline_auto)
+    
+    if isempty(handles.outline_name_load)
+        [dum, name_file]      = fileparts(handles.img.file_names.raw);
+        name_default          = [name_file,'__',parameters.flag_type,'.txt'];
+        name_default_full     = fullfile(path_save,name_default);
+        [file_save,path_save] = uiputfile(name_default_full,'Save outline / results of spot detection');
+    else
+        [file_save,path_save] = uiputfile(handles.outline_name_load,'Save outline / results of spot detection');
+    end
+    
 else
-    [file_save,path_save] = uiputfile(handles.outline_name_load,'Save outline / results of spot detection');
+    [path_save,file_save,ext] = fileparts(handles.img.file_names.outline_auto);
+    file_save = [file_save,ext];
 end
 
 %- Save outline
@@ -862,7 +869,10 @@ if file_save ~= 0
     disp(' ')
     disp(['Outline saved as: ', file_save])
     disp(['Folder: ', path_save])
+    handles.img.file_names.outline_auto = name_save_full;
     
+    %- Update handles structure
+    guidata(hObject, handles); 
 end
 
 
@@ -1126,12 +1136,12 @@ if not(handles.status_draw)
     param.pos      = [];
 
     reg_result = FQ_draw_region_v1(param);
-    position   = reg_result.position;
-
-    %-Analyse region
+    position   = reg_result.position;    
+    if isempty(position); return; end 
+    
+    %-Analyse region    
     Nuc_X = round(position(:,1))';   % Has to be a row vector to agree with read-in from files
     Nuc_Y = round(position(:,2))';
-
 
     %- Find cell to which this nucleus belongs       
     ind_cell_Nuc = [];
@@ -1346,7 +1356,7 @@ if not(handles.status_draw)
     reg_result = FQ_draw_region_v1(param);
 
     position = reg_result.position;
-
+    
     if ~isempty(position)         
 
         handles.axis_fig  = axis;
@@ -1380,6 +1390,7 @@ if not(handles.status_draw)
         %- Update list-box - includes drawing
         listbox_cell_Callback(hObject, eventdata, handles);
 
+        
         %- Save and show results
         handles.status_draw = 0;
         guidata(hObject, handles);
@@ -1513,6 +1524,7 @@ if not(isempty(handles.img.cell_prop))
 end
 
 %- Update plot
+GUI_enable(handles)
 plot_outlines(handles,handles.axes_image);
 guidata(hObject, handles);
 
