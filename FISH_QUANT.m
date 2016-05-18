@@ -1,7 +1,7 @@
 function varargout = FISH_QUANT(varargin)
 % FISH_QUANT M-file for FISH_QUANT.fig
 
-% Last Modified by GUIDE v2.5 09-Mar-2016 10:32:40
+% Last Modified by GUIDE v2.5 18-May-2016 15:40:22
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -2867,10 +2867,39 @@ end
 
 %== Display help file
 function menu_help_show_help_file_Callback(hObject, eventdata, handles)
-file_name_pdf = ['FISH_QUANT_', handles.version,'.pdf'];
-open(file_name_pdf)
+dir_FQ = fileparts(which(mfilename));
+file_name_pdf = 'FISH_QUANT_v3.pdf'; 
+
+%- Replacement for development version
+dir_doc = strrep(dir_FQ,'GUI','Documentation');
+
+%- This is for the compiled version
+if strcmp(dir_doc,dir_FQ);
+    dir_doc = fullfile(dir_FQ,'Documentation');
+end
+open(fullfile(dir_doc,file_name_pdf))
 
 
+%== Menu about FISH-quant
+function menu_about_Callback(hObject, eventdata, handles)
+dir_FQ = fileparts(which(mfilename));
+
+if exist(fullfile(dir_FQ,'FQ_version.txt'))
+    
+    %- Open file
+    fid  =  fopen(fullfile(dir_FQ,'FQ_version.txt'),'r');
+
+    if fid == -1; return; end
+
+    dum      = fgetl(fid);
+    str_date = fgetl(fid);
+    str_time = fgetl(fid);
+    fclose(fid);
+    
+    msgbox({'Compilation information          ' ['Date ',str_date] ['Time ',str_time]},'FISH-quant           ','help');
+    
+end
+    
 %== Change between 2D and 3D detection
 function menu_sett_2D_Callback(hObject, eventdata, handles)
 
@@ -3218,3 +3247,7 @@ function popup_filter_type_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+
+

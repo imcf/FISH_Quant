@@ -43,7 +43,6 @@ else
         end
         
         
-        
         %- Is there and equal sign? Extract strings before and after
         k = strfind(str, '=');    
         str_tag = str(1:k-1);
@@ -54,17 +53,7 @@ else
                 
            case 'FLAG_quant_simple_only' 
                 img.settings.TS_quant.flags.quant_simple_only = str2double(str_val);    
-%                         
-%             case 'Fit_mode'    
-%                 
-%                 switch str_val
-%                     case 'sigma_free_xz'                    
-%                         settings.flag_fit = 0;
-%                         
-%                      case 'sigma_fixed'
-%                         settings.flag_fit = 1;   
-%                 end                
-     
+   
               case 'PSF_path_name'                  
                 img.mRNA_prop.path_name = (str_val); 
                 
