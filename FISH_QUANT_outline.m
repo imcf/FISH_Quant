@@ -2094,6 +2094,12 @@ else
     axes(axes_select)
 end
 
+v = axis;
+x_min = v(1);
+x_max = v(2);
+y_min = v(3);
+y_max = v(4);
+
 %- Get all line objects and delete them
 h_line = findobj(gca,'type','line');
 

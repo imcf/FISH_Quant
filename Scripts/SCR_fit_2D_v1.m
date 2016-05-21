@@ -27,7 +27,6 @@ if ~exist(path_save)
     return
 end
 
-
 %- Generate folder for plots
 folder_plots = fullfile(path_save,['FQ_plots_',datestr(date,'yymmdd')]);
 if not(exist(folder_plots)); mkdir(folder_plots); end
@@ -119,7 +118,7 @@ clear movieInfo
 for iT = 1: N_img
     
     %- Plot points as indicator where we are 
-    fprintf('=== Analyzing time-point %g \n  ',iT);
+    fprintf('\n\n=== Analyzing time-point %g \n  ',iT);
      
     %== OPEN time-point: RAW
     img_loop    = bfGetPlane(r_raw, iT);
@@ -244,7 +243,7 @@ copyfile(fullfile(path_save,file_sett),fullfile(folder_results,file_sett))
 %===== Save summary for utrack
 
 %- Save detection
-analysisInfo.image_name = file_name;
+analysisInfo.name_movie = file_name;
 save(fullfile(path_save,['Detection_',datestr(date,'yymmdd'),'.mat']),'movieInfo','analysisInfo')
 save(fullfile(path_detect,[name_base,'__DETECT.mat']),'movieInfo','analysisInfo')
 
