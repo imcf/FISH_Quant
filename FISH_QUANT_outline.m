@@ -498,33 +498,29 @@ global file_ident
 %- Get identifier of DAPI & TS-ident
 if file_ident.status == -1;
 
-    %- Load image
-    button = questdlg('Do you want to use identifiers to find DAPI / TS-label  images based on FISH file name? If yes, you have to specify unique parts of the file names that set apart the FISH and DAPI image. This has to be done only once.','Load DAPI','Yes','No','No');
+    prompt = {'FISH','DAPI','TxSite'};
+    dlg_title = 'Use unique identifiers for different images?';
+    def = {file_ident.FISH,file_ident.DAPI,file_ident.TS};
+    answer = inputdlg(prompt,dlg_title,[1, length(dlg_title)+30],def,'on');
 
-    if strcmp(button,'Yes')
-        
-    
-        prompt = {'FISH','DAPI','TxSite'};
-        dlg_title = 'Unique identifiers for different images';
-        num_lines = 1;
-        def = {file_ident.FISH,file_ident.DAPI,file_ident.TS};
-        answer = inputdlg(prompt,dlg_title,num_lines,def);
-        
-        if ~isempty(answer)
-                          
-            file_ident.FISH = answer{1};
-            file_ident.DAPI = answer{2};
-            file_ident.TS   = answer{3};
-            
-            file_ident.status = 1;            
-        else
-            file_ident.status = -1;
-            
-        end
+    if ~isempty(answer)
+
+        file_ident.FISH = answer{1};
+        file_ident.DAPI = answer{2};
+        file_ident.TS   = answer{3};
+
+        file_ident.status = 1;            
     else
-        file_ident.status = 0;
+        file_ident.status = -1;
     end
+
 end
+
+%=== Menu to change file identifier
+function menu_change_identifier_Callback(hObject, eventdata, handles)
+global file_ident
+file_ident.status = -1;
+get_file_ident
 
 
 %=== Load DAPI image
@@ -2541,7 +2537,7 @@ function menu_show_labels_Callback(hObject, eventdata, handles)
 
 %== Modify parameters
 function menu_change_exp_par_Callback(hObject, eventdata, handles)
-par_microscope = handles.par_microscope;
+par_microscope = handles.img.par_microscope;
 
 dlgTitle = 'Experimental parameters';
 
