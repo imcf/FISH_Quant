@@ -498,7 +498,7 @@ global file_ident
 %- Get identifier of DAPI & TS-ident
 if file_ident.status == -1;
 
-    prompt = {'FISH','DAPI','TxSite'};
+    prompt = {sprintf('FISH\nUnique part of file-name, e.g. filter name; leave empty to not use option'),'DAPI','TxSite'};
     dlg_title = 'Use unique identifiers for different images?';
     def = {file_ident.FISH,file_ident.DAPI,file_ident.TS};
     answer = inputdlg(prompt,dlg_title,[1, length(dlg_title)+30],def,'on');
@@ -2109,10 +2109,9 @@ hold on
     if not(isempty(cell_prop))  
         for i_cell = 1:size(cell_prop,2)
             x = cell_prop(i_cell).x;
-            y = cell_prop(i_cell).y;
-            plot([x,x(1)],[y,y(1)],'b','Linewidth', 2)  
+            y = cell_prop(i_cell).y;            
 
-           % Show cell labels
+           %- Show cell labels
            if flag_show_cell_label
 
                 [ geom] = polygeom( x, y ); 
@@ -2121,8 +2120,11 @@ hold on
                 if x_pos > x_min && x_pos < x_max && y_pos > y_min && y_pos < y_max
                     text(x_pos,y_pos,cell_prop(i_cell).label,'Color','w','FontSize',12, 'Interpreter', 'none','BackgroundColor',[0 0 0],'FontWeight','bold');
                 end
-            end     
+           end     
 
+           %- Plot outline of the cells
+           plot([x,x(1)],[y,y(1)],'b','Linewidth', 2)   
+           
             %- Nucleus
             pos_Nuc   = cell_prop(i_cell).pos_Nuc;   
             if not(isempty(pos_Nuc))  

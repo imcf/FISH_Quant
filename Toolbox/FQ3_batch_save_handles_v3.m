@@ -1,4 +1,4 @@
-function FQ3_batch_save_handles_v2(file_name_full,handles)
+function FQ3_batch_save_handles_v3(file_name_full,handles,flag_auto)
 
 % Function to write handles structure of GUI to m-file
 
@@ -13,7 +13,7 @@ else
     path_save = cd;
 end
 
-cd(path_save)
+if exist(path_save); cd(path_save); end
     
 
 %== Ask for file-name if it's not specified
@@ -54,6 +54,14 @@ if file_save ~= 0
     
     %- Image structure
     handles_GUI.img = handles.img;
+    
+    %- Image information only necessary in auto-save
+    if ~flag_auto    
+        handles_GUI.img.raw  = [];
+        handles_GUI.img.filt = [];
+        handles_GUI.img.DAPI = [];
+        handles_GUI.img.TS_label = [];
+    end
     
     %== Folders
     handles_GUI.path_name_list                     = handles.path_name_list; 

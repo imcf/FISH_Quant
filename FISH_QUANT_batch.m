@@ -407,6 +407,7 @@ status_old = get(handles.listbox_status,'String');
 status_new = [status_old;status_text];
 set(handles.listbox_status,'String',status_new)
 set(handles.listbox_status,'ListboxTop',round(size(status_new,1)))
+set(handles.listbox_status,'Value',size(status_new,1))
 drawnow
 guidata(hObject, handles); 
 
@@ -1277,7 +1278,7 @@ for i_file = handles.i_file_proc_mature:N_file
    if status_save_auto 
         file_name      = ['_FQ_analysis_AUTOSAVE_', datestr(date,'yymmdd'), '.mat'];
         file_name_full = fullfile(path_save_results,file_name);       
-        FQ3_batch_save_handles_v2(file_name_full,handles);
+        FQ3_batch_save_handles_v3(file_name_full,handles,1);
    end   
     
 end
@@ -1306,7 +1307,7 @@ end
 if status_save_auto 
     file_name      = ['_FQ_analysis_AUTOSAVE_', datestr(date,'yymmdd'), '.mat'];
     file_name_full = fullfile(path_save_results,file_name);       
-    FQ3_batch_save_handles_v2(file_name_full,handles);
+    FQ3_batch_save_handles_v3(file_name_full,handles,1);
 end  
 
 
@@ -1765,13 +1766,12 @@ if not(isempty(spots_fit))
 
 
     %- Loop over all cells 
-    status_text = {' ';'RESULTS OF SPOT DETECTION FOR EACH CELL';'COUNTS BEFORE/AFTER THRESHOLDING, [Name of image: name of cell]'};
-    status_update(hObject, eventdata, handles,status_text);  
-
     spot_count = [];  %- For the histogram of total spots 
 
-    status_update_cell = get(handles.checkbox_show_quant_results,'Value');
-
+    %- For update of status text
+    status_update_cell = get(handles.checkbox_show_quant_results,'Value');    
+    status_text        = {' ';'RESULTS OF SPOT DETECTION FOR EACH CELL';'COUNTS BEFORE/AFTER THRESHOLDING, [Name of image: name of cell]'};    
+    
     for ind_cell = 1: length(spots_range)
 
         %== Exclude spots that are too close
@@ -1894,8 +1894,9 @@ if not(isempty(spots_fit))
                 name_list = cell_summary(ind_cell,1).name_list;
                 name_cell = cell_summary(ind_cell,1).label;
 
-                status_text = [ num2str(N_total), ' / ', num2str(N_count),',  [', name_list ,': ', name_cell,']'];
-                status_update(hObject, eventdata, handles,status_text);
+                status_loop = [ num2str(N_total), ' / ', num2str(N_count),',  [', name_list ,': ', name_cell,']'];
+                status_text = [status_text;status_loop];
+                %status_update(hObject, eventdata, handles,status_text);
             end
         else
 
@@ -1908,8 +1909,9 @@ if not(isempty(spots_fit))
                 name_list = cell_summary(ind_cell,1).name_list;
                 name_cell = cell_summary(ind_cell,1).label;
 
-                status_text = [ num2str(0), ' / ', num2str(0),',  [', name_list ,': ', name_cell,']'];
-                status_update(hObject, eventdata, handles,status_text);
+                status_loop = [ num2str(0), ' / ', num2str(0),',  [', name_list ,': ', name_cell,']'];
+                status_text = [status_text;status_loop];
+                %status_update(hObject, eventdata, handles,status_text);
             end
         end
     end
@@ -1924,6 +1926,8 @@ if not(isempty(spots_fit))
     N_th_std  = round(nanstd(spot_count(:,1)));
 
     %- Update status
+    status_update(hObject, eventdata, handles,status_text); 
+    
     status_text = {' '; ...
                    ['AVG # spots per cell [total] ', num2str(N_total_mean), ' +/- ', num2str(N_total_std)]; ...
                    ['AVG # spots per cell [after threshold] ', num2str(N_th_mean), ' +/- ', num2str(N_th_std)]};
@@ -2703,7 +2707,7 @@ end
 
 %- Go back to original folder
 cd(current_dir)
-
+stat
 
 %== Save results for each image [all spots]
 function menu_save_results_image_Callback(hObject, eventdata, handles)
@@ -2830,7 +2834,7 @@ cd(current_dir)
 
 %== Save GUI handles structure
 function menu_save_handles_Callback(hObject, eventdata, handles)
-FQ3_batch_save_handles_v2([],handles)
+FQ3_batch_save_handles_v3([],handles,0)
 
 
 %== LOAD GUI handles structure
@@ -3990,7 +3994,7 @@ for i_file = i_start_file:i_end_file
                     if status_save_auto 
                         file_name      = ['_FQ_analysis_AUTOSAVE_', datestr(date,'yymmdd'), '.mat'];
                         file_name_full = fullfile(path_save_results,file_name);       
-                        FQ3_batch_save_handles_v2(file_name_full,handles);
+                        FQ3_batch_save_handles_v3(file_name_full,handles,1);
                     end                
 
                 end
