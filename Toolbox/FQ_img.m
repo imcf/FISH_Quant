@@ -871,6 +871,7 @@ classdef FQ_img < handle
             
         end
             
+        
         %% === TS detection: change settings
          function TS_detect_settings_change(img)
             img.settings.TS_detect = FQ_TS_settings_detect_modify_v5(img.settings.TS_detect);

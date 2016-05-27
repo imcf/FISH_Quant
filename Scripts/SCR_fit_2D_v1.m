@@ -1,4 +1,4 @@
-function SCR_fit_2D_v1(file_name)
+function SCR_fit_3D_v1(file_name)
 
 
 flag_fit = 1;  % Fit spot position or not

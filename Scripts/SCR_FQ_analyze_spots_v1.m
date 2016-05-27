@@ -1,6 +1,6 @@
 % SCR_FQ_analyze_spots_v1
 
-%% Specify outline files
+%% Specify result files
 
 %- Get file names
 [file_results,path_results] = uigetfile('*.txt','Select files with FQ results','MultiSelect', 'on');

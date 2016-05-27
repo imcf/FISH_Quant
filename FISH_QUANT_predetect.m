@@ -1,6 +1,6 @@
 function varargout = FISH_QUANT_predetect(varargin)
 % FISH_QUANT_PREDETECT MATLAB code for FISH_QUANT_predetect.fig
-% Last Modified by GUIDE v2.5 23-Feb-2015 16:38:24
+% Last Modified by GUIDE v2.5 27-May-2016 15:46:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -30,6 +30,8 @@ disp('+++ FISH-QUANT: pre-detection')
 disp('- Pre-processing')
         
 handles.output = hObject;
+handles.status_1st_plot = 1;
+
 
 %- Set font-size to 10
 %  For whatever reason are all the fonts on windows are set back to 8 when the
@@ -837,10 +839,13 @@ guidata(hObject, handles);
 
 %- Plot results
 plot_hist_int(hObject, eventdata, handles)
-plot_image(handles,handles.axes_img,[])
+handles = plot_image(hObject,handles,handles.axes_img,[]);
 
 %- Calculate the corresponding quality scores
 pop_up_detect_quality_Callback(hObject, eventdata, handles)
+
+% Update handles structure
+guidata(hObject, handles);
 
 
 %== Show detected spots
@@ -909,7 +914,8 @@ if th_counts(1) > 0
     handles.flag_spots = 2;
     guidata(hObject, handles);
     plot_qualityscore(hObject, eventdata, handles)
-    plot_image(handles,handles.axes_img,[]);
+    handles = plot_image(hObject,handles,handles.axes_img,[]);
+    guidata(hObject, handles);
 end
 
 
@@ -982,6 +988,23 @@ end
 %== Mixed functions
 %==========================================================================
 
+%= Zoom in
+function toolbar_zoom_in_ClickedCallback(hObject, eventdata, handles)
+h_zoom = zoom;
+set(h_zoom,'Enable','on');
+set(h_zoom, 'Direction','in')
+
+
+%= Zoom in
+function toolbar_zoom_out_ClickedCallback(hObject, eventdata, handles)
+h_zoom = zoom;
+set(h_zoom,'Enable','on');
+set(h_zoom, 'Direction','out')
+
+%= Pan
+function toolbar_pan_ClickedCallback(hObject, eventdata, handles)
+pan on
+
 
 %== Show filtered image
 function pushbutton_show_filtered_Callback(hObject, eventdata, handles)
@@ -1006,7 +1029,7 @@ guidata(hObject, handles);
 
 
 %== Plot detected spots
-function plot_image(handles,axes_select,flag_spots)
+function handles  = plot_image(hObject,handles,axes_select,flag_spots)
 
 %- Might be called with no cell properties defined
 ind_cell       = get(handles.pop_up_cell_select,'Value');
@@ -1019,6 +1042,7 @@ status_sep_ccc = 0;
 if isempty(axes_select)
     figure
     
+    v = axis;
     if strcmpi(handles.img.settings.detect.method,'connectcomp')
         ax(2) = subplot(1,2,2);
         status_sep_ccc = 1;
@@ -1027,6 +1051,7 @@ if isempty(axes_select)
     imshow(handles.img_plot,[]);
 else
     axes(axes_select);
+    v = axis;
     h = imshow(handles.img_plot,[]);
     set(h, 'ButtonDownFcn', @axes_img_ButtonDownFcn)
 end
@@ -1141,6 +1166,20 @@ if status_sep_ccc == 1
     linkaxes(ax);
 end
 
+%- Same zoom as before
+handles.status_1st_plot
+if not(handles.status_1st_plot)
+    if axes_select == handles.axes_img
+        axis(v);
+    end
+end
+
+handles.status_1st_plot = 0;
+
+% Update handles structure
+guidata(hObject, handles);
+
+
 
 %== Double click opens in new window
 function axes_img_ButtonDownFcn(hObject, eventdata, handles)
@@ -1148,7 +1187,7 @@ sel_type = get(gcf,'selectiontype');    % Normal for single click, Open for doub
    
 if strcmp(sel_type,'open')
     handles = guidata(hObject);        % Appears that handles are not always input parameter for function call
-    plot_image(handles,[],[]);
+    plot_image(hObject,handles,[],[]);
 end
 
 

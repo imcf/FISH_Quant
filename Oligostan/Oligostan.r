@@ -1,9 +1,9 @@
 ####################################################SETTINGS#########################################################
 #FASTA Sequences: file name
-FileNameFasta <- 'XPO1.fasta'
+FileNameFasta <- 'My_Fasta_File.fasta'
 #FASTA Sequences: path   [no '/' at the end of the path name]
-PathNameFasta <- '/Volumes/PILON_HD2/fmueller/Documents/Programming/TestData/Oligostan/Tutorial_data'
-
+#WINDOWS IMPORTANT: Replace the separators in the path name \ by /
+PathNameFasta <- 'MyVolume/MyPath'
 #Output directory and file names: generated automatically
 name_base <-strsplit(FileNameFasta, "[.]")[[1]][1]
 FileNameOutput <- paste('Probes_',name_base,sep="") 
@@ -34,8 +34,10 @@ MaskedFilter <- TRUE
 MaxMaskedPercent <- 0.1
 #Minimum number of probes by transcript for the transcrip to be kept in final probes list  [we recommend that you have at least 24 probes]
 minProbePerTranscrit <- 0
-#Path to the REPEAT MASKER installed command
-RepeatMaskerCommand <- '/usr/local/RepeatMasker/RepeatMasker '  # IMPORTANT: THERE HAS TO BE A SPACE (!!!) behind the RepeatMasker command
+### Path to the installed REPEAT MASKER 
+# IMPORTANT 1 : THERE HAS TO BE A SPACE (!!!) behind the RepeatMasker command
+# IMPORTANT 2 : The option "- species" specifies the species of the input sequence (valid NCBI Taxonomy species name). Commonly used names are human, mouse, rattus. For more details see Oligostan documentation   
+RepeatMaskerCommand <- '/usr/local/RepeatMasker/RepeatMasker -species human '  # IMPORTANT: THERE HAS TO BE A SPACE (!!!) behind the RepeatMasker command
 ####################################################END OF SETTINGS##################################################
 
 
@@ -123,13 +125,21 @@ WhichMax <- function(x){
   return(res)
 }
 
+#This function has been modified to use an linear score calculation and
+#not an relative one.
+#dG37ScoreCalc <- function(ThedG37,DesireddG = -33){
+#  ThedG37 <- abs(ThedG37)
+#  DesireddG <- abs(DesireddG)
+#  ThedG37 - DesireddG -> tmpcalc
+#  ((ThedG37[tmpcalc>=0] - DesireddG) / DesireddG) -> ThedG37[tmpcalc>=0]
+#  ((DesireddG - (ThedG37[tmpcalc<0] )) / DesireddG) -> ThedG37[tmpcalc<0]
+#  return(1-ThedG37)
+#}
+
 dG37ScoreCalc <- function(ThedG37,DesireddG = -33){
-  ThedG37 <- abs(ThedG37)
-  DesireddG <- abs(DesireddG)
-  ThedG37 - DesireddG -> tmpcalc
-  ((ThedG37[tmpcalc>=0] - DesireddG) / DesireddG) -> ThedG37[tmpcalc>=0]
-  ((DesireddG - (ThedG37[tmpcalc<0] )) / DesireddG) -> ThedG37[tmpcalc<0]
-  return(1-ThedG37)
+  valtemp <- abs(ThedG37-DesireddG)
+  valnorm <- (-0.1 * valtemp) + 1
+  return(valnorm)
 }
 
 ConvertRNASeq2DeltaGat37 <- function(RNASeq){

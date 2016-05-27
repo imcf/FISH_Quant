@@ -182,10 +182,10 @@ if name_save ~= 0
                         %- Check if there are distance measurements
                          if ~(isempty(cell_prop(i_cell).spots_fit));
                                  spots_output   = [spots_output, cell_prop(i_cell).dist_all];
-                                 str_text = [str_text,'\tPos_cell\tPos_nuc'];
+                                 str_text = [str_text,'\tDist2PM\tDist2Nuc'];
                          end
                          
-                         %- Check if there are distance measurements
+                         %- Check if there integrated intensity measurements
                          if ~(isempty(cell_prop(i_cell).intint))
                                  spots_output   = [spots_output, cell_prop(i_cell).intint];
                                  str_text = [str_text,'\tIntInt'];

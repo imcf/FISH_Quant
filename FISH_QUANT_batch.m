@@ -1090,7 +1090,6 @@ status_text = {' ';'== Processing files - check command window for details'};
 status_update(hObject, eventdata, handles,status_text);
 
 %- Some flags and status definitions
-%handles.img.settings.fit.flags.parallel = get(handles.checkbox_parallel_computing,'Value');
 status_save_auto = get(handles.checkbox_auto_save_mature,'Value');
 
 parameters.flags.filtered_use  = get(handles.checkbox_use_filtered,'Value');
@@ -2546,7 +2545,7 @@ if flag_threshold
 else
     default_name  = ['_FISH-QUANT__all_spots_', datestr(date,'yymmdd'), '.txt'];
 end
-[name_default path_default] = uiputfile(default_name,dlgTitle);
+[name_default, path_default] = uiputfile(default_name,dlgTitle);
 
 
 %- Save results
@@ -2575,6 +2574,15 @@ if name_default ~= 0
         
         options.flag_only_thresholded = flag_threshold; 
         FQ_save_results_all_v1(file_name_full,handles.file_summary,handles.cell_summary,handles.img.par_microscope,handles.img.path_names.img,handles.file_name_settings_new,handles.img.version,options);
+    
+        fprintf('\n === FQ: spot summary saved\n')
+        if flag_threshold
+            disp('TRHESHOLDED spots only')
+        else
+            disp('ALL spots')
+        end
+        disp(file_name_full)
+        
     end
 end
 
@@ -2708,6 +2716,7 @@ end
 %- Go back to original folder
 cd(current_dir)
 stat
+
 
 %== Save results for each image [all spots]
 function menu_save_results_image_Callback(hObject, eventdata, handles)

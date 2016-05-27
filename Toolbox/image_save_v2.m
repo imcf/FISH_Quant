@@ -37,10 +37,10 @@ if nargin < 3
       
       if int_max < 65536
             bit_depth = 16; 
-            disp('Image will be saved as 16-bit.')
+            disp('Image currently saved as 16-bit ....')
        else
             bit_depth = 16; 
-            disp('Image saved be saved as 32-bit.')
+            disp('Image currently saved as 32-bit ....')
       end
 end
 
@@ -123,3 +123,5 @@ if file_name_save ~= 0
         t.close()
     end
 end
+
+disp('Image was saved!')

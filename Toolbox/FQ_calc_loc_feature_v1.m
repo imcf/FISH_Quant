@@ -1,7 +1,7 @@
 function img = FQ_calc_loc_feature_v1(img)
 %- Called for cell_prop of an individual cell
 
-param.N_min      = 20;  % How many RNA we need to calculate features
+param.N_min      = 1;  % How many RNA we need to calculate features
 param.pixel_size = img.par_microscope.pixel_size;
 
 
@@ -26,7 +26,6 @@ pixel_size = param.pixel_size;
 %- Continue only if enough mRNAs per cell
 if size(cell_prop.spots_detected,1) >= param.N_min 
     
-  
     %%% CALCULATION OF FEATURE FOR DISTANCE BETWEEN SPOT AND CELL STRUCTURE       
     cell_poly  = transpose([ cell_prop.x ; cell_prop.y ]) * pixel_size.xy; % Get the cell polygon in nm
     
