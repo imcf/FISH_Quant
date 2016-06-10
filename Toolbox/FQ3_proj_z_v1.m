@@ -86,7 +86,8 @@ function proj_struct = FQ3_proj_z_v1(files_proc,param)
         %== Load image file
         disp('==   Load image')
         file_name = file_name_all{i_file};
-
+        FM = [];
+        
         %- Check if file-name contains string that should be ignored	
         if files_proc.flag_ignore
 

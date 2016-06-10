@@ -2055,7 +2055,7 @@ colormap(hot), axis off
 %- If no image is shown
 if isempty(img_plot)
     h_fig = figure(45);
-    
+    clf
     set(h_fig,'color','w')
     set(gca,'YDir','rev')
     axis equal
@@ -2084,11 +2084,20 @@ if flag_spots
         %- Plot spots        
         %  Add one pixel since image starts at one and detected spots at pixel
         global h_out h_out_man h_in
-        hold on
-            h_out     = plot((spots_fit(ind_plot_out,col_par.pos_x)/pixel_size.xy + 1),     (spots_fit(ind_plot_out,col_par.pos_y)/pixel_size.xy +1)    ,'ob','MarkerSize',10);
-            h_out_man = plot((spots_fit(ind_plot_out_man,col_par.pos_x)/pixel_size.xy + 1), (spots_fit(ind_plot_out_man,col_par.pos_y)/pixel_size.xy +1),'om','MarkerSize',10);
-            h_in      = plot((spots_fit(ind_plot_in,col_par.pos_x)/pixel_size.xy  + 1) ,    (spots_fit(ind_plot_in,col_par.pos_y)/pixel_size.xy +1)     ,'og','MarkerSize',10);
-        hold off
+        if ~ isempty(img_plot)        
+            hold on
+                h_out     = plot((spots_fit(ind_plot_out,col_par.pos_x)/pixel_size.xy + 1),     (spots_fit(ind_plot_out,col_par.pos_y)/pixel_size.xy +1)    ,'ob','MarkerSize',10);
+                h_out_man = plot((spots_fit(ind_plot_out_man,col_par.pos_x)/pixel_size.xy + 1), (spots_fit(ind_plot_out_man,col_par.pos_y)/pixel_size.xy +1),'om','MarkerSize',10);
+                h_in      = plot((spots_fit(ind_plot_in,col_par.pos_x)/pixel_size.xy  + 1) ,    (spots_fit(ind_plot_in,col_par.pos_y)/pixel_size.xy +1)     ,'og','MarkerSize',10);
+            hold off
+        else
+            hold on
+                h_out     = plot((spots_fit(ind_plot_out,col_par.pos_x)/pixel_size.xy + 1),     (spots_fit(ind_plot_out,col_par.pos_y)/pixel_size.xy +1)    ,'.b');
+                h_out_man = plot((spots_fit(ind_plot_out_man,col_par.pos_x)/pixel_size.xy + 1), (spots_fit(ind_plot_out_man,col_par.pos_y)/pixel_size.xy +1),'.m');
+                h_in      = plot((spots_fit(ind_plot_in,col_par.pos_x)/pixel_size.xy  + 1) ,    (spots_fit(ind_plot_in,col_par.pos_y)/pixel_size.xy +1)     ,'.g');
+            hold off
+        end
+   
         title(['Spots Detected ', num2str(length(ind_plot_in ))],'FontSize',9); 
         colormap(hot)
         freezeColors(gca)

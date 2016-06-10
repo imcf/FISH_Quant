@@ -125,6 +125,7 @@ classdef FQ_img < handle
             img.settings.detect.nTH         = 50;
             img.settings.detect.th_int_min  = 5;
             img.settings.detect.th_int_max  = 150;
+            img.settings.detect.data_th     = [];
             
             
             %==== Settings for spot fitting in 3D
@@ -219,11 +220,15 @@ classdef FQ_img < handle
             %- Make new FQ object and keep experimental parameters
             img_old            = img;
             img                = FQ_img;
-            img.par_microscope = img_old.par_microscope; 
-            img.settings       = img_old.settings; 
+            img.par_microscope = img_old.par_microscope;
             img.version        = img_old.version; 
             img.path_names     = img_old.path_names; 
             img.status_3D      = img_old.status_3D;
+            
+            %- Keep old settings
+            img.settings       = img_old.settings; 
+            img.settings.detect.data_th = [];  % Delete detection thresholds which depend on the image
+
         end
         
         

@@ -189,7 +189,8 @@ if not(isempty(varargin))
         if not(handles.closeFigure)
         
             %- Check if values have already been used
-            status_same_par =   nTH == handles.img.settings.detect.nTH && ...
+            status_same_par =   ...
+                            nTH == handles.img.settings.detect.nTH && ...
                             th_int_min == handles.img.settings.detect.th_int_min    && ...    
                             th_int_max == handles.img.settings.detect.th_int_max && ...
                             flag_detect_region == handles.img.settings.detect.flags.detect_region && ...
@@ -578,8 +579,7 @@ switch str{val}
             %- Save calculated thresholds
             data_th(:,1) = thresholds;
             data_th(:,2) = counts;
-            
-            
+
             set(handles.h_fishquant_predetect,'Pointer','arrow');
             status_text = {' ';'   Connected components DETECTED!'};
             status_update(hObject, eventdata, handles,status_text);
@@ -623,6 +623,10 @@ if handles.img.settings.detect.flags.auto_th
     handles.int_th     = int_th;
     set(handles.text_detection_threshold,'String',num2str(round(handles.int_th.mean)));
 end
+
+%= Provide them as a global variable
+global FQ_data_th
+FQ_data_th = data_th;
 
 %= Save detection tresholds
 handles.img.settings.detect.data_th = data_th;

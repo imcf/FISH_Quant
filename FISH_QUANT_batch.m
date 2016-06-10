@@ -2715,7 +2715,6 @@ end
 
 %- Go back to original folder
 cd(current_dir)
-stat
 
 
 %== Save results for each image [all spots]
