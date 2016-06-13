@@ -35,7 +35,8 @@ end
 if strcmpi(ext,'.txt') 
     
     %- Keep settings
-    settings_old = img.settings;
+    settings_old       = img.settings;
+    par_microscope_old = img.par_microscope;
     
     %- Try to open file - catch corrupted files
     try
@@ -47,8 +48,8 @@ if strcmpi(ext,'.txt')
     end
     
     %- Reassign settings in case they were changes
-    img.settings = settings_old;
-    
+    img.settings       = settings_old;
+    img.par_microscope = par_microscope_old;
     
     %- Outline file can't be opened
     if status_open.outline ~= 1
