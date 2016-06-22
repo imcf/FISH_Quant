@@ -68,6 +68,7 @@ if not(isempty(varargin))
 
         %- Change name of GUI
         set(handles.h_fishquant_predetect,'Name', ['FISH-QUANT ', handles.img.version, ': pre-detection']);
+        
         %- If not cell_prop are defined 
         if isempty(handles.img.cell_prop) 
             handles.img.cell_prop = define_cell_prop(handles);
@@ -155,7 +156,14 @@ if not(isempty(varargin))
         defaultValue_avg{2} = num2str(th_int_max);
         defaultValue_avg{3} = num2str(nTH);
         defaultValue_avg{4} = num2str(flag_detect_region);
-        defaultValue_avg{5} = num2str(get(handles.popupmenu_predetect_mode,'Value'));
+        
+        switch handles.img.settings.detect.method
+            case 'nonMaxSupr'
+                defaultValue_avg{5} = '1';
+            case 'connectcomp'
+                defaultValue_avg{5} = '2';
+        end
+        
         defaultValue_avg{6} = num2str(handles.img.settings.detect.flags.auto_th);
         
         options.Resize='on';
@@ -417,6 +425,7 @@ handles.img.settings.detect.flags.region_smaller      = get(handles.checkbox_sma
 handles.img.settings.detect.flags.reg_pos_sep         = get(handles.checkbox_status_reg_detect_sep,'Value');
 handles.img.settings.detect.thresh_int                = str2double(get(handles.text_detection_threshold,'String'));
 
+
 %- Get quality score
 str = get(handles.pop_up_detect_quality, 'String');
 val = get(handles.pop_up_detect_quality,'Value');
@@ -452,24 +461,7 @@ for ind_cell = 1:N_cells
             MIP_xz = squeeze(max(handles.img.cell_prop(ind_cell).sub_spots{k},[],1))';
             [dim_MIP_1,dim_MIP_2] = size(MIP_xz);
             MIP_xz = padarray(MIP_xz,[dim_sub_z-dim_MIP_1 dim_sub_xy-dim_MIP_2],'post'); 
-            try
-                spots_proj.xz(:,:,1,k) = MIP_xz;
-            catch
-                1
-            end
-%             
-%             dim_MIP_z = size(MIP_xz,1); 
-%             
-%             %- Add zeros if not enough planes (for incomplete spots)
-%             if dim_MIP_z < dim_sub_z
-%                MIP_xz(dim_MIP_z+1:dim_sub_z,:) = 0;
-%             end
-%             try
-%                 spots_proj.xz(:,:,1,k) = MIP_xz;
-%             catch
-%                 1
-%                 
-%             end
+            spots_proj.xz(:,:,1,k) = MIP_xz;
         end
 
          %- Save results

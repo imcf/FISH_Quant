@@ -1353,43 +1353,52 @@ if not(handles.status_draw)
 
     position = reg_result.position;
     
+    
+    
     if ~isempty(position)         
 
-        handles.axis_fig  = axis;
-
-        %- Save position
-        handles.img.cell_prop(ind_cell).reg_type = reg_result.reg_type;
-        handles.img.cell_prop(ind_cell).reg_pos  = reg_result.reg_pos;
-
-        handles.img.cell_prop(ind_cell).x = round(position(:,1))';  % v3: Has to be a row vector to agree with read-in from files
-        handles.img.cell_prop(ind_cell).y = round(position(:,2))';  % v3: Has to be a row vector to agree with read-in from files
-
-        handles.img.cell_prop(ind_cell).pos_TS  = [];
-        handles.img.cell_prop(ind_cell).pos_Nuc = [];
-        handles.img.cell_prop(ind_cell).str_list_TS = [];
-        handles.img.cell_prop(ind_cell).TS_counter   = 1;
-
-        %- Add entry at the end and update list
-        str_cell = ['Cell_', num2str(handles.cell_counter)];
-        str_list{ind_cell} = str_cell;
-
-        set(handles.listbox_cell,'String',str_list)
-        set(handles.listbox_cell,'Value',ind_cell)
-
-        handles.img.cell_prop(ind_cell).label = str_cell;
-        handles.cell_counter = handles.cell_counter+1;
-
-        if fig_sep
-            handles.v_axis = axis(handles.axes_sep);
-        end
-
-        %- Update list-box - includes drawing
-        listbox_cell_Callback(hObject, eventdata, handles);
-
         
-        %- Save and show results
-        handles.status_draw = 0;
-        guidata(hObject, handles);
+        if size(position(:,1)) < 3
+            disp('Not enough points for a region definition')
+
+        else
+        
+            handles.axis_fig  = axis;
+
+            %- Save position
+            handles.img.cell_prop(ind_cell).reg_type = reg_result.reg_type;
+            handles.img.cell_prop(ind_cell).reg_pos  = reg_result.reg_pos;
+
+            handles.img.cell_prop(ind_cell).x = round(position(:,1))';  % v3: Has to be a row vector to agree with read-in from files
+            handles.img.cell_prop(ind_cell).y = round(position(:,2))';  % v3: Has to be a row vector to agree with read-in from files
+
+            handles.img.cell_prop(ind_cell).pos_TS  = [];
+            handles.img.cell_prop(ind_cell).pos_Nuc = [];
+            handles.img.cell_prop(ind_cell).str_list_TS = [];
+            handles.img.cell_prop(ind_cell).TS_counter   = 1;
+
+            %- Add entry at the end and update list
+            str_cell = ['Cell_', num2str(handles.cell_counter)];
+            str_list{ind_cell} = str_cell;
+
+            set(handles.listbox_cell,'String',str_list)
+            set(handles.listbox_cell,'Value',ind_cell)
+
+            handles.img.cell_prop(ind_cell).label = str_cell;
+            handles.cell_counter = handles.cell_counter+1;
+
+            if fig_sep
+                handles.v_axis = axis(handles.axes_sep);
+            end
+
+            %- Update list-box - includes drawing
+            listbox_cell_Callback(hObject, eventdata, handles);
+
+
+            %- Save and show results
+            handles.status_draw = 0;
+            guidata(hObject, handles);
+        end    
     end
     
     %- UIWAIT makes FISH_QUANT_outline wait for user response (see UIRESUME)

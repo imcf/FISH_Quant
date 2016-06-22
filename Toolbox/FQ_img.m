@@ -985,9 +985,8 @@ classdef FQ_img < handle
               [sub_spots, sub_spots_filt, spots_detected] = FQ_spots_moscaic_v1(img,img.cell_prop(ind_cell).spots_detected);
         
               img.cell_prop(ind_cell).spots_detected = spots_detected;
-              img.cell_prop(ind_cell).sub_spots = sub_spots;
-              img.cell_prop(ind_cell).sub_spots = sub_spots_filt;
-       
+              img.cell_prop(ind_cell).sub_spots      = sub_spots;
+              img.cell_prop(ind_cell).sub_spots      = sub_spots_filt;
         end
         
         
