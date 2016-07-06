@@ -1,4 +1,4 @@
-function img_filt = img_filter_Gauss_v5(img,kernel_size,flag)
+function [img_filt, img_bgd] = img_filter_Gauss_v5(img,kernel_size,flag)
 
 
 %== 1. Pad array with Matlab function padarray
@@ -18,10 +18,10 @@ end
            
 %- Filter unless kernel-size is 0
 if kernel_xy
-    %img_bgd   = gauss3filter(img_pad, [kernel_xy kernel_xy kernel_z]);
+    %img_bgd  = gauss3filter(img_pad, [kernel_xy kernel_xy kernel_z]);
     img_bgd   = gaussSmooth(img_pad, [kernel_xy kernel_xy kernel_z], 'same');    
 else
-    img_bgd = zeros(size(img_pad));
+    img_bgd   = zeros(size(img_pad));
     
 end
 
@@ -53,6 +53,10 @@ end
        
 img_filt = uint16(img_filt(filter.pad+1:end-filter.pad,filter.pad+1:end-filter.pad,filter.pad+1:end-filter.pad));
 
+%- provide filtered background image as output
+if nargout == 2
+    img_bgd  = uint16(img_bgd(filter.pad+1:end-filter.pad,filter.pad+1:end-filter.pad,filter.pad+1:end-filter.pad));
+end
 
 %- Show results of filtering
 if flag.output

@@ -719,11 +719,15 @@ classdef FQ_img < handle
        
         
         %% === FILTER
-        function status_filter = filter(img,flag)
-                   
+        function [status_filter, img_bgd] = filter(img,flag)
+                
+            
+            img_bgd = [];
+            
             if nargin == 1
                 flag.output = 0;
             end
+            
             
            %- Output
            status_filter = 1;
@@ -735,7 +739,7 @@ classdef FQ_img < handle
                %- Double Gaussian filter
                case {'3D_DoG','3D_2xGauss','2xGauss'}
                    fprintf('3D Double Gaussian filter ...')
-                   img.filt    = img_filter_Gauss_v5(img.raw,img.settings.filter.kernel_size,flag);        
+                   [img.filt, img_bgd] = img_filter_Gauss_v5(img.raw,img.settings.filter.kernel_size,flag);        
                 
                %- 3D LoG (From Battich et al., Nature Methods)           
                case '3D_LoG'
@@ -968,7 +972,7 @@ classdef FQ_img < handle
         
         
         %% === Predetect
-        function [spots_detected, img_mask, CC_best, sub_spots, sub_spots_filt,CC_GOOD,prop_img_detect,in_Nuc] = spots_predect(img,ind_cell)
+        function [spots_detected, sub_spots, sub_spots_filt, img_mask, CC_GOOD,prop_img_detect,in_Nuc] = spots_predect(img,ind_cell)
             
             [spots_detected, sub_spots, sub_spots_filt, img_mask, CC_GOOD,prop_img_detect,in_Nuc] = FQ_spots_predetect_v1(img,ind_cell);
             img.cell_prop(ind_cell).spots_detected  = spots_detected;

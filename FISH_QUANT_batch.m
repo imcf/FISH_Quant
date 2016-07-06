@@ -894,7 +894,7 @@ if strcmp(choice,'Yes')
         for i_F = 1:length(file_name_results)
              
             %- Load image
-            status_open = handles.img.load_results(fullfile(path_name_results,file_name_results{i_F}),[]); 
+            status_open = handles.img.load_results(fullfile(path_name_results,file_name_results{i_F}),-1); 
 
             %- Assign parameters
              if status_open.outline

@@ -228,7 +228,7 @@ switch mode_predetect
         
         %- Check if detection is 2D or 3D
         if img.status_3D
-            centroid_matrix  = round(reshape(centroid_linear,3,N_spots))';
+            centroid_matrix      = round(reshape(centroid_linear,3,N_spots))';
         else
             centroid_matrix      = round(reshape(centroid_linear,2,N_spots))';
             centroid_matrix(:,3) = 1;
@@ -337,8 +337,7 @@ end
 
 % %===  Extract immediate environment for each spot in 3d
 [sub_spots, sub_spots_filt, spots_detected] = FQ_spots_moscaic_v1(img,spots_detected);
-%spots_detected(:,10)   = img.raw(pos_spots_GOOD_lin);  % Filtering might %move position of maximum pixel slightly - maximum is now estimated from sub_spots
-spots_detected(:,11)   = img.filt(pos_spots_GOOD_lin);
+spots_detected(:,11)                        = img.filt(pos_spots_GOOD_lin);
 
 %- Other values
 spots_detected(:,12)   = 0;     % Quality score
@@ -370,6 +369,7 @@ if ~isempty(CC_best) && CC_best.NumObjects > 0
        pixel_list_full{i_list} = sub2ind(size(img.filt), y_list, x_list, z);
            
     end
+    
     
     %- Get CC for best spots
     try 

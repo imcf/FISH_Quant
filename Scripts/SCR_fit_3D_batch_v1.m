@@ -13,9 +13,11 @@ end
 
 if file_name{1} == 0; return; end
 
+
 %% Get folder name for images
 path_image = uigetdir(path_outlines);
 if path_image == 0; return; end
+
 
 %% Get all results folders that should be processed
 folder_results = uipickfiles('REFilter','^')';
@@ -25,6 +27,7 @@ if ~iscell(folder_results)
     folder_results={dum};
 end
     
+
 %% Loop over all files
 
 %- Results
@@ -73,7 +76,7 @@ for i_folder = 1:numel(folder_results)
         %- Get file-name
         file_loop = file_name{i_file};
         parameters.file_name_load = fullfile(file_loop);
-
+        
         %- Call fitting routine
         status_fit = img.proc_mature_all(parameters);
         
