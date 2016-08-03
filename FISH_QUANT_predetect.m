@@ -210,6 +210,7 @@ if not(isempty(varargin))
             handles.img.settings.detect.nTH                 = nTH;
             handles.img.settings.detect.th_int_min          = th_int_min;
             handles.img.settings.detect.th_int_max          = th_int_max;
+            handles.img.settings.detect.th_int_diff         = th_int_max-th_int_min;
             handles.img.settings.detect.flags.detect_region = flag_detect_region;
             handles.img.settings.detect.flags.auto_th       = flag_auto_th;
             
@@ -230,6 +231,7 @@ if not(isempty(varargin))
             set(handles.text_detect_region_z_sep,'String',num2str(handles.img.settings.detect.reg_size.z_sep)) 
 
             set(handles.text_detection_threshold,'String',handles.img.settings.detect.thresh_int);
+            set_slider_int(handles,handles.img.settings.detect.thresh_int);
             set(handles.text_detect_th_qual,'String',handles.img.settings.detect.thresh_score);        
 
             set(handles.checkbox_smaller_detection,'Value',handles.img.settings.detect.flags.region_smaller);
@@ -703,6 +705,17 @@ end
 %== Pre-detection of location
 %==========================================================================
 
+%== Function to set slider for intensity threshold for detection
+ function set_slider_int(handles,int_value)
+ 
+%- Set slider for detection threshold            
+slider_value = (int_value-handles.img.settings.detect.th_int_min)/handles.img.settings.detect.th_int_diff;
+
+if slider_value > 1; slider_value = 1; end
+if slider_value < 0; slider_value = 0; end
+
+set(handles.slider_hist_int,'Value',slider_value);
+
 
 %== Intensity threshold: change slider value
 function slider_hist_int_Callback(hObject, eventdata, handles)
@@ -711,8 +724,7 @@ function slider_hist_int_Callback(hObject, eventdata, handles)
 slider_value = get(handles.slider_hist_int,'Value');
 
 th_int_min  = handles.img.settings.detect.th_int_min;
-th_int_max  = handles.img.settings.detect.th_int_max;
-th_int_diff = th_int_max - th_int_min;
+th_int_diff  = handles.img.settings.detect.th_int_diff;
 
 int_value = round(th_int_min + th_int_diff*slider_value);
 set(handles.text_detection_threshold,'String',num2str(int_value));
@@ -728,22 +740,7 @@ function text_detection_threshold_Callback(hObject, eventdata, handles)
 
 %- Set slider
 int_value    = str2double(get(handles.text_detection_threshold,'String'));
-
-th_int_min  = handles.img.settings.detect.th_int_min;
-th_int_max  = handles.img.settings.detect.th_int_max;
-th_int_diff = th_int_max - th_int_min;
-
-slider_value = (int_value-th_int_min)/th_int_diff;
-
-if slider_value > 1;
-    slider_value = 1;
-end
-
-if slider_value < 0;
-    slider_value = 0;
-end
-
-set(handles.slider_hist_int,'Value',slider_value);
+set_slider_int(handles,int_value);
 
 %- Plot
 handles.img.settings.detect.flags.auto_th = 0;
@@ -754,7 +751,7 @@ guidata(hObject, handles);
 %== Plot histogram of intensity
 function plot_hist_int(hObject, eventdata, handles)
 
-detect_th      = str2double(get(handles.text_detection_threshold,'String'));
+detect_th = str2double(get(handles.text_detection_threshold,'String'));
 
 %- Detection parameters
 detect = handles.img.settings.detect;
@@ -834,11 +831,12 @@ handles.status_quality_score = 0;
 guidata(hObject, handles);
 
 %- Plot results
-plot_hist_int(hObject, eventdata, handles)
+plot_hist_int(hObject, eventdata, handles);
 handles = plot_image(hObject,handles,handles.axes_img,[]);
+cla(handles.axes_hist_qual)
 
 %- Calculate the corresponding quality scores
-pop_up_detect_quality_Callback(hObject, eventdata, handles)
+handles = pop_up_detect_quality_Callback(hObject, eventdata, handles);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -856,16 +854,39 @@ FISH_QUANT_spots('HandlesMainGui',handles);
 %== Quality score
 %==========================================================================
 
+%== Function to set slider for quality score
+function set_slider_qual(handles,qual_value)
+        
+%- Set slider
+slider_value = (qual_value-handles.thresh.qual_min)/handles.thresh.qual_diff;
+
+if slider_value > 1; slider_value = 1; end
+
+if slider_value < 0; slider_value = 0;end
+
+set(handles.slider_qual_score,'Value',slider_value);
+
+
 %== Calculate the quality score
-function pop_up_detect_quality_Callback(hObject, eventdata, handles)
+function handles = pop_up_detect_quality_Callback(hObject, eventdata, handles)
 
 %- Get quality score
-str = get(handles.pop_up_detect_quality, 'String');
-val = get(handles.pop_up_detect_quality,'Value');
-handles.img.settings.detect.score = str{val};
+str   = get(handles.pop_up_detect_quality, 'String');
+val   = get(handles.pop_up_detect_quality,'Value');
+score = str{val};
+
+if ~handles.img.status_3D  && strcmp(score,'Curvature')
+
+    score = 'Standard deviation';
+    set(handles.pop_up_detect_quality,'Value',1);
+    status_text = {' '; 'CURVATURE is only available for 3D images.';'Will use standard deviation instead.'};
+    status_update(hObject, eventdata, handles,status_text);
+end
+    
+handles.img.settings.detect.score = score;
 
 %- Calculate quality score
-ind_analyze        = get(handles.pop_up_cell_select,'Value');
+ind_analyze    = get(handles.pop_up_cell_select,'Value');
 handles.img.spots_quality_score(ind_analyze);
 spots_detected = handles.img.cell_prop(ind_analyze).spots_detected;
 
@@ -874,6 +895,8 @@ if ~isempty(spots_detected)
     
     [handles.qual_count,handles.qual_bin] = hist(spots_detected(:,12),30);
     handles.thresh.qual_max               = max(spots_detected(:,12));
+    handles.thresh.qual_min               = min(spots_detected(:,12));
+    handles.thresh.qual_diff              = handles.thresh.qual_max-handles.thresh.qual_min;
     handles.status_quality_score          = 1;
    
     %- Save, plot and give some information
@@ -902,7 +925,7 @@ handles.img.settings.detect.thresh_score = str2double(get(handles.text_detect_th
 
 %- Apply & give some information
 th_counts = handles.img.spots_quality_score_apply(ind_analyze,0);  % 0 is for flag_remove --> spots will not be removed after thresholding
-status_text = {' ';['== Score threshold: ', num2str(handles.img.settings.detect.thresh_score),', # spots total/in/out: ',num2str(th_counts(1)),'/',num2str(th_counts(2)),'/',num2str(th_counts(2))]};
+status_text = {' ';['== Score threshold: ', num2str(handles.img.settings.detect.thresh_score),', # spots total/in/out: ',num2str(th_counts(1)),'/',num2str(th_counts(2)),'/',num2str(th_counts(3))]};
 status_update(hObject, eventdata, handles,status_text);
 
 %- Only if spots were actually detected
@@ -925,7 +948,7 @@ axes(handles.axes_hist_qual)
 bar(handles.qual_bin,handles.qual_count,'FaceColor','b') 
 v = axis;
 hold on
-plot([detect_th_score, detect_th_score], [0.1, +20*max(handles.qual_count)],'-r')
+plot([detect_th_score, detect_th_score], [0.0, +20*max(handles.qual_count)],'-r')
 hold off
 axis(v)
 xlabel('Quality score')
@@ -937,11 +960,16 @@ title('Histogram of quality score of all candidates')
 function slider_qual_score_Callback(hObject, eventdata, handles)
 
 if not(isempty(handles.thresh.qual_max))
+    
     %- Set text value
     slider_value = get(handles.slider_qual_score,'Value');
-    int_value    = round(handles.thresh.qual_max*slider_value);
-    set(handles.text_detect_th_qual,'String',num2str(int_value));
 
+    qual_min   = handles.thresh.qual_min;
+    qual_diff  = handles.thresh.qual_diff;
+
+    qual_value = round(qual_min + qual_diff*slider_value);
+    set(handles.text_detect_th_qual,'String',num2str(qual_value));    
+  
     %- Plot
     plot_qualityscore(hObject, eventdata, handles)
     guidata(hObject, handles);
@@ -957,18 +985,8 @@ function text_detect_th_qual_Callback(hObject, eventdata, handles)
 if not(isempty(handles.thresh.qual_max))
     
     %- Set slider
-    int_value    = str2double(get(handles.text_detect_th_qual,'String'));
-    slider_value = int_value/handles.thresh.qual_max;
-    
-    if slider_value > 1
-        slider_value = 1;
-    end
-    
-    if slider_value < 0;
-        slider_value = 0;
-    end
-    
-    set(handles.slider_qual_score,'Value',slider_value);
+    qual_value    = str2double(get(handles.text_detect_th_qual,'String'));
+    set_slider_qual(handles,qual_value)
 
     %- Plot
     plot_qualityscore(hObject, eventdata, handles)
@@ -1019,7 +1037,8 @@ function status_update(hObject, eventdata, handles,status_text)
 status_old = get(handles.list_box_status,'String');
 status_new = [status_old;status_text];
 set(handles.list_box_status,'String',status_new)
-set(handles.list_box_status,'ListboxTop',round(size(status_new,1)))
+%set(handles.list_box_status,'ListboxTop',round(size(status_new,1)))
+set(handles.list_box_status,'Value',round(size(status_new,1)))
 drawnow
 guidata(hObject, handles); 
 
@@ -1163,7 +1182,6 @@ if status_sep_ccc == 1
 end
 
 %- Same zoom as before
-handles.status_1st_plot
 if not(handles.status_1st_plot)
     if axes_select == handles.axes_img
         axis(v);
@@ -1174,8 +1192,6 @@ handles.status_1st_plot = 0;
 
 % Update handles structure
 guidata(hObject, handles);
-
-
 
 %== Double click opens in new window
 function axes_img_ButtonDownFcn(hObject, eventdata, handles)

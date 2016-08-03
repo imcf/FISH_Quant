@@ -378,7 +378,7 @@ if ~isempty(CC_best) && CC_best.NumObjects > 0
         CC_GOOD.PixelIdxList      = pixel_list_full;
         CC_GOOD.PixelIdxList_crop = pixel_list_crop;
     catch err
-        disp('Error in spots_predetect_v17')
+        disp(mfilename)
         err
     end
  

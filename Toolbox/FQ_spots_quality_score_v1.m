@@ -35,6 +35,14 @@ if N_Spots
     
     disp('... Score Computation...');
 
+    %- Check if image is 2D and curvature was defined.
+    if ~img.status_3D  && strcmp(score,'Curvature')
+    
+        score = 'Standard deviation';
+        disp('CURVATURE is only available for 3D images.')
+        disp('Will use standard deviation instead.')
+    end
+    
     switch score
     
         case 'Curvature'
