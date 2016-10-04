@@ -4,6 +4,7 @@ function cell_cognition_outline_v1(parameter)
 %- Get parameters
 DAPI_identifier        = parameter.DAPI_identifier;
 cell_identifier        = parameter.cell_identifier;
+FISH_identifier        = parameter.FISH_identifier;
 method_nucleus         = parameter.method_nucleus;
 method_cell            = parameter.method_cell;
 par_microscope         = parameter.par_microscope;
@@ -89,12 +90,12 @@ for i_plate = 1:length(path_plate)
       
       % Now we build the outline name ( same as the original image ) 
       
-      channel   = strsplit(file_split{6},'.');
-      channel   = channel(1);
+%       channel   = strsplit(file_split{6},'.');
+%       channel   = channel(1);
       file_name = strcat('w',num2str(well),'_',file_split(2),'_',file_split(3),'_',gene_identifier,'_p',position,'_');
       
       
-      outline_name = strcat(path_plate{i_plate},'/',well_folder{well_pointer},'/',outline_folder_name,'/', file_name,cell_identifier,'_outline.txt');
+      outline_name = strcat(path_plate{i_plate},'/',well_folder{well_pointer},'/',outline_folder_name,'/', file_name,FISH_identifier,'_outline.txt');
       
       parameter.outline_name = outline_name{1};
        
@@ -111,7 +112,7 @@ for i_plate = 1:length(path_plate)
       cell_prop            = make_cell_prop(reg_cell,reg_nuc,img_size);
       parameter.cell_prop  = cell_prop;
 
-      name_FISH = strcat(file_name,cell_identifier,extension)  ;  %strcat(well_folder{well},'_p',position,'_',cell_identifier,extension);     
+      name_FISH = strcat(file_name,FISH_identifier,extension)  ;  %strcat(well_folder{well},'_p',position,'_',cell_identifier,extension);     
       name_DAPI = strcat(file_name,DAPI_identifier,extension) ;  %strcat(well_folder{well},'_p',position,'_',DAPI_identifier,extension);
 
       parameter.name_FISH = name_FISH{1};

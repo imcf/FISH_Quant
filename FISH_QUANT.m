@@ -595,6 +595,8 @@ if handles.img.file_names.settings ~= 0
     parameters.flag_th_only        = flag_th_only;
     
     [file_name_results, path_save] = handles.img.save_results([],parameters);
+else
+    file_name_results = [];
 end
 
 %- Go back to original directory
@@ -859,8 +861,7 @@ if N_cell > 0
             cell_prop(i).status_detect  = 1;            
             cell_prop(i).sub_spots      = sub_spots;
             cell_prop(i).sub_spots_filt = sub_spots_filt;            
-        end        
-  
+        end         
     end  
 else
     str_menu = {' '};
@@ -1906,7 +1907,7 @@ function handles = menu_avg_fit_Callback(hObject, eventdata, handles)
 
 %- Get some parameters
 parameters_fit.flags.ns     = 0;  % Fit over-sampled (which will be identical to normal-sampling if no over-sampling has been specified)
-parameters_fit.flags.output = 2;
+parameters_fit.flags.output = 1;
 
 %- Image should be cropped to the size of the detection region
 parameters_fit.flags.crop  = 1;

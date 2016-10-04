@@ -165,7 +165,8 @@ if name_save ~= 0
                 fprintf(fid,'%s\n', 'TxSite_END'); 
             end
 
-            %- Spots
+            %- Spots - standard spot detection
+            
             % NOTE: fprintf works on columns - transformation is therefore needed
             if strcmp(flag_type,'spots')
 
@@ -202,34 +203,34 @@ if name_save ~= 0
                 end 
             end
 
+      % NOTE: fprintf works on columns - transformation is therefore needed
+            if strcmp(flag_type,'spots_GMM')
 
-            %- Clusters
-            if isfield(cell_prop(i_cell),'cluster_prop')            
-                for i_c = 1:length(cell_prop(i_cell).cluster_prop)              
-                    fprintf(fid,'%s\t%s\n', 'CLUSTER_START', cell_prop(i_cell).cluster_prop(i_c).label);
+                %- Are spots detected
+                if isfield(cell_prop(i_cell),'spots_fit_GMM') && not(isempty(cell_prop(i_cell).spots_fit_GMM));
+                    
+                    %- Save spots
+                    spots_output   = [cell_prop(i_cell).spots_fit_GMM];
 
-                    fprintf(fid,'Area\t%g\n',cell_prop(i_cell).cluster_prop(i_c).area);
-                    fprintf(fid,'Intensity\t');
 
-                    fprintf(fid,'%g\t',cell_prop(i_cell).cluster_prop(i_c).int);               
-                    fprintf(fid,'\nX_POS\t');
-                    fprintf(fid,'%g\t',cell_prop(i_cell).cluster_prop(i_c).x);
-                    fprintf(fid,'\nY_POS\t');
-                    fprintf(fid,'%g\t',cell_prop(i_cell).cluster_prop(i_c).y); 
-                    fprintf(fid,'\nZ_POS\t');
-                    fprintf(fid,'%g\t',cell_prop(i_cell).cluster_prop(i_c).z'); 
+                    if not(isempty(spots_output))
+                        N_par = size(spots_output,2);            
+                        string_output = [repmat('%g\t',1,N_par-1),'%g\n'];
 
-                    fprintf(fid,'Pos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit\n');
-                    fprintf(fid,'%g\t',cell_prop(i_cell).cluster_prop(i_c).par_fit); 
+                        fprintf(fid,'%s\n', 'SPOTS_START');          
+                        fprintf(fid,'Pos_Y\tPos_X\tPos_Z\n');
 
-                    fprintf(fid,'\nCLUSTER_END\n');
-
-                end
-            end
+                        fprintf(fid, string_output,spots_output');  
+                        fprintf(fid,'%s\n', 'SPOTS_END'); 
+                    end
+                end 
+            end          
         end           
     end
     
-    fclose(fid);    
+    fclose(fid);   
+else
+    name_save = [];
 end
 
 cd(current_dir)

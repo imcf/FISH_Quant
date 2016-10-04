@@ -272,16 +272,32 @@ else
             %- 1st col contains NO identifier
             if ~flag_identifier
                 
-                
-                cell_prop(ind_cell).spots_fit       = spots_par(:,1:16);
-                cell_prop(ind_cell).spots_detected  = spots_par(:,17:30);
-                
-                cell_prop(ind_cell).thresh.in   = (spots_par(:,31));
-                cell_prop(ind_cell).thresh.all  = ones(size(spots_par(:,31)));
-                
-                if N_col == 32
-                	cell_prop(ind_cell).in_Nuc      = (spots_par(:,32));
-                end 
+                %- Analysis of GMM - only positions are saved
+                if N_col == 3
+                    N_spots = size(spots_par,1);
+                    cell_prop(ind_cell).spots_fit        = spots_par(:,[1 2 3]);
+                    
+                    
+                    
+                    %- Add NaN for all not defined parameters
+                    cell_prop(ind_cell).spots_fit(:,4:16) = NaN;      
+                    cell_prop(ind_cell).spots_detected(1:N_spots,1:14) = NaN; 
+                    
+                    %- All spots are good after thresholding
+                    cell_prop(ind_cell).thresh.in   = ones(N_spots,1);
+                    cell_prop(ind_cell).thresh.all  = ones(N_spots,1);
+                    
+                else
+                    cell_prop(ind_cell).spots_fit       = spots_par(:,1:16);
+                    cell_prop(ind_cell).spots_detected  = spots_par(:,17:30);
+
+                    cell_prop(ind_cell).thresh.in   = (spots_par(:,31));
+                    cell_prop(ind_cell).thresh.all  = ones(size(spots_par(:,31)));
+
+                    if N_col == 32
+                        cell_prop(ind_cell).in_Nuc      = (spots_par(:,32));
+                    end
+                end
             
             %- First col contains identifier 
             else
@@ -298,58 +314,7 @@ else
             end
         end
         
-       %- Find Cluster
-       if not(isempty(strfind(tline, 'CLUSTER_START')))
-                
-            ind_cluster = ind_cluster + 1;
-            
-            k = strfind(tline, sprintf('\t') );
-            cluster_label = tline(k+1:end); 
-            cell_prop(ind_cell).cluster_prop(ind_cluster).label = cluster_label;
-            
-            tline     = fgetl(fid);
-               
-            while ~strcmp(tline,'CLUSTER_END')
-                
-
-                %- Get values
-                k   = strfind(tline, sprintf('\t') );
-                val = str2num(tline(k(1)+1:k(end)-1));
-                
- 
-                %- Intensity
-                if not(isempty(strfind(tline, 'Intensity')))
-                    cell_prop(ind_cell).cluster_prop(ind_cluster).Intensity = val;
-                end 
-                
-                %- Area
-                if not(isempty(strfind(tline, 'Area')))
-                    cell_prop(ind_cell).cluster_prop(ind_cluster).area = val;
-                end  
-                
-                
-                %- Polygon of cell: x- coordinates
-                if not(isempty(strfind(tline, 'X_POS')))
-                    cell_prop(ind_cell).cluster_prop(ind_cluster).x = val;
-                end
-                
-                %- Polygon of cell: y- coordinates
-                if not(isempty(strfind(tline, 'Y_POS')))
-                    cell_prop(ind_cell).cluster_prop(ind_cluster).y = val;
-                end
-                
-                %- Polygon of cell: z- coordinates
-                if not(isempty(strfind(tline, 'Z_POS')))
-                    cell_prop(ind_cell).cluster_prop(ind_cluster).z = val;   
-                end                
-
-                %- Get next line
-                tline = fgetl(fid);
-            end   
-            
-        end  
-      
-
+  
         %- Read line unless already read
         if not(flag_line_read)
             tline = fgetl(fid);

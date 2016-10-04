@@ -54,9 +54,7 @@ end
 img_filt = uint16(img_filt(filter.pad+1:end-filter.pad,filter.pad+1:end-filter.pad,filter.pad+1:end-filter.pad));
 
 %- provide filtered background image as output
-if nargout == 2
-    img_bgd  = uint16(img_bgd(filter.pad+1:end-filter.pad,filter.pad+1:end-filter.pad,filter.pad+1:end-filter.pad));
-end
+img_bgd  = uint16(img_bgd(filter.pad+1:end-filter.pad,filter.pad+1:end-filter.pad,filter.pad+1:end-filter.pad));
 
 %- Show results of filtering
 if flag.output
@@ -64,7 +62,7 @@ if flag.output
     set(h_fig,'Color','w')
 
     subplot(1,3,1)
-    img_dum = img_bgd(filter.pad+1:end-filter.pad,filter.pad+1:end-filter.pad,filter.pad+1:end-filter.pad);
+    img_dum = img_bgd;%(filter.pad+1:end-filter.pad,filter.pad+1:end-filter.pad,filter.pad+1:end-filter.pad);
     imshow(max(img_dum,[],3),[])
     title(['Background. Kernel-xy: ', num2str(kernel_size.bgd_xy ), '; kernel-z: ', num2str(kernel_size.bgd_z )])
     colormap(hot), axis off

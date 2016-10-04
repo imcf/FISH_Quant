@@ -4,7 +4,7 @@ function varargout = FQ_seg(varargin)
 
 % Edit the above text to modify the response to help FQ_seg
 
-% Last Modified by GUIDE v2.5 10-Sep-2015 12:12:28
+% Last Modified by GUIDE v2.5 09-Aug-2016 14:34:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -655,7 +655,9 @@ function button_create_FQ_outlines_cell_cog_Callback(hObject, eventdata, handles
 %== Assign parameters
 
 parameter.DAPI_identifier              = get(handles.DAPI_image_identifier_cell_cog, 'String');
-parameter.cell_identifier              = get(handles.FISH_image_identifier_cell_cog, 'String');
+parameter.cell_identifier              = get(handles.Segmentation_image_identifier_cell_cog, 'String');
+parameter.FISH_identifier              = get(handles.FISH_image_identifier_cellcog, 'String');
+
 parameter.method_nucleus               = get(handles.Nucleus_seg_method, 'String');
 parameter.method_cell                  = get(handles.Cell_seg_method, 'String');
 parameter.path_plate                   = handles.path_plate;
@@ -932,9 +934,9 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-function FISH_image_identifier_cell_cog_Callback(hObject, eventdata, handles)
+function Segmentation_image_identifier_cell_cog_Callback(hObject, eventdata, handles)
 
-function FISH_image_identifier_cell_cog_CreateFcn(hObject, eventdata, handles)
+function Segmentation_image_identifier_cell_cog_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -970,6 +972,29 @@ function text_CP_ext_orig_Callback(hObject, eventdata, handles)
 
 function text_CP_ext_orig_CreateFcn(hObject, eventdata, handles)
 
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function FISH_image_identifier_cellcog_Callback(hObject, eventdata, handles)
+% hObject    handle to FISH_image_identifier_cellcog (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of FISH_image_identifier_cellcog as text
+%        str2double(get(hObject,'String')) returns contents of FISH_image_identifier_cellcog as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function FISH_image_identifier_cellcog_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to FISH_image_identifier_cellcog (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end

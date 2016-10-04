@@ -575,7 +575,7 @@ switch str{val}
             data_th(:,2) = counts;
 
             set(handles.h_fishquant_predetect,'Pointer','arrow');
-            status_text = {' ';'   Connected components DETECTED!'};
+            status_text = {' ';'   Local maxium detection finished!'};
             status_update(hObject, eventdata, handles,status_text);
         end
         

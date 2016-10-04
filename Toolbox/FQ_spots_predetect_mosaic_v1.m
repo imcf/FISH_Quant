@@ -10,7 +10,12 @@ image_filt     = img.filt;
 sub_spots      = cell(N_Spots,1);
 sub_spots_filt = cell(N_Spots,1);  
 
+%- Continue only if limits are defined (and not set as NaN)
+if any(isnan(spots_detected(:,4)))
+    return
+end
 
+%- Loop over spots
 if N_Spots
 
     %===  Extract immediate environment for each spot in 3d

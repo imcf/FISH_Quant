@@ -493,8 +493,13 @@ if N_cell > 0
         %- Check if FIT_results contains something
         if  isempty(cell_prop(i).FIT_Result)
         
+            
             for k=1:size(cell_prop(i).spots_detected,1)
 
+                if any(isnan(cell_prop(i).spots_detected(:,4))) 
+                    continue
+                end
+                
                 spots_detected = cell_prop(i).spots_detected;
 
                 y_min = spots_detected(k,4);
@@ -734,7 +739,7 @@ end
 %== Show image
 handles.h_img = imshow(img_plot,[contr_min contr_max]);
 axis off
-colormap(hot)
+%colormap(hot)
 
 %==== Which cell?
 ind_cell      = get(handles.pop_up_cell_select,'Value');

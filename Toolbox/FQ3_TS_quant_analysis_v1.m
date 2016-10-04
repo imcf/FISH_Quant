@@ -286,23 +286,44 @@ TS_Fit_Result = PSF_3D_Gauss_fit_v8(dum,parameters_fit);
 
 
 %== Integrated intensity under fitted curve
-par_mod_int(1)  = TS_Fit_Result.sigma_xy;
-par_mod_int(2)  = TS_Fit_Result.sigma_xy;
-par_mod_int(3)  = TS_Fit_Result.sigma_z;
-par_mod_int(7)  = TS_Fit_Result.amp ;
-
-par_mod_int(4)  = 0;
-par_mod_int(5)  = 0;
-par_mod_int(6)  = 0;
-par_mod_int(8)  = 0;
 
 %- Integration range
 x_int = range_int.x_int;
 y_int = range_int.y_int;
 z_int = range_int.z_int;
 
-%- Calculate intensity
-TS_Fit_Result.integ_int = fun_Gaussian_3D_triple_integral_v1(x_int,y_int,z_int,par_mod_int);
+%- 3D
+if z_int.max-z_int.min > 0
+
+    par_mod_int(1)  = TS_Fit_Result.sigma_xy;
+    par_mod_int(2)  = TS_Fit_Result.sigma_xy;
+    par_mod_int(3)  = TS_Fit_Result.sigma_z;
+    par_mod_int(7)  = TS_Fit_Result.amp ;
+
+    par_mod_int(4)  = 0;
+    par_mod_int(5)  = 0;
+    par_mod_int(6)  = 0;
+    par_mod_int(8)  = 0;
+
+    %- Calculate intensity
+    TS_Fit_Result.integ_int = fun_Gaussian_3D_triple_integral_v1(x_int,y_int,z_int,par_mod_int);
+    
+else
+    par_mod_int(1)  = TS_Fit_Result.sigma_xy;
+    par_mod_int(2)  = TS_Fit_Result.sigma_xy;
+
+    par_mod_int(3)  = 0;
+    par_mod_int(4)  = 0;
+
+    par_mod_int(5)  = TS_Fit_Result.amp;
+    par_mod_int(6)  = 0 ;
+
+    TS_Fit_Result.integ_int = fun_Gaussian_2D_double_integral_v1(x_int,y_int,par_mod_int);
+    
+end
+    
+
+
 TS_Fit_Result.x_int = x_int;
 TS_Fit_Result.y_int = y_int;
 TS_Fit_Result.z_int = z_int;

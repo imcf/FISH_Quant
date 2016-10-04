@@ -27,7 +27,9 @@ end
 
 %- Number of thresholds to compute
 nTH = length(thresholds);
-fprintf('Computing threshold (of %d):    1',nTH);
+if nTH > 1
+    fprintf('Computing threshold (of %d):    1',nTH);
+end
 
 for i_th = 1:nTH
   
@@ -41,10 +43,10 @@ for i_th = 1:nTH
   %- Outputs
   nout(i_th)   = CC.NumObjects;
   CC_all{i_th} = CC;
+  if nTH > 1; fprintf('\b\b\b%3i',i_th); end
   
-  fprintf('\b\b\b%3i',i_th);
 end;
 
-fprintf('\n');
+ if nTH > 1; fprintf('\n'); end
 
 

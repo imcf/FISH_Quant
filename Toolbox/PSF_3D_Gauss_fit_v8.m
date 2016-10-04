@@ -175,20 +175,20 @@ PSF_fit.fit     = reshape(PSF_fit.fit_lin,size(img_PSF.crop));
 % 
 % % === Show result of fit
 % 
-% if flags.output
-%     
-%     disp(' ')
-%     disp('= FIT TO 3D GAUSSIAN ')
-%     disp(['Sigma (xy): ', num2str(round(PSF_fit.sigma_xy))])
-%     disp(['Sigma (z) : ', num2str(round(PSF_fit.sigma_z))])
-%     disp(['Amplitude : ', num2str(round(PSF_fit.amp))])
-%     disp(['Background: ', num2str(round(PSF_fit.bgd))])
-%     disp(['Center (x): ', num2str(PSF_fit.mu_x)])
-%     disp(['Center (y): ', num2str(PSF_fit.mu_y)])
-%     disp(['Center (z): ', num2str(PSF_fit.mu_z)])
-%     disp(' ')
-% 
-%     
+if flags.output
+    
+    disp(' ')
+    disp('= FIT TO 3D GAUSSIAN ')
+    disp(['Sigma (xy): ', num2str(round(PSF_fit.sigma_xy))])
+    disp(['Sigma (z) : ', num2str(round(PSF_fit.sigma_z))])
+    disp(['Amplitude : ', num2str(round(PSF_fit.amp))])
+    disp(['Background: ', num2str(round(PSF_fit.bgd))])
+    disp(['Center (x): ', num2str(PSF_fit.mu_x)])
+    disp(['Center (y): ', num2str(PSF_fit.mu_y)])
+    disp(['Center (z): ', num2str(PSF_fit.mu_z)])
+    disp(' ')
+end
+%    if flags.output 
 %     %- Create projections
 %     img_PSF_xy = max(img_PSF.crop,[],3);
 %     img_PSF_xz = squeeze(max(img_PSF.crop,[],1));

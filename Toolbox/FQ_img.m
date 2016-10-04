@@ -40,7 +40,6 @@ classdef FQ_img < handle
         
         %- mRNA 
         mRNA_prop
-        
 
         %- Status updates
         status_filter          = 0;
@@ -49,12 +48,10 @@ classdef FQ_img < handle
         status_fit      = 0;
         status_mRNA_avg = 0;
         
-        
         %=== Settings
         settings = struct('filter', '', 'detect', '', 'avg_spots', '','thresh','','fit', '','TS_quant','');
         col_par
-        
-        
+
         %- Cell geometry
         cell_prop = struct('label', {}, 'x', {}, 'y', {}, 'pos_Nuc', {}, 'pos_TS', {}, 'spots_fit', [],'spots_detected',[],'thresh',{},'sub_spots',{},'sub_spots_filt',{},'spots_proj',{},'FIT_Result',{},'intint',[],'in_Nuc',[],'loc_features',{},'dist_all',[]);
     end
@@ -262,11 +259,11 @@ classdef FQ_img < handle
                 [img.path_names.img, file_name_only,ext] = fileparts(file_name);
                 
                 %- Dimensions
-                if isempty(img.dim.X)
+                %if isempty(img.dim.X)
                     img.dim.X             = img_struct.NX;
                     img.dim.Y             = img_struct.NY;
                     img.dim.Z             = img_struct.NZ;
-                end
+                %end
                     
                %- Which type of image?
                 switch img_type
@@ -1269,8 +1266,13 @@ classdef FQ_img < handle
         
         %%  === Function to average all spots 
         function [spot_avg, spot_avg_os,pixel_size_os,img_sum] = avg_spots(img,ind_cell,img_sum)
-                       
-            [spot_avg, spot_avg_os,pixel_size_os,img_sum] = spot_3D_avg_v1(img,ind_cell,img_sum);
+             
+            %- If analysis is in 2D, set crop in z to 0
+            if ~img.status_3D            
+                img.settings.avg_spots.crop.z = 0;
+            end
+            
+           [spot_avg, spot_avg_os,pixel_size_os,img_sum] = spot_3D_avg_v1(img,ind_cell,img_sum);
 
            %- Save results 
            if not(isempty(spot_avg))
@@ -1387,7 +1389,7 @@ classdef FQ_img < handle
         end
         
         
-             %% === Function to load PSF image
+        %% === Function to load PSF image
         function img = calc_intint(img)
        
            img = FQ_calc_intint_v1(img);

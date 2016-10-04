@@ -187,25 +187,47 @@ if ~flag_TS_only_background
     N_mRNA_fitted_amp = (TS_analysis.TS_Fit_Result.amp / mRNA_amp);
 
     %=== Integrated intensity of mRNA
-    par_mod_int(1)  = mRNA_prop.sigma_xy;
-    par_mod_int(2)  = mRNA_prop.sigma_xy;
-    par_mod_int(3)  = mRNA_prop.sigma_z;
-
-    par_mod_int(4)  = 0;
-    par_mod_int(5)  = 0;
-    par_mod_int(6)  = 0;
-
-    par_mod_int(7)  = mRNA_amp;
-    par_mod_int(8)  = 0 ;
-
+    
+    
     %- Integration range
     x_int = range_int.x_int;
     y_int = range_int.y_int;
     z_int = range_int.z_int;
+    
+    
+    %- 3D
+    if z_int.max-z_int.min > 0
+        par_mod_int(1)  = mRNA_prop.sigma_xy;
+        par_mod_int(2)  = mRNA_prop.sigma_xy;
+        par_mod_int(3)  = mRNA_prop.sigma_z;
 
-    integrated_int        = fun_Gaussian_3D_triple_integral_v1(x_int,y_int,z_int,par_mod_int);
+        par_mod_int(4)  = 0;
+        par_mod_int(5)  = 0;
+        par_mod_int(6)  = 0;
+
+        par_mod_int(7)  = mRNA_amp;
+        par_mod_int(8)  = 0 ;
+
+
+   
+        integrated_int        = fun_Gaussian_3D_triple_integral_v1(x_int,y_int,z_int,par_mod_int);
+    
+    %- 2D
+    else
+        
+        par_mod_int(1)  = mRNA_prop.sigma_xy;
+        par_mod_int(2)  = mRNA_prop.sigma_xy;
+
+        par_mod_int(3)  = 0;
+        par_mod_int(4)  = 0;
+
+        par_mod_int(5)  = mRNA_amp;
+        par_mod_int(6)  = 0 ;
+                
+        integrated_int  = fun_Gaussian_2D_double_integral_v1(x_int,y_int,par_mod_int);
+    end
+    
     N_mRNA_integrated_int = (TS_analysis.TS_Fit_Result.integ_int / integrated_int);
-
     N_mRNA_sum_pix = ((TS_sum-TS_bgd)/mRNA_prop.sum_pix);
 
 else

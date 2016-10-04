@@ -29,7 +29,7 @@ function spot_3D_avg_plot_v1(img)
         title('Normal sampling - XZ')
 
         subplot(1,3,3)
-        imshow(spot_yz',[],'XData', [0 dim_crop.Y*pixel_size.xy],'YData',[0 dim_crop.Z*pixel_size.z])
+        imshow(spot_yz,[],'XData', [0 dim_crop.Y*pixel_size.xy],'YData',[0 dim_crop.Z*pixel_size.z])
         title('Normal sampling - YZ')
         colormap hot 
         set(h1, 'Color', 'w')

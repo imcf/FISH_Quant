@@ -69,7 +69,16 @@ center_mass  = ait_centroid3d_v3(double(img),xdata);
 
 if not(isfield(par_start,'centerx'));  par_start.centerx = center_mass(1); end
 if not(isfield(par_start,'centery'));  par_start.centery = center_mass(2); end
-if not(isfield(par_start,'centerz'));  par_start.centerz = center_mass(3); end
+if not(isfield(par_start,'centerz')) 
+    
+    %- Consider case where 2D images are fed into the routine.
+    if numel(center_mass) == 2
+        center_mass(3) = mean(xdata(3,:));
+    end
+    
+    %- Assing center of mass
+    par_start.centerz = center_mass(3); 
+end
 
 
 %- Min and Max of the image: quality check 
