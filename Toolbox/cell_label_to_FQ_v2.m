@@ -189,7 +189,7 @@ function [reg_prop,img] = label_to_region(file_name_full,options)
         mask_loop                 = mask_0;
         mask_loop(ind_loop_pixel) = 1;       
 
-        B = bwboundaries(mask_loop,8);
+        B = bwboundaries(mask_loop,'noholes');
 
         N_poly = length(B);
 
