@@ -4,7 +4,7 @@ function varargout = FQ_seg(varargin)
 
 % Edit the above text to modify the response to help FQ_seg
 
-% Last Modified by GUIDE v2.5 09-Aug-2016 14:34:56
+% Last Modified by GUIDE v2.5 10-Oct-2016 11:03:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -356,7 +356,7 @@ sel_value  = get(handles.popup_slice_select_operator, 'Value');
 sel_string = get(handles.popup_slice_select_operator,'String');
 param.slice_select.operator = sel_string{sel_value};
 
-param.slice_select.perc     = str2num(get(handles.txt_slice_select_percentage, 'String')) / 100;
+param.slice_select.n_slices   = str2num(get(handles.txt_slice_select_number, 'String'));
 
 %-- Projection type
 status_proj_local = get(handles.check_project_local,'Value');
@@ -702,9 +702,9 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-function txt_slice_select_percentage_Callback(hObject, eventdata, handles)
+function txt_slice_select_number_Callback(hObject, eventdata, handles)
 
-function txt_slice_select_percentage_CreateFcn(hObject, eventdata, handles)
+function txt_slice_select_number_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end

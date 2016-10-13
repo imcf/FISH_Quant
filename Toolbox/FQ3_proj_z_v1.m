@@ -4,8 +4,8 @@ function proj_struct = FQ3_proj_z_v1(files_proc,param)
     proj_struct = {};
 
     %% Parameters
-    slice_select.operator = param.slice_select.operator;
-    slice_select.perc     = param.slice_select.perc;
+    slice_select.operator     = param.slice_select.operator;
+    slice_select.n_slices     = param.slice_select.n_slices;
 
     %% Get input files
 
@@ -119,14 +119,16 @@ function proj_struct = FQ3_proj_z_v1(files_proc,param)
 
         %- Perform only if slices should be removed
 
-        if slice_select.perc < 1
+        if slice_select.n_slices < NZ
             
             op = slice_select.operator;
             parfor i = 1:size(img_loop,3);
                 FM(i) = fmeasure(double(img_loop(:,:,i)),op ,[]);
             end
-            ind_sel = (FM >= quantile(FM,1-slice_select.perc ));    
-            img_loop = img_loop(:,:,ind_sel);
+            
+            [val ind] = sort(FM);
+            ind_sel   = ind(end-slice_select.n_slices+1:end);          
+            img_loop  = img_loop(:,:,ind_sel);
         else
           	FM = ones(size(img_loop,3),1);
             ind_sel = (FM >= 0);
@@ -280,7 +282,7 @@ function save_settings(file_name_full,par)
         %- Experimental parameters    
         fprintf(fid,'\n## Slice selection\n');
         fprintf(fid,'slice_sel_op=%s\n',    par.slice_select.operator);
-        fprintf(fid,'slice_sel_perc=%g\n',  par.slice_select.perc);
+        fprintf(fid,'slice_sel_number=%g\n',  par.slice_select.n_slices);
 
         fprintf(fid,'\n## Z-projection\n');
         fprintf(fid,'proj_type=%s\n',  par.project.type);
