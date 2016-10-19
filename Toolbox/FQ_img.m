@@ -36,7 +36,7 @@ classdef FQ_img < handle
         %- Dimensions
         dim = struct('X', '','Y', '','Z', '')
         
-        status_3D              = 1;  % Analysis is 3D
+        status_3D = 1;  % Analysis is 3D
         
         %- mRNA 
         mRNA_prop

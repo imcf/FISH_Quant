@@ -516,6 +516,7 @@ if file_ident.status == -1;
 
 end
 
+
 %=== Menu to change file identifier
 function menu_change_identifier_Callback(hObject, eventdata, handles)
 global file_ident
@@ -722,6 +723,7 @@ else
     select_second_stack_Callback(hObject, eventdata, handles)
     fprintf('LOADED.\n')
 end
+
 set(handles.h_fishquant_outline,'Pointer','arrow');
     
     
@@ -900,7 +902,7 @@ if file_name_results ~= 0
     guidata(hObject, handles);
 end
 
-%- Go back to original image
+%- Go back to original folder
 cd(current_dir);
 
 
@@ -919,7 +921,7 @@ else
     path_image = cd;
 end
 
-handles.img.reinit;
+handles.img = handles.img.reinit;
 handles.img.load_results(name_load,path_image);
        
 handles.img_plot      =  handles.img.raw_proj_z;
@@ -1063,7 +1065,6 @@ if par_detect.th_DAPI > 0 && par_detect.th_DAPI < 1
     status_current_cell = get(handles.checkbox_nuc_auto_in_curr_cell,'Value');    
     if status_current_cell
         status_current_cell = get(handles.listbox_cell,'Value');
-        
     end
         
     par_detect.status_current_cell = status_current_cell;
