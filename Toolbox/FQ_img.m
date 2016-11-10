@@ -428,8 +428,14 @@ classdef FQ_img < handle
         
         
         %% ==== Load results file
-        function status_open = load_results(img,file_name_open,path_img)
+        function status_open = load_results(img,file_name_open,path_img,flag_load_settings)
   
+            
+            %- Set flag settings
+            if nargin < 4
+                flag_load_settings = 1;
+            end
+            
             %- Default output
             status_open.outline = 0;
             status_open.img     = 0;
@@ -466,7 +472,7 @@ classdef FQ_img < handle
             [img.cell_prop, img.par_microscope, img.file_names, status_open.outline,dum,dum,img.comment] = FQ_load_results_WRAPPER_v2(file_name_open,par); 
                
             %==== Load settings
-            if (isfield(img.file_names,'settings')) && ~isempty(img.file_names.settings)
+            if flag_load_settings && isfield(img.file_names,'settings') && ~isempty(img.file_names.settings)
                 file_name_open = fullfile(path_name,img.file_names.settings);
                 img.load_settings(file_name_open);
             end

@@ -23,7 +23,7 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before FISH_QUANT is made visible.
+% --- Executes just before FISH_QUANT is made visible.close a
 function handles = FISH_QUANT_OpeningFcn(hObject, eventdata, handles, varargin)
 
 %- Make sure that already open FQ will not be overwritten
