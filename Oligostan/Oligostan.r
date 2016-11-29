@@ -1,22 +1,23 @@
 ####################################################SETTINGS#########################################################
 #FASTA Sequences: file name
+# IMPORTANT : NO UNDERSCORES IN FILE-Name !
 FileNameFasta <- 'My_Fasta_File.fasta'
 #FASTA Sequences: path   [no '/' at the end of the path name]
 #WINDOWS IMPORTANT: Replace the separators in the path name \ by /
 PathNameFasta <- 'MyVolume/MyPath'
 #Output directory and file names: generated automatically
 name_base <-strsplit(FileNameFasta, "[.]")[[1]][1]
-FileNameOutput <- paste('Probes_',name_base,sep="") 
+FileNameOutput <- paste('Probes_',name_base,sep="")
 #Uncomment next line if you want to use a specific dG37 (ex:-32)
 #dG37Desiree <- -32
 #Use Ensemblformat to resolve multiple transcripts possibilities (sequence name must respect ENSEMBL Id)
 EnsemblFormat <- TRUE
-#dG37 probes Minimum score 
+#dG37 probes Minimum score
 ScoreMin <- 0.9
 #probes minimum length [default 32]
-TailleSondeMax <- 32   
+TailleSondeMax <- 32
 #probes maximum length [default 26]
-TailleSondeMin <- 26 
+TailleSondeMin <- 26
 #mimimum number of nucleotides between two probes (end to start positions)
 DistanceMinInterSonde <- 2
 #Use of Composition rules described by the PNAS article [ TRUE to use the filter; FALSE to not use this filter]
@@ -34,9 +35,9 @@ MaskedFilter <- TRUE
 MaxMaskedPercent <- 0.1
 #Minimum number of probes by transcript for the transcrip to be kept in final probes list  [we recommend that you have at least 24 probes]
 minProbePerTranscrit <- 0
-### Path to the installed REPEAT MASKER 
+### Path to the installed REPEAT MASKER
 # IMPORTANT 1 : THERE HAS TO BE A SPACE (!!!) behind the RepeatMasker command
-# IMPORTANT 2 : The option "- species" specifies the species of the input sequence (valid NCBI Taxonomy species name). Commonly used names are human, mouse, rattus. For more details see Oligostan documentation   
+# IMPORTANT 2 : The option "- species" specifies the species of the input sequence (valid NCBI Taxonomy species name). Commonly used names are human, mouse, rattus. For more details see Oligostan documentation
 RepeatMaskerCommand <- '/usr/local/RepeatMasker/RepeatMasker -species human '  # IMPORTANT: THERE HAS TO BE A SPACE (!!!) behind the RepeatMasker command
 ####################################################END OF SETTINGS##################################################
 
@@ -73,12 +74,12 @@ paste(FileNameOutput,"_ALL_summary",".fasta",collapse="",sep="")  -> RawProbesFa
 
 
 getGandTInfosFromFastaReads <- function(FastaFile){
-  
+
   unlist(strsplit(getName(read.fasta(FastaFile)),split="[|]")) -> fastafiletmp
   unlist(strsplit(fastafiletmp,split="_")) -> fastafiletmp
   length(unique(fastafiletmp[grep("ENSG",fastafiletmp)])) -> nog
   length(unique(fastafiletmp[grep("ENST",fastafiletmp)])) -> not
-  
+
   return(c(genes=nog,transcrits=not))
 }
 
@@ -93,7 +94,7 @@ if (EnsemblFormat==F ){
   }
   rm(multifastatmp)
   c(genes=length(multifasta),transcrits=length(multifasta))->gantinfo
-} 
+}
 
 if (EnsemblFormat==T ) {
   read.fasta(FileNameFasta) -> multifastatmp
@@ -150,7 +151,7 @@ ConvertRNASeq2DeltaGat37 <- function(RNASeq){
   RNADimThermoTable <- data.frame(DimVal,dGVal37)
   rep(0,NbBase-1) -> dG
   rep(RNASeq,NbBase-1) -> dim
-  substr(dim,start=1:(NbBase-1),stop=2:NbBase)->dim 
+  substr(dim,start=1:(NbBase-1),stop=2:NbBase)->dim
   for(i in 1:length(RNADimThermoTable[,1])){
     dG[which(dim==RNADimThermoTable[i,1])] <- RNADimThermoTable[i,2]
   }
@@ -170,7 +171,7 @@ dGCalc.RNA.37 <- function(RNASeq,ProbeLength=31,doiplot=F,doihist=F,SaltConc=0.1
 getProbesFromRNAdG37 <- function(Seq,MinSizeProbe=30,MaxSizeProbe=32,Desireddg=-33,MinScoreValue=0.9,IncBetwProb=4,doiplot=F,doihist=F){
   if(length(Seq)>1) paste(toupper(Seq),collapse="") -> Seq
   DiffSize = MaxSizeProbe - MinSizeProbe
-  TheTmsTmp <- NULL 
+  TheTmsTmp <- NULL
   dGCalc.RNA.37(Seq,ProbeLength=MaxSizeProbe,doiplot=doiplot,doihist=doihist) -> TheTmsTmp
   names(TheTmsTmp) <- MinSizeProbe
   NbofProbes <- length(TheTmsTmp)
@@ -192,7 +193,7 @@ getProbesFromRNAdG37 <- function(Seq,MinSizeProbe=30,MaxSizeProbe=32,Desireddg=-
   if(length(ValidedScores)>3){
     ValidedScores[order(ValidedScores[,3]),] -> ValidedScores
     Pointeur <- 0
-    
+
     while(Pointeur < (nchar(Seq)) ){
       ValidedScores[ValidedScores[,3]>=Pointeur,] -> ValiTmp
       if(length(ValiTmp)>=4){
@@ -215,7 +216,7 @@ for(i in 1:length(multifasta)){
                               MaxSizeProbe = TailleSondeMax,
                               Desireddg = dG37,
                               MinScoreValue = ScoreMin,
-                              IncBetwProb = DistanceMinInterSonde                              
+                              IncBetwProb = DistanceMinInterSonde
     )) -> ProbesTmpTmp
     sprintf("%s_dG%.1f",getName(multifasta[[i]]),dG37) -> probesTmpTmpName
     cbind(ProbeName=rep(probesTmpTmpName,times=length(ProbesTmpTmp[[1]][,1])),ProbesTmpTmp[[1]]) -> theMatTmp
@@ -240,7 +241,7 @@ isOk4PNASFilter <- function(TheSeq,filtertobeuse = c(1,2,3,4,5)){
   if(3 %in% filtertobeuse) isITokwithccomp = isitok4cComp(TheSeq);
   if(4 %in% filtertobeuse) isITokwithcstac = isitok4cStack(TheSeq);
   if(5 %in% filtertobeuse) isITokwithcspec = isitok4cSpecStack(TheSeq);
-  return(isITokwithacomp & isITokwithastac & isITokwithccomp & isITokwithcstac & isITokwithcspec)  
+  return(isITokwithacomp & isITokwithastac & isITokwithccomp & isITokwithcstac & isITokwithcspec)
 }
 
 isOk4GCFilter <- function(TheSeq,minGC=0.45,maxGC=0.55){
@@ -339,7 +340,7 @@ getInfosFromProbeList <- function(probeListNb,ProbeList=ProbesTmp,FastaSeqList=m
     c(theStartPos,StartPosTmp) -> theStartPos
     c(thedG37,dGCalc.RNA.37(as.character(ProbeList[[probeListNb]][i,4]),ProbeLength=(EndPosTmp-StartPosTmp))) -> thedG37
     c(theGC,GC(s2c(as.character(ProbeList[[probeListNb]][i,4])))) -> theGC
-    as.SeqFastadna(s2c(tolower(as.character(ProbeList[[probeListNb]][i,4])))) -> seqInFastaForm  
+    as.SeqFastadna(s2c(tolower(as.character(ProbeList[[probeListNb]][i,4])))) -> seqInFastaForm
     if(GCfilter){c(theGCFilter,isOk4GCFilter(seqInFastaForm,minGC=MinGC,maxGC=MaxGC)) -> theGCFilter}
     else if(!GCfilter){c(theGCFilter,1) -> theGCFilter}
     c(thePNAS1,isitok4aComp(seqInFastaForm)) -> thePNAS1
@@ -389,7 +390,7 @@ if(!exists("dG37Desiree")){
   }else{
     ThedG37Seq[theMaxRank[which(theMaxRank==median(theMaxRank))]] -> theGooddG37Val
   }
-  
+
   TheSelecteddGProbes <- list()
   which(ThedG37Seq==theGooddG37Val) -> TheDesireedG37SeqNb
   for (genesnb in 1:(length(AllProbesWithInfo)/length(ThedG37Seq))){
@@ -414,9 +415,9 @@ if(MaskedFilter){
       (summary(seqtmp)$length - sum(summary(seqtmp)$compo)) / summary(seqtmp)$length -> npc
       c(theNmaskedPC,npc) -> theNmaskedPC
     }
-  } else {                                              
+  } else {
     as.data.frame(do.call(rbind, TheSelecteddGProbes)) -> maskedfastaprobes
-    rep(0,length(maskedfastaprobes[,2])) -> theNmaskedPC     
+    rep(0,length(maskedfastaprobes[,2])) -> theNmaskedPC
   }
   TheSelecteddGProbesWithRepeatMasker <- NULL
   aSimpleCounter <- 1
@@ -484,19 +485,16 @@ if(length(TheFilteredProbes) == 0) {
 } else {
   dataResultProbesFiltered <- as.data.frame(do.call(rbind, TheFilteredProbes))
   write.table(dataResultProbesFiltered,ResultFileName,sep="\t",row.names=F)
-  
+
   # Write as FASTA - for nblast
   startDum <- as.list(as.character(dataResultProbesFiltered$theStartPos))
   endDum   <- as.list(as.character(dataResultProbesFiltered$theEndPos))
   namesDum <- as.list(as.character(dataResultProbesFiltered$ProbesNames))
   write.fasta(as.list(as.character(dataResultProbesFiltered$Seq)), paste(namesDum,startDum,endDum,sep=" "), nbchar = 60, ResultFastaSummaryFileName, open = "w")
-  
+
 }
 
 cat('\n\n\n=== Oligonstan terminated succesfully. See result folder for identified probes.\n',PathNameFasta)
 
 if(MaskedFilter)system("rm TheRepeatMaskerTmpFile.*",wait=T)
 rm(list = ls())
-
-
-

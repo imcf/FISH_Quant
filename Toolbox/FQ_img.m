@@ -593,7 +593,18 @@ classdef FQ_img < handle
            parameters.file_names          = img.file_names;
            parameters.cell_prop           = img.cell_prop;
            parameters.par_microscope      = img.par_microscope;
-
+           parameters.version             = img.version; 
+           
+           %- Other parameters
+           if ~isfield(parameters,'path_save')
+               parameters.path_save = fileparts(name_full);
+           end
+           
+           %-Other parameters
+           if ~isfield(parameters,'flag_type')
+               parameters.flag_type = 'spots';
+           end
+           
            %- Save settings if not already saved
            if isempty(img.file_names.settings) && ~strcmp(parameters.flag_type,'outline')
                

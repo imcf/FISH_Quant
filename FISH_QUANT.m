@@ -2756,7 +2756,7 @@ switch (popup_parameter)
         set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_all,'%.0f'));
 
         disp(' ')
-        disp('FIT TO 3D GAUSSIAN: avg of ALL spots ')
+        disp('FIT TO 3D GAUSSIAN: ALL spots ')
         disp(['Sigma (xy): ', num2str(round(PSF_exp.sigmax_all)), ' +/- ', num2str(round(PSF_exp.sigmax_all_std))])
         disp(['Sigma (z) : ', num2str(round(PSF_exp.sigmaz_all)), ' +/- ', num2str(round(PSF_exp.sigmaz_all_std))])
         disp(['Amplitude : ', num2str(round(PSF_exp.amp_all)), ' +/- ', num2str(round(PSF_exp.amp_all_std))])
@@ -2764,7 +2764,7 @@ switch (popup_parameter)
         disp(' ')
 
         
-    case 'Thresholded'
+    case 'Thresholded '
                 
         set(handles.text_psf_fit_sigmaX,'String', num2str(PSF_exp.sigmax_th,'%.0f'));
         set(handles.text_psf_fit_sigmaY,'String', num2str(PSF_exp.sigmay_th,'%.0f'));
@@ -2773,7 +2773,7 @@ switch (popup_parameter)
         set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_th,'%.0f'));  
 
         disp(' ')
-        disp('FIT TO 3D GAUSSIAN: avg of ALL spots ')
+        disp('FIT TO 3D GAUSSIAN: thresholded spots ')
         disp(['Sigma (xy): ', num2str(round(PSF_exp.sigmax_th)), ' +/- ', num2str(round(PSF_exp.sigmax_th_std))])
         disp(['Sigma (z) : ', num2str(round(PSF_exp.sigmaz_th)), ' +/- ', num2str(round(PSF_exp.sigmaz_th_std))])
         disp(['Amplitude : ', num2str(round(PSF_exp.amp_th)), ' +/- ', num2str(round(PSF_exp.amp_th_std))])
