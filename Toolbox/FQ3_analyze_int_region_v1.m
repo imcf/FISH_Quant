@@ -113,19 +113,28 @@ for i_file =  1:N_files
             %- Get coordinates of cell
             cell_X = cell_prop(i_cell).x;
             cell_Y = cell_prop(i_cell).y;
+
+           %- Generate mask 
+           mask_cell_2D = poly2mask(cell_X, cell_Y, dim.Y, dim.X);     % Mask is defined by dim.Y x dim.X !!!
             
-           % mask_cell_2D     = inpolygon(X_grid,Y_grid,cell_X,cell_Y);
-            mask_cell_2D = poly2mask(cell_X, cell_Y, dim.Y, dim.X);     % Mask is defined by dim.Y x dim.X !!!
+           %- Find perimeter
+           perim_cell_2D = bwperim(mask_cell_2D);
             
+
             %- Get coordinates of nucleus (if defined)
             if isfield(cell_prop(i_cell),'pos_Nuc')
                 if not(isempty(cell_prop(i_cell).pos_Nuc))
                     nux_X = cell_prop(i_cell).pos_Nuc.x;
                     nux_Y = cell_prop(i_cell).pos_Nuc.y;
-                    
-                     %mask_nuc_2D  = inpolygon(X_grid,Y_grid,nux_X,nux_Y);    
+ 
+                     
+                     %- Generate mask of nucleus
                      mask_nuc_2D = poly2mask(nux_X, nux_Y, dim.Y, dim.X);   % Mask is defined by dim.Y x dim.X !!!
                      
+                    %- Find perimeter
+                    perim_nuc_2D = bwperim(mask_nuc_2D);
+                     
+                     %- Generate mask of cytoplasm
                      mask_cyto_2D              = mask_cell_2D;
                      mask_cyto_2D(mask_nuc_2D) = 0;
                     
@@ -151,6 +160,7 @@ for i_file =  1:N_files
             int_cell.median  = median(int_cell_img);
             int_cell.stdev   = std(int_cell_img);
             int_cell.size    = length(int_cell_img);
+            int_cell.perim   = numel(find(perim_cell_2D==1));
             int_cell.sum     = sum(int_cell_img);
             
             %- Only if nucleus is defined
@@ -165,6 +175,7 @@ for i_file =  1:N_files
                 int_nuc.median  = median(int_nuc_img);
                 int_nuc.stdev   = std(int_nuc_img);
                 int_nuc.size    = length(int_nuc_img);
+                int_nuc.perim  = numel(find(perim_nuc_2D==1));
                 int_nuc.sum     = sum(int_nuc_img);
                 
  
@@ -176,7 +187,7 @@ for i_file =  1:N_files
                 int_cyto.mean    = mean(int_cyto_img);
                 int_cyto.median  = median(int_cyto_img);
                 int_cyto.stdev   = std(int_cyto_img);
-                int_cyto.size    = length(int_cyto_img);
+                int_cyto.size    = length(int_cyto_img);                
                 int_cyto.sum     = sum(int_cyto_img);
 
             else
@@ -186,6 +197,7 @@ for i_file =  1:N_files
                 int_nuc.median  = 0;
                 int_nuc.stdev   = 0;
                 int_nuc.size    = 0;
+                int_nuc.perim   = 0;
                 int_nuc.sum    = 0;
                 
                 int_cyto.mean    = 0;
@@ -236,9 +248,9 @@ for i_file =  1:N_files
             end
             
             %- Save summary of cell
-            summary_quant(i_cell_total,:)  = [int_cell.sum int_cell.size int_cell.mean int_cell.median  int_cell.stdev , ...
-                                             int_nuc.sum   int_nuc.size  int_nuc.mean  int_nuc.median   int_nuc.stdev  , ... 
-                                             int_cyto.sum  int_cyto.size int_cyto.mean int_cyto.median  int_cyto.stdev ];
+            summary_quant(i_cell_total,:)  = [int_cell.size int_cell.perim int_cell.sum int_cell.mean int_cell.median  int_cell.stdev , ...
+                                              int_nuc.size  int_nuc.perim  int_nuc.sum  int_nuc.mean  int_nuc.median   int_nuc.stdev  , ... 
+                                              int_cyto.size                int_cyto.sum  int_cyto.mean int_cyto.median  int_cyto.stdev ];
                
             name_outline_all{i_cell_total,1} = name_save;
             name_cell_all{i_cell_total,1}    = cell_label;
@@ -269,7 +281,7 @@ string_write = ['%s\t%s',repmat('\t%g',1,N_col), '\n'];
 fid = fopen(file_save_full,'w');
 fprintf(fid,'FISH-QUANT\n');
 fprintf(fid,'Analysis of intensity distribution in %s-projection of %s images  %s \n',proj_type,name_str.ch2, date);
-fprintf(fid,'Name_File\tName_Cell\tCELL_sum\tCELL_size\tCELL_mean\tCELL_median\tCELL_std\tNUC_sum\tNUC_size\tNUC_mean\tNUC_median\tNUC_std\tCYTO_sum\tCYTO_size\tCYTO_mean\tCYTO_median\tCYTO_std\n');        
+fprintf(fid,'Name_File\tName_Cell\tCELL_area\tCELL_perimeter\tCELL_sum\tCELL_mean\tCELL_median\tCELL_std\tNUC_area\tNUC_perimeter\tNUC_sum\tNUC_mean\tNUC_median\tNUC_std\tCYTO_area\tCYTO_sum\tCYTO_mean\tCYTO_median\tCYTO_std\n');        
 fprintf(fid,string_write, cell_write_FILE{:});
 fclose(fid);
 
