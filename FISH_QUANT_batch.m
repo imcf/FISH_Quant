@@ -730,14 +730,15 @@ controls_enable(hObject, eventdata, handles)
 
 %== Add image files
 function button_files_add_Callback(hObject, eventdata, handles)
-filter_spec = {'*.txt';'*.tif';'*.stk'};
+filter_spec = {'*.txt'};
 handles = button_files_add_(hObject, eventdata, handles,filter_spec);
 guidata(hObject, handles);
 
 
 %== Add outline files
 function button_files_add_images_Callback(hObject, eventdata, handles)
-filter_spec = {'*.tif';'*.stk';'.txt'};
+
+filter_spec = {'*.tif';'*.stk'};
 handles = button_files_add_(hObject, eventdata, handles,filter_spec);
 guidata(hObject, handles);
 
@@ -745,16 +746,26 @@ guidata(hObject, handles);
 %== Add file
 function handles = button_files_add_(hObject, eventdata, handles,filter_spec)
 
-%- Get current directory and go to directory with images
 current_dir = pwd;
-if not(isempty(handles.img.path_names.outlines))
-   cd(handles.img.path_names.outlines)
-elseif not(isempty(handles.img.path_names.img))
-   cd(handles.img.path_names.img)
-elseif not(isempty(handles.img.path_names.root))
-   cd(handles.img.path_names.root) 
-end
 
+%- Get current directory and go to directory with images / outlines
+if isempty(strfind([filter_spec{:}],'tif'))
+    
+    if not(isempty(handles.img.path_names.outlines))
+       cd(handles.img.path_names.outlines)
+    elseif not(isempty(handles.img.path_names.img))
+       cd(handles.img.path_names.img)
+    elseif not(isempty(handles.img.path_names.root))
+       cd(handles.img.path_names.root) 
+    end
+    
+else
+    if not(isempty(handles.img.path_names.img))
+       cd(handles.img.path_names.img)
+    elseif not(isempty(handles.img.path_names.root))
+       cd(handles.img.path_names.root) 
+    end
+end
 %- Get file names
 [file_name_outline,path_name_list] = uigetfile(filter_spec,'Select files with outline definition or image files','MultiSelect', 'on');
 
@@ -2218,45 +2229,7 @@ if not(isempty(str_list))
                 end
             end
             
-            
-%             handles_temp.col_par             = handles.img.col_par;
-%             handles_temp.cell_prop           = cell_prop;
-%             handles_temp.par_microscope      = handles.par_microscope;
-%            
-%             handles_temp.detect              = handles.detect;
-%             
-%             handles_temp.path_name_root     = handles.img.path_names.root;
-            
-%             %- Make sure that path to image is attributed
-%             if isempty(handles.img.path_names.img)
-%                 handles_temp.path_name_image = handles.img.path_names.root;
-%             else
-%                 handles_temp.path_name_image = handles.img.path_names.img;
-%             end
-%             
-%             handles_temp.path_name_outline  = handles.img.path_names.outlines;
-%             handles_temp.path_name_results  = handles.img.path_names.results;
-%             handles_temp.FQ_which = 'batch'; 
-            
-%             %- Open image
-%             file_name_full                          = fullfile(handles_temp.path_name_image,handles_temp.file_names.raw);
-%             handles_temp.image_struct               = load_stack_data_v7(file_name_full);
-% 
-%             %- Open filtered image
-%             if isempty(handles_temp.file_names.filtered)
-%                 handles_temp.image_struct.data_filtered = handles_temp.image_struct.data;
-%             
-%             else
-%                 file_name_full_filtered                          = fullfile(handles_temp.path_name_image,handles_temp.file_names.filtered);
-%             
-%                 if strcmp(file_name_full,file_name_full_filtered)
-%                     handles_temp.image_struct.data_filtered = handles_temp.image_struct.data;
-%                 else
-%                     image_struct               = load_stack_data_v7(file_name_full_filtered);
-%                     handles_temp.image_struct.data_filtered = image_struct.data;
-%                 end
-%             end
-            
+
             %== Select visualization open
             vis_sel_str = get(handles.popup_vis_sel,'String');
             vis_sel_val = get(handles.popup_vis_sel,'Value');
@@ -2435,12 +2408,24 @@ guidata(hObject, handles);
 
 %== Same outline for all images: load outline
 function menu_load_outline_same_Callback(hObject, eventdata, handles)
-[file_name_outline,path_name] = uigetfile({'*.txt'},'Select file with outline definition','MultiSelect', 'off');
+    
+path_load = pwd;
+
+if not(isempty(handles.img.path_names.outlines))
+   path_load = handles.img.path_names.outlines;
+elseif not(isempty(handles.img.path_names.img))
+   path_load = handles.img.path_names.img;
+elseif not(isempty(handles.img.path_names.root))
+   path_load = handles.img.path_names.root;
+end
+    
+
+[file_name_outline,path_name] = uigetfile({fullfile(path_load,'*.txt')},'Select file with outline definition','MultiSelect', 'off');
 
 if file_name_outline ~= 0 
       
     %- Load results
-    handles.cell_prop_loaded  = FQ_load_results_WRAPPER_v1(fullfile(path_name,file_name_outline));
+    handles.cell_prop_loaded  = FQ_load_results_WRAPPER_v2(fullfile(path_name,file_name_outline),[]);
     
     %- Save and update status
     handles.status_outline_unique_loaded = 1;

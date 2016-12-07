@@ -18,7 +18,6 @@ thresh_int     = img.settings.detect.thresh_int;
 cell_prop      = img.cell_prop(ind_cell);
 pixel_size     = img.par_microscope.pixel_size;
 
-
 %- Check if flag for mosaic is set
 if ~ isfield(flags,'calc_mosaic')
     flags.calc_mosaic = 1;

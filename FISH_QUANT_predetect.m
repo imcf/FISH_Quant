@@ -427,7 +427,6 @@ handles.img.settings.detect.flags.region_smaller      = get(handles.checkbox_sma
 handles.img.settings.detect.flags.reg_pos_sep         = get(handles.checkbox_status_reg_detect_sep,'Value');
 handles.img.settings.detect.thresh_int                = str2double(get(handles.text_detection_threshold,'String'));
 
-
 %- Get quality score
 str = get(handles.pop_up_detect_quality, 'String');
 val = get(handles.pop_up_detect_quality,'Value');
@@ -441,11 +440,12 @@ dim_sub_z  = 2*handles.img.settings.detect.reg_size.z+1;
 %- Loop over all cells
 for ind_cell = 1:N_cells
      
-    %- Predetect & calculate and apply quality score
+    %- Predetect & calculate
     handles.img.spots_predect(ind_cell);
+    
     handles.img.spots_quality_score(ind_cell);
     handles.img.spots_quality_score_apply(ind_cell,1);  % 1 is for flag_remove --> spots will be removed after thresholding
-    
+
     N_spots    = size( handles.img.cell_prop(ind_cell).spots_detected,1);
     
     if N_spots > 0

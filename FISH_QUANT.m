@@ -763,9 +763,9 @@ end
 status_open = handles.img.load_existing_outline([]);       
 
 if status_open.outline
-    handles = analyze_cellprop(hObject, eventdata, handles); 
     set(handles.checkbox_plot_outline,'Value',1);
-    status_update(hObject, eventdata, handles,{'Results loaded.'})
+    handles = analyze_cellprop(hObject, eventdata, handles); 
+    status_update(hObject, eventdata, handles,{'Outline loaded.'})
     guidata(hObject, handles);
     
 end
