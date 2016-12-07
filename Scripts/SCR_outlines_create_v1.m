@@ -1,4 +1,5 @@
 %% FQ script that creates outlines for different colors
+%
 % First, you have to define all the outline that should be used to create 
 % outlines in a different color. IMPORTANT: these outlines have to be in
 % the same folder
@@ -7,13 +8,16 @@
 % colors. This file has the following properties 
 %  + It is a TAB delimited text file. This can for instance be generated 
 %    with Excel
-%  + First row contains the unique string of the first color, e.g. CY3
+%  + First row contains the unique string of the first color, e.g. CY3.
 %  + Following rows define one color. First element is the unique string,
 %    e.g. CY5, 2nd element is the the excitation wavelength in nm, 3rd
 %    element the emission wavelength
 %
 % Script will then go over all outline files. It will create one folder for
 % each color, in which the new outlines will be saved. 
+%
+% To run the script, copy 'SCR_outlines_create_v1' in the Command Window
+% and press enter, or press F5.
 
 %% Define outline files that should be converted
 [outlines_list,folder_outlines] = uigetfile({'*.txt'},'Select outline files','MultiSelect', 'on');
