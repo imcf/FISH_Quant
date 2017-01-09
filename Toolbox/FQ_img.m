@@ -1008,6 +1008,17 @@ classdef FQ_img < handle
         end
         
         
+        %% === Create 4D array with all spots
+        function spots_array = spots_array(img,ind_cell,spots_array)
+        
+              %- Get subregions .... 
+              [spots_array] = FQ_spots_array_v1(img,img.cell_prop(ind_cell).spots_detected,spots_array);
+        end
+        
+        
+        
+        
+        
         %% === Calculate predect quality score
         function spots_detected = spots_quality_score(img,ind_cell)
                 
@@ -1297,6 +1308,20 @@ classdef FQ_img < handle
                 img.spot_avg                     = spot_avg;
                 img.spot_avg_os                  = spot_avg_os;
            end
+       
+        end
+        
+        %%  === Function to average all spots 
+        function [spots_array] = all_spots_array(img,ind_cell,spots_array)
+             
+            %- Get spots
+            spots_detected(:,1) = (img.cell_prop(ind_cell).spots_detected(img.cell_prop(ind_cell).thresh.in,img.col_par.pos_y_det) ) ;
+            spots_detected(:,2) = (img.cell_prop(ind_cell).spots_detected(img.cell_prop(ind_cell).thresh.in,img.col_par.pos_x_det) ) ;
+            spots_detected(:,3) = (img.cell_prop(ind_cell).spots_detected(img.cell_prop(ind_cell).thresh.in,img.col_par.pos_z_det) ) ;
+
+   
+            %- Get array            
+            [spots_array] = FQ_spots_array_v1(img,spots_detected,spots_array);
        
         end
         
