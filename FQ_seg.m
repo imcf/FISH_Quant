@@ -237,11 +237,13 @@ else
     set(handles.check_save_folder_sub,'Value',1);
 end
 
+
 function check_save_folder_sub_Callback(hObject, eventdata, handles)
 status_check = get(handles.check_save_folder_sub,'Value');
 if status_check
     set(handles.check_save_folder_same,'Value',0);
 end
+
 
 function check_save_folder_replace_Callback(hObject, eventdata, handles)
 

@@ -170,7 +170,9 @@ if name_save ~= 0
             if strcmp(flag_type,'spots')
 
                 if isfield(cell_prop(i_cell),'spots_fit')
+                    
                     if not(isempty(cell_prop(i_cell).spots_fit));
+                       
                         spots_output   = [cell_prop(i_cell).spots_fit,cell_prop(i_cell).spots_detected,cell_prop(i_cell).thresh.in];
                         str_text       = 'Pos_Y\tPos_X\tPos_Z\tAMP\tBGD\tRES\tSigmaX\tSigmaY\tSigmaZ\tCent_Y\tCent_X\tCent_Z\tMuY\tMuX\tMuZ\tITERY_det\tY_det\tX_det\tZ_det\tY_min\tY_max\tX_min\tX_max\tZ_min\tZ_max\tINT_raw\tINT_filt\tSC_det\tSC_det_norm\tTH_det\tTH_fit';
                         
@@ -178,6 +180,17 @@ if name_save ~= 0
                             th_out = not(cell_prop(i_cell).thresh.in);       
                             spots_output(th_out,:) = [];     
                         end
+                        
+                        %- Is field with spots in nucleus defined
+                        if isfield(cell_prop(i_cell),'in_Nuc') && not(isempty(cell_prop(i_cell).in_Nuc))
+                            in_Nuc = double(cell_prop(i_cell).in_Nuc);
+                        else 
+                            N_spots = size(cell_prop(i_cell).spots_fit,1);
+                            in_Nuc  = -ones(N_spots,1);
+                        end
+                        
+                        spots_output   = [spots_output, in_Nuc];
+                        str_text = [str_text,'\tin_Nuc'];
                         
                         %- Check if there are distance measurements
                          if ~(isempty(cell_prop(i_cell).spots_fit));
@@ -191,7 +204,7 @@ if name_save ~= 0
                                  str_text = [str_text,'\tIntInt'];
                          end
                          
-                           
+     
                         %- Add line change        
                         str_text = [str_text,'\n'];
                             

@@ -3,6 +3,7 @@
 %% Specify result files
 
 %- Get file names
+disp('Select files with FQ results')
 [file_results,path_results] = uigetfile('*.txt','Select files with FQ results','MultiSelect', 'on');
 
 if ~iscell(file_results)
