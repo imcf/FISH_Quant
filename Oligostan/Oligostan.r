@@ -1,7 +1,7 @@
 ####################################################SETTINGS#########################################################
 #FASTA Sequences: file name
-# IMPORTANT : NO UNDERSCORES IN FILE-Name !
-FileNameFasta <- 'My_Fasta_File.fasta'
+# IMPORTANT : NO UNDERSCORES IN FILE-Name and sequence names in FASTA FILE!
+FileNameFasta <- 'My-Fasta-File.fasta'
 #FASTA Sequences: path   [no '/' at the end of the path name]
 #WINDOWS IMPORTANT: Replace the separators in the path name \ by /
 PathNameFasta <- 'MyVolume/MyPath'
