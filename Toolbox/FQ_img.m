@@ -1307,6 +1307,10 @@ classdef FQ_img < handle
                 img.par_microscope.pixel_size_os = pixel_size_os;
                 img.spot_avg                     = spot_avg;
                 img.spot_avg_os                  = spot_avg_os;
+           else
+                img.par_microscope.pixel_size_os = [];
+                img.spot_avg                      = [];
+                img.spot_avg_os                   = [];
            end
        
         end

@@ -52,32 +52,33 @@ function [spot_avg, spot_avg_os, pixel_size_os,img_sum] = spot_3D_avg_v1(img,ind
 
         end
 
-            %- Calculate averaged image
-            if not(isempty(img_sum))
+        %- Calculate averaged image
+        if not(isempty(img_sum))
 
-                spot_avg       = round(img_sum.spot_sum     / img_sum.N_sum);
-                spot_avg_os    = round(img_sum.spot_os_sum /  img_sum.N_sum); 
-                img.par_microscope.pixel_size_os = pixel_size_os;
+            spot_avg       = round(img_sum.spot_sum     / img_sum.N_sum);
+            spot_avg_os    = round(img_sum.spot_os_sum /  img_sum.N_sum); 
+            img.par_microscope.pixel_size_os = pixel_size_os;
 
-                %- Extract area without buffer zone
-                if img.settings.avg_spots.fact_os.xy > 1 || img.settings.avg_spots.fact_os.z > 1
-                    fact_os          = img.settings.avg_spots.fact_os;
-                    spot_avg_os      = spot_avg_os(2*fact_os.xy:end-2*fact_os.xy,2*fact_os.xy:end-2*fact_os.xy,2*fact_os.z+1:end-2*fact_os.z);
-                end
-
-            else
-                disp('!!! NO spot was considered in averaging !!!!')
-                img.spot_avg     = [];
-                img.spot_os_avg  = [];
-
+            %- Extract area without buffer zone
+            if img.settings.avg_spots.fact_os.xy > 1 || img.settings.avg_spots.fact_os.z > 1
+                fact_os          = img.settings.avg_spots.fact_os;
+                spot_avg_os      = spot_avg_os(2*fact_os.xy:end-2*fact_os.xy,2*fact_os.xy:end-2*fact_os.xy,2*fact_os.z+1:end-2*fact_os.z);
             end
+
+            fprintf('\nAveraged number of spots: %d\n',img_sum.N_sum);
+            
+        else
+            disp('!!! NO spot was considered in averaging !!!!')
+            spot_avg     = [];
+            spot_avg_os  = [];
+        end
     end
 end
 
 
 
 %% FUNCTION TO AVERAGE SPOTS IN A CELL
-function [spot_avg, spot_os_avg,pixel_size_os,img_sum] = avg_spots_cell(img,ind_cell,img_sum)
+function [spot_avg, spot_avg_os,pixel_size_os,img_sum] = avg_spots_cell(img,ind_cell,img_sum)
 
     %=== Parameters for averaging
     par_crop   = img.settings.avg_spots.crop;
@@ -92,7 +93,7 @@ function [spot_avg, spot_os_avg,pixel_size_os,img_sum] = avg_spots_cell(img,ind_
     
     %=== Check if there are any spots to average
     if sum(img.cell_prop(ind_cell).thresh.in) == 0   
-        spot_os_avg = [];
+        spot_avg_os = [];
         spot_avg    = [];
         return
     end
@@ -262,7 +263,6 @@ function [spot_avg, spot_os_avg,pixel_size_os,img_sum] = avg_spots_cell(img,ind_
            N_sum = N_sum+1;
         else
             N_ignore = N_ignore+1;
-
         end
     end
 
@@ -278,7 +278,7 @@ function [spot_avg, spot_os_avg,pixel_size_os,img_sum] = avg_spots_cell(img,ind_
 
         %- Calculate averaged spots
         spot_avg       = round(spot_sum/N_sum);
-        spot_os_avg    = round(spot_os_sum /N_sum);  
+        spot_avg_os    = round(spot_os_sum /N_sum);  
 
         %- Save status for averaging in batch mode
         img_sum.spot_sum    = spot_sum;
@@ -287,12 +287,12 @@ function [spot_avg, spot_os_avg,pixel_size_os,img_sum] = avg_spots_cell(img,ind_
 
         %- Extract area without buffer zone
         if status_os
-            spot_os_avg    = spot_os_avg(2*fact_os.xy:end-2*fact_os.xy,2*fact_os.xy:end-2*fact_os.xy,2*fact_os.z+1:end-2*fact_os.z);
+            spot_avg_os    = spot_avg_os(2*fact_os.xy:end-2*fact_os.xy,2*fact_os.xy:end-2*fact_os.xy,2*fact_os.z+1:end-2*fact_os.z);
         end
 
     else
         spot_avg    = [];
-        spot_os_avg = [];
+        spot_avg_os = [];
         img_sum     = {};
         if flags.output
             disp('!!! NO spot was considered in averaging !!!!')
