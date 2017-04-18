@@ -42,13 +42,12 @@ parameters.path_name_image   = path_image;
 parameters.name_filtered.string_search  = '';
 parameters.name_filtered.string_replace = '_filtered_batch';
 
-%- Some flags and status definitions
-parameters.flags.filtered_use  = 0;
-parameters.flags.filtered_save = 0;
+%- Flags controlling the use/saving of filtered images
+parameters.flags.filtered_use  = 0;     % Check if a filtered image with default name is present, if yes, use it.
+parameters.flags.filtered_save = 0;     % Save fittered images
 
 %- Same outline for all images
 parameters.flags.outline_unique_enable = 0;
-
 
 %- Loop over folder
 for i_folder = 1:numel(folder_results)
@@ -95,7 +94,7 @@ for i_folder = 1:numel(folder_results)
             par_save.flag_type           = 'spots';  
             par_save.flag_th_only        = 0;
 
-            img.file_names.settings = 'file_sett';
+            img.file_names.settings = file_sett;
 
             img.save_results(fullfile(folder_loop,name_save),par_save);
         else

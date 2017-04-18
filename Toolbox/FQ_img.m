@@ -1016,9 +1016,6 @@ classdef FQ_img < handle
         end
         
         
-        
-        
-        
         %% === Calculate predect quality score
         function spots_detected = spots_quality_score(img,ind_cell)
                 
@@ -1314,6 +1311,7 @@ classdef FQ_img < handle
            end
        
         end
+        
         
         %%  === Function to average all spots 
         function [spots_array] = all_spots_array(img,ind_cell,spots_array)
