@@ -27,11 +27,11 @@ Program is provided as an ZIP archive. On rare occasions problems might occur wh
 1. Create a folder FISH_quant, and copy the content of the downloaded archive in this folder. In the example above, you will have a folder C:\Users\user_name\Documents\MATLAB\FISH_quant with all the source code.
 1. Update Matlab path definition. This can be done with a few simple steps in Matlab.
     1. In the Matlab menu select File > Set Path
-    1. This will open a dialog box. In this box select Add with subfolders …
+    1. This will open a dialog box. In this box select *Add with subfolders …*
     1. This will open another dialog. Here select the folder of FISH_quant from step 1, e.g. C:\Users\user_name\Documents\MATLAB\FISH_quant. Click OK.
     1. To save this settings press Save. Depending on the settings of the installation of Matlab this might results in a warning saying that the changes to path cannot be saved. Matlab proposes to save the path-definition file pathdef.m to another location. Click Yes. Select a directory of choice, e.g. the Matlab work directory of the user.
 
-For more details, we refer to the FQ manual.
+For more details, please consult to detailed FQ manual.
 
 ### Getting started ###
 We provide several files to help new user getting used to FISH-quant. We recommend working with the example data and using either step-by-step tutorial or the video tutorials to familiarize yourself with the basic functionality. The more detailed user manual can then be used to adjust more advanced options.
@@ -41,7 +41,7 @@ We provide several files to help new user getting used to FISH-quant. We recomme
 * User manual. A PDF containing with a detailed user manual describing the entire functionality of FISH-quant. 
 
 ### Development team ###
-Developed by Florian MUELLER (Institut Pasteur,ENS Paris) and Aubin SAMACOITS (Institut Pasteur) based on work of Hervé Marie-Nelly (Institut Pasteur). 
+Florian MUELLER (Institut Pasteur,ENS Paris) and Aubin SAMACOITS (Institut Pasteur) based on work of Hervé Marie-Nelly (Institut Pasteur). 
 
 ### Depot at APP ###
 A depot of the software was issued at APP (http://www.app.asso.fr/en/) under the reference number IDDN.FR.001.090009.000.S.A.2013.000.10000 
