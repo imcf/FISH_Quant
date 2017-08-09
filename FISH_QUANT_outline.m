@@ -1194,7 +1194,6 @@ if not(handles.status_draw)
     %- Save results and show plot       
     handles.status_draw = 0;
     listbox_cell_Callback(hObject, eventdata, handles);
-   % handles = plot_image(handles,handles.axes_image);
     guidata(hObject, handles);
 
     %- UIWAIT makes FISH_QUANT_outline wait for user response (see UIRESUME)
@@ -1354,11 +1353,8 @@ if not(handles.status_draw)
 
     position = reg_result.position;
     
-    
-    
     if ~isempty(position)         
 
-        
         if size(position(:,1)) < 3
             disp('Not enough points for a region definition')
 

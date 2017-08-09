@@ -230,7 +230,7 @@ classdef FQ_img < handle
         
         
         %% ==== Load image
-        function status_file = load_img(img,file_name,img_type)
+        function status_file = load_img(img,file_name,img_type,par_load)
             
             %- Ask for file-name if not specified
             if isempty(file_name)
@@ -245,9 +245,9 @@ classdef FQ_img < handle
             end
             
             %- Open file
-            par.range = img.range;
-            par.status_3D = img.status_3D;
-            [img_struct, status_file] = img_load_stack_v1(file_name,par);
+            par_load.range     = img.range;
+            par_load.status_3D = img.status_3D;
+            [img_struct, status_file] = img_load_stack_v1(file_name,par_load);
 
             %- Continue if status is ok
             if status_file
@@ -428,12 +428,31 @@ classdef FQ_img < handle
         
         
         %% ==== Load results file
-        function status_open = load_results(img,file_name_open,path_img,flag_load_settings)
+        %  flags is a structure containing different flags controlling what
+        %  kind of files will be opened
+        %   flags.load_settings ... load also settings file (if specified)
+        %   flags.use_tiffread  ... use tiffread instead of bfopen to open
+        %                           images
+        function status_open = load_results(img,file_name_open,path_img,flags)
   
             
-            %- Set flag settings
+            %- Set flag settings to load settings
             if nargin < 4
                 flag_load_settings = 1;
+                par_load_img.use_tiffread  = 0;
+            end
+            
+            %- Catch old version where 4th input was a flag only for
+            %settings
+            if nargin == 4
+               
+                if ~isstruct(flags)
+                    flag_load_settings = flags;
+                    par_load_img.use_tiffread  = 0;
+                else
+                    flag_load_settings         = flags.load_settings;
+                    par_load_img.use_tiffread  = flags.use_tiffread;
+                end
             end
             
             %- Default output
@@ -493,9 +512,7 @@ classdef FQ_img < handle
                        img.range.start = str2num(range.start);
                        img.range.end   = str2num(range.end);
                    end
-   
-               end
-                
+               end 
             end
             
             
@@ -515,7 +532,7 @@ classdef FQ_img < handle
             
             %- Load image file
             if ~isempty(path_img)
-                status_open.img = img.load_img(fullfile(path_img,img.file_names.raw),'raw');
+                status_open.img = img.load_img(fullfile(path_img,img.file_names.raw),'raw',par_load_img);
                 
                 if status_open.img
                     img.project_Z('raw','max');

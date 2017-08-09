@@ -147,13 +147,18 @@ else
             %- Polygon of cell: x-coordinates
             tline = fgetl(fid);
             k     = strfind(tline, sprintf('\t') );
-            x_pos = str2num(tline(k(1)+1:k(end)-1));
+            
+            %- Speed-up by using scanf
+            % x_pos = str2num(tline(k(1)+1:k(end)-1));
+            x_pos = sscanf(tline(k(1)+1:k(end)-1),'%f')';
+            
             cell_prop(ind_cell).x = x_pos;
 
             %- Polygon of cell: y-coordinates
             tline = fgetl(fid);
             k     = strfind(tline, sprintf('\t') );
-            y_pos = str2num(tline(k(1)+1:k(end)-1));
+            %y_pos = str2num(tline(k(1)+1:k(end)-1));            
+            y_pos = sscanf(tline(k(1)+1:k(end)-1),'%f')';
             cell_prop(ind_cell).y = y_pos;
                    
             %- Polygon of cell: z-coordinates
@@ -161,7 +166,8 @@ else
             if isempty(strfind(tline, 'CELL_END'))
                 k     = strfind(tline, sprintf('\t') );
                 if ~ isempty(k)
-                    z_pos = str2num(tline(k(1)+1:k(end)-1));
+                    %z_pos = str2num(tline(k(1)+1:k(end)-1));
+                    z_pos = sscanf(tline(k(1)+1:k(end)-1),'%f')';
                 else
                     z_pos = [];
                 end
@@ -182,20 +188,24 @@ else
             %- Polygon of cell: x- coordinates
             tline = fgetl(fid);
             k     = strfind(tline, sprintf('\t') );
-            x_pos = str2num(tline(k(1)+1:k(end)-1));
+            %x_pos = str2num(tline(k(1)+1:k(end)-1));
+            x_pos = sscanf(tline(k(1)+1:k(end)-1),'%f')';
+            
             cell_prop(ind_cell).pos_Nuc(ind_nuc).x = x_pos;
 
             %- Polygon of cell: y-coordinates
             tline = fgetl(fid);
             k     = strfind(tline, sprintf('\t') );
-            y_pos = str2num(tline(k(1)+1:k(end)-1));
+            %y_pos = str2num(tline(k(1)+1:k(end)-1));
+            y_pos = sscanf(tline(k(1)+1:k(end)-1),'%f')';
             cell_prop(ind_cell).pos_Nuc(ind_nuc).y = y_pos;
             
             %- Polygon of cell: z-coordinates
             tline = fgetl(fid);
             if isempty(strfind(tline, 'Nucleus_END'))
                 k     = strfind(tline, sprintf('\t') );
-                z_pos = str2num(tline(k(1)+1:k(end)-1));
+                %z_pos = str2num(tline(k(1)+1:k(end)-1));
+                z_pos = sscanf(tline(k(1)+1:k(end)-1),'%f')';
                 cell_prop(ind_cell).pos_Nuc(ind_nuc).z = z_pos;          
             end
        
@@ -214,25 +224,25 @@ else
             %- Polygon of cell: x-coordinates
             tline = fgetl(fid);
             k     = strfind(tline, sprintf('\t') );
-            x_pos = str2num(tline(k(1)+1:k(end)-1));
+            %x_pos = str2num(tline(k(1)+1:k(end)-1));
+            x_pos = sscanf(tline(k(1)+1:k(end)-1),'%f')';
             cell_prop(ind_cell).pos_TS(ind_TS).x = x_pos;
 
             %- Polygon of cell: y-coordinates
             tline = fgetl(fid);
             k     = strfind(tline, sprintf('\t') );
-            y_pos = str2num(tline(k(1)+1:k(end)-1));
+            %y_pos = str2num(tline(k(1)+1:k(end)-1));
+            y_pos = sscanf(tline(k(1)+1:k(end)-1),'%f')';
             cell_prop(ind_cell).pos_TS(ind_TS).y = y_pos;
             
             %- Polygon of cell: z-coordinates
             tline = fgetl(fid);
             k     = strfind(tline, sprintf('\t') );
-            z_pos = str2num(tline(k(1)+1:k(end)-1));
-            cell_prop(ind_cell).pos_TS(ind_TS).z = z_pos;           
-            
-            
+            %z_pos = str2num(tline(k(1)+1:k(end)-1));
+            z_pos = sscanf(tline(k(1)+1:k(end)-1),'%f')';
+            cell_prop(ind_cell).pos_TS(ind_TS).z = z_pos;              
         end  
-        
-
+       
         %- Results of spot detection
         if not(isempty(strfind(tline, 'SPOTS_START')))
                         
@@ -242,13 +252,13 @@ else
             
             %- Header row
             tline = fgetl(fid);
-            
             k     = strfind(tline, sprintf('\t') );
             N_col = length(k) + 1;
             
             %- First line of detected spots
             tline     = fgetl(fid);
-            tline_num = str2num(tline); 
+            %tline_num = str2num(tline); 
+            tline_num = sscanf(tline,'%f')';
             
             while length(tline_num) == N_col
                 
@@ -260,7 +270,8 @@ else
                 if not(ischar(tline))
                     tline_num = [];
                 else
-                    tline_num = str2num(tline); 
+                    %tline_num = str2num(tline); 
+                    tline_num = sscanf(tline,'%f')';
                 end
                 
                 %- Update counter for spots
@@ -276,8 +287,6 @@ else
                 if N_col == 3
                     N_spots = size(spots_par,1);
                     cell_prop(ind_cell).spots_fit        = spots_par(:,[1 2 3]);
-                    
-                    
                     
                     %- Add NaN for all not defined parameters
                     cell_prop(ind_cell).spots_fit(:,4:16) = NaN;      

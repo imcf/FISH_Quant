@@ -102,9 +102,19 @@ if name_save ~= 0
         %- Outline of cell and detected spots
         for i_cell = 1:size(cell_prop,2)
 
+            %- Check if GMM results are present
+            if strcmp(flag_type,'spots_GMM')
+                if ~isempty(cell_prop(i_cell).spots_fit_GMM)
+                    fprintf(fid,'%s\t%s\n', 'CELL_START', cell_prop(i_cell).label_GMM);
+                else
+                    fprintf(fid,'%s\t%s\n', 'CELL_START', cell_prop(i_cell).label);
+                    flag_type = 'spots';
+                end
+            else
+                fprintf(fid,'%s\t%s\n', 'CELL_START', cell_prop(i_cell).label);
+            end           
+            
             %- Outline of cell
-            fprintf(fid,'%s\t%s\n', 'CELL_START', cell_prop(i_cell).label);
-
             fprintf(fid,'X_POS\t');
             fprintf(fid,'%g\t',cell_prop(i_cell).x);
             fprintf(fid,'\n');
@@ -173,7 +183,6 @@ if name_save ~= 0
                 %- Are spots detected
                 if isfield(cell_prop(i_cell),'spots_fit') && not(isempty(cell_prop(i_cell).spots_fit));
                     
-                 
                     %- Is field with spots in nucleus defined
                     if isfield(cell_prop(i_cell),'in_Nuc') && not(isempty(cell_prop(i_cell).in_Nuc))
                         in_Nuc = double(cell_prop(i_cell).in_Nuc);
@@ -203,7 +212,7 @@ if name_save ~= 0
                 end 
             end
 
-      % NOTE: fprintf works on columns - transformation is therefore needed
+            % NOTE: fprintf works on columns - transformation is therefore needed
             if strcmp(flag_type,'spots_GMM')
 
                 %- Are spots detected
@@ -224,7 +233,32 @@ if name_save ~= 0
                         fprintf(fid,'%s\n', 'SPOTS_END'); 
                     end
                 end 
-            end          
+            end 
+            
+            % NOTE: fprintf works on columns - transformation is therefore needed
+            if strcmp(flag_type,'FISH_sim')
+
+                %- Are spots detected
+                if isfield(cell_prop(i_cell),'spots_detected') && not(isempty(cell_prop(i_cell).spots_detected));
+                    
+                    %- Save spots
+                    spots_output   = [cell_prop(i_cell).spots_detected];
+
+                    if not(isempty(spots_output))
+                        N_par = size(spots_output,2);            
+                        string_output = [repmat('%g\t',1,N_par-1),'%g\n'];
+
+                        fprintf(fid,'%s\n', 'SPOTS_START');          
+                        fprintf(fid,'Pos_Y\tPos_X\tPos_Z\n');
+
+                        fprintf(fid, string_output,spots_output');  
+                        fprintf(fid,'%s\n', 'SPOTS_END'); 
+                    end
+                end 
+            end 
+            
+            
+            
         end           
     end
     
