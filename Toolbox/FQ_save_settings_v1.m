@@ -42,6 +42,8 @@ if file_save ~= 0
     fprintf(fid,'PSF_THEO_Z=%g\n',  img.PSF_theo.z_nm);
 
     fprintf(fid,'status_3D=%g\n',  img.status_3D);
+    fprintf(fid,'use_tiffread=%g\n',  img.use_tiffread);
+    
     
     %- Settings for filtering
     fprintf(fid,'\n# FILTERING\n');

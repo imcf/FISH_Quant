@@ -824,7 +824,6 @@ else
     handles.img.save_results([],parameters);
 end
 
-
 %== Quick-save
 function button_quick_save_Callback(hObject, eventdata, handles)
 

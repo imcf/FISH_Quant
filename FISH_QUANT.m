@@ -1,7 +1,7 @@
 function varargout = FISH_QUANT(varargin)
 % FISH_QUANT M-file for FISH_QUANT.fig
 
-% Last Modified by GUIDE v2.5 25-May-2016 15:45:59
+% Last Modified by GUIDE v2.5 09-Oct-2017 19:32:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -39,7 +39,7 @@ if isempty(FQ_open) || FQ_open == 0
     set(findobj(handles.h_fishquant,'FontSize',8),'FontSize',10)
 
     % ==  Initialize GUI
-    handles     = FQ_init_v1(handles);  
+    handles = FQ_init_v1(handles);  
     
     % == Fenerate FQ image object
     handles.img = FQ_img;
@@ -65,8 +65,7 @@ if isempty(FQ_open) || FQ_open == 0
     catch 
         disp('FQ-startup: problems with bfInitlogging!')
     end
-        
-    
+       
     %== Populate GUI
     handles         = FQ_populate_v1(handles);
     popup_filter_type_Callback(hObject, eventdata, handles); % Adjust GUI for default filter
@@ -1107,9 +1106,6 @@ function button_fit_3d_Callback(hObject, eventdata, handles)
 set(handles.h_fishquant,'Pointer','watch');
 status_update(hObject, eventdata, handles,{'Fitting: STARTED ... '})
 
-%- Some parameters
-%handles.img.settings.fit.flags.parallel = get(handles.checkbox_parallel_computing, 'Value');
-
 %- Used to compensate for spots that were close the edge 
 dim_sub_xy = 2*handles.img.settings.detect.reg_size.xy+1;
 dim_sub_z  = 2*handles.img.settings.detect.reg_size.z+1;
@@ -1336,16 +1332,14 @@ if not(isempty(spots_fit))
 
     %- Call functions to illustrate the fits
     handles = pop_up_threshold_Callback(hObject, eventdata, handles);
-    %handles = button_threshold_Callback(hObject, eventdata, handles);
-
-    %- Save results
-    guidata(hObject, handles);
-
 else
     status_update(hObject, eventdata, handles,{'Fitting: ... no spots for fitting! '})    
 end
 
 %- Update GUI and enable controls
+handles.status_fit = 1;
+guidata(hObject, handles);
+
 FQ_enable_controls_v1(handles)
     
     
@@ -2853,27 +2847,20 @@ cellc
 
 %== MENU
 function menu_loadSave_Callback(hObject, eventdata, handles)
-if isfield(handles,'pos_cell')
+if isempty(handles.img.cell_prop)
+    set(handles.menu_save_outline,'Enable','off')
+else
     set(handles.menu_save_outline,'Enable','on')
 end
 
-%- Export spots
-if not(isempty(handles.img.cell_prop))
-    ind_cell  = get(handles.pop_up_outline_sel_cell,'Value');
-    spots_fit = handles.img.cell_prop(ind_cell).spots_fit;
-    if not(isempty(spots_fit))
-        set(handles.menu_save_spots,'Enable','on')
-        set(handles.menu_save_spots_th,'Enable','on')
-        
-    else
-        set(handles.menu_save_spots,'Enable','off')   
-        set(handles.menu_save_spots_th,'Enable','off')   
-        
-    end
+if handles.status_fit
+    set(handles.menu_save_spots,'Enable','on')
+    set(handles.menu_save_spots_th,'Enable','on')
 else
-    set(handles.menu_save_spots,'Enable','off')
-    set(handles.menu_save_spots_th,'Enable','off')
+    set(handles.menu_save_spots,'Enable','off')   
+    set(handles.menu_save_spots_th,'Enable','off') 
 end
+
 
 %== Display help file
 function menu_help_show_help_file_Callback(hObject, eventdata, handles)
@@ -2934,6 +2921,24 @@ switch choice
         display('FISH-quant - analysis will be performed in 3D');
 end
 guidata(hObject, handles); 
+
+
+
+%== Determine function to open images
+function menu_fun_img_open_Callback(hObject, eventdata, handles)
+
+% Construct a questdlg with three options
+choice = questdlg('Which function should be used to open images?', 'FISH-quant','bfopen', 'tiffread','bfopen');
+
+switch choice
+    case 'bfopen'
+        handles.img.use_tiffread = 0;
+            
+    case 'tiffread'
+        handles.img.use_tiffread = 1;
+end
+guidata(hObject, handles); 
+
 
 
 % ===== CREATE FUNCTIONS and CALL BACKS with no additional code

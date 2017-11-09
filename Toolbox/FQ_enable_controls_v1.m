@@ -84,8 +84,6 @@ else
 end
 
 % === Cells are defined
-
-
 if not(isempty(handles.img.cell_prop))
     
     set(handles.pop_up_outline_sel_cell,'Enable','on')
@@ -107,8 +105,7 @@ if not(isempty(handles.img.cell_prop))
     str_z = (get(handles.text_psf_fit_sigmaZ,'String'));
 
     if not(isempty(str_x)) && not(isempty(str_y)) && not(isempty(str_z)) 
-        
-               
+         
         %- Enable restriction of fitting parameters
         set(handles.button_fit_restrict,'Enable','on')
         
@@ -122,7 +119,6 @@ if not(isempty(handles.img.cell_prop))
     % ==== After fit is done
     if cell_prop.status_fit
 
-
         %- Enable thresholding
         set(handles.button_threshold,'Enable','on')
         set(handles.pop_up_threshold,'Enable','on')
@@ -134,7 +130,6 @@ if not(isempty(handles.img.cell_prop))
         set(handles.button_th_unlock_all,'Enable','on')        
         set(handles.button_visualize_matlab,'Enable','on')  
         set(handles.text_min_dist_spots,'Enable','on') 
-        
 
         %- Enable plot of fitted spots
         set(handles.pop_up_image_spots,'Enable','on')

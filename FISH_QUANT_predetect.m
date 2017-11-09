@@ -459,10 +459,14 @@ for ind_cell = 1:N_cells
             MIP_xy = padarray(MIP_xy,[dim_sub_xy-dim_MIP_1 dim_sub_xy-dim_MIP_2],'post'); 
             spots_proj.xy(:,:,1,k) = MIP_xy;
             
-            %- MIP in XZ, padd if necessary
-            MIP_xz = squeeze(max(handles.img.cell_prop(ind_cell).sub_spots{k},[],1))';
-            [dim_MIP_1,dim_MIP_2] = size(MIP_xz);
-            MIP_xz = padarray(MIP_xz,[dim_sub_z-dim_MIP_1 dim_sub_xy-dim_MIP_2],'post'); 
+            %- MIP in XZ, padd if necessary, don't calc if in 2D
+            if handles.img.status_3D
+                MIP_xz = squeeze(max(handles.img.cell_prop(ind_cell).sub_spots{k},[],1))';
+                [dim_MIP_1,dim_MIP_2] = size(MIP_xz);
+                MIP_xz = padarray(MIP_xz,[dim_sub_z-dim_MIP_1 dim_sub_xy-dim_MIP_2],'post'); 
+            else
+                    MIP_xz = [];
+            end
             spots_proj.xz(:,:,1,k) = MIP_xz;
         end
 

@@ -48,7 +48,7 @@ img.data    = [];
 if exist(file_name,'file') == 2
     
     %- Uses tiffread. We found that bfopen can lead to a java error "too
-    %many file open" when processing is done in batch mode
+    %  many file open" when processing is done in batch mode
     if par.use_tiffread
         
         %- Read image

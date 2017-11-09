@@ -68,7 +68,7 @@ if strcmpi(ext,'.txt')
     end
 
 %- Load image files 
-elseif strcmpi(ext,'.tif') || strcmpi(ext,'.stk')
+elseif strcmpi(ext,'.tif') || strcmpi(ext,'.stk') || strcmpi(ext,'.tiff') || strcmpi(ext,'.TIF')
     
     status_file = img.load_img(fullfile(path_name_list,file_name_load),'raw');
     

@@ -72,7 +72,10 @@ else
 
             case 'status_3D' 
                 img.status_3D = str2double(str_val); 
-              
+            
+            case 'use_tiffread' 
+                img.use_tiffread = str2double(str_val); 
+                
              % === Filtering: 2XGauss      
              case 'Filter_method'            
                 img.settings.filter.method            = str_val;

@@ -61,6 +61,7 @@ set(handles.pop_up_image_spots,'Value',1)
 %- Status of current processing steps
 handles.status_filtered     = 0;    % Image filterd
 handles.status_image        = 0;    % Image loaded
+handles.status_fit          = 0;    % Fit has been performed or not
 handles.status_detect_auto  = 0;    % Did an automated threshold calculation already take place?
 handles.flag_fit            = 0;    % Fit mode (0 for free parameters, 1 for fixed size parameters)
 

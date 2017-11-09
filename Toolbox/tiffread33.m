@@ -393,7 +393,7 @@ while  ifd_pos ~= 0
                     IMG.(['tag', num2str(entry_tag)])=entry.val;
                     %eval(['IMG.Tag',num2str(entry_tag),'=',entry.val,';']);
                 else
-                    fprintf( 'Unknown TIFF entry with tag %i (cnt %i)\n', entry_tag, entry.cnt);
+                    %fprintf( 'Unknown TIFF entry with tag %i (cnt %i)\n', entry_tag, entry.cnt);
                 end
         end
         

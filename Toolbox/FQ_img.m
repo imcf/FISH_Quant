@@ -36,7 +36,9 @@ classdef FQ_img < handle
         %- Dimensions
         dim = struct('X', '','Y', '','Z', '')
         
-        status_3D = 1;  % Analysis is 3D
+        %- Other options
+        status_3D    = 1;    % Analysis is 3D
+        use_tiffread = 0;    % Use bfopen (0) or tiffread (1) 
         
         %- mRNA 
         mRNA_prop
@@ -221,6 +223,7 @@ classdef FQ_img < handle
             img.version        = img_old.version; 
             img.path_names     = img_old.path_names; 
             img.status_3D      = img_old.status_3D;
+            img.use_tiffread   = img_old.use_tiffread;
             
             %- Keep old settings
             img.settings       = img_old.settings; 
@@ -247,6 +250,8 @@ classdef FQ_img < handle
             %- Open file
             par_load.range     = img.range;
             par_load.status_3D = img.status_3D;
+            par_load.use_tiffread = img.use_tiffread;
+ 
             [img_struct, status_file] = img_load_stack_v1(file_name,par_load);
 
             %- Continue if status is ok
