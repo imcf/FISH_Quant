@@ -8,14 +8,12 @@ file_names               = parameters.file_names;
 version                  = parameters.version;
 flag_type                = parameters.flag_type;
 
-
 %- Comment
 if isfield(parameters,'comment')
     comment = parameters.comment;
 else
     comment = '';    
 end
-
 
 %- Flag to indicate if only thresholded spots should be saved
 if isfield(parameters,'flag_th_only')

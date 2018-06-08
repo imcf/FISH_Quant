@@ -260,8 +260,14 @@ else
                 
                 %- Threshold based on DAPI signal if DAPI image is present
                 if not(isempty(img.DAPI))
-                    int_DAPI = img.DAPI(round(coord(i_site).Y_center), (coord(i_site).X_center), (coord(i_site).Z_center));                       
-                   
+                    
+                    %- Consider 2D DAPI images
+                    if size(img.DAPI,3) == 1
+                        int_DAPI = img.DAPI(round(coord(i_site).Y_center), (coord(i_site).X_center));
+                    else 
+                        int_DAPI = img.DAPI(round(coord(i_site).Y_center), (coord(i_site).X_center), (coord(i_site).Z_center));                       
+                    end
+                    
                     if int_DAPI < th_min_TS_DAPI
                         ind_cell_TS = [];
                     end

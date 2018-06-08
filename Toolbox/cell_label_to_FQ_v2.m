@@ -45,7 +45,7 @@ function cell_label_to_FQ_v2(parameters)
 
             %= Conversion for cells
             disp('RUNNING CONVERSION for cells ...') 
-            [reg_CELLS,img_size] = label_to_region(fullfile(path_name,name_img_loop),options);
+            [reg_CELLS,img_size] = label_to_region(fullfile(path_loop,name_img_loop),options);
 
             %== Name for cel
             name_cell = name_img_loop(1:pos_string_cell-1);
@@ -53,12 +53,12 @@ function cell_label_to_FQ_v2(parameters)
             %== Infer name of nuclear outline and check if it exists
             name_dum      = [name_img_loop(1:pos_string_cell-1),names_struct.suffix.nuc];
             name_mask_nuc = strrep(name_dum, names_struct.suffix.FISH, names_struct.suffix.DAPI);               
-            name_mask_nuc_full  = fullfile(path_name,name_mask_nuc);
+            name_mask_nuc_full  = fullfile(path_loop,name_mask_nuc);
 
             if exist(name_mask_nuc_full,'file')
                 fprintf('Name (nucleus): %s\n',name_mask_nuc);
                 disp('RUNNING CONVERSION for nuclei ...') 
-                reg_NUC  = label_to_region(fullfile(path_name,name_mask_nuc),options);
+                reg_NUC  = label_to_region(fullfile(path_loop,name_mask_nuc),options);
                 name_nuc = strrep(name_cell, names_struct.suffix.FISH, names_struct.suffix.DAPI);
             else
                 fprintf('Name (nucleus): %s DOES NOT EXIST!\n',name_mask_nuc);
@@ -125,14 +125,14 @@ function [reg_prop,img] = label_to_region(file_name_full,options)
     
     %- Check if file was loaded
     if status_file == 0
-        disp([mfilenam ': couldn not load cell mask.'])
+        disp([mfilename ': could not load cell mask.'])
         disp(['File: ', file_name_full])
         return
     end
 
     %- Check if image is 2D
     if img.NZ ~= 1
-        disp([mfilenam ': works only with 2D images. Provided image is 3D'])
+        disp([mfilename ': works only with 2D images. Provided image is 3D'])
         disp(['File: ', file_name_full])
         return
     end

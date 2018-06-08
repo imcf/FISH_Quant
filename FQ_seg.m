@@ -435,6 +435,7 @@ end
 
 %- Check if some files should be ignored
 handles.files_proc.flag_ignore = get(handles.check_proj_ingnore_file,'Value');
+
 if handles.files_proc.flag_ignore
 
     %- Split in individual strings

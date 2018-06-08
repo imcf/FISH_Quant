@@ -77,14 +77,13 @@ if exist(file_name,'file') == 2
         N_Z   = r.getSizeZ();
         N_C   = r.getSizeC;
         
-        %- Multi-channel images
-        %  Multi-file datasets.
+        %- Multi-channel images; multi-file datasets.
         if N_C > 1
             
             disp('Found multiple channels. Will open selected channel')
             usedFiles     = r.getSeriesUsedFiles;
             usedFilesMeta = r.getSeriesUsedFiles(1);
-            currentFile  = r.getCurrentFile;
+            currentFile   = r.getCurrentFile;
             
             %- Loop over all files
             for i_F = 1:length(usedFiles)

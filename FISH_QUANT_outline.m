@@ -878,9 +878,9 @@ function menu_load_outline_Callback(hObject, eventdata, handles)
 
 %- Get directory with outlines
 current_dir = pwd;
-if  not(isempty(handles.img.path_names.outlines)); 
+if  not(isempty(handles.img.path_names.outlines))
     path_outline = handles.img.path_names.outlines;
-elseif not(isempty(handles.img.path_names.root)); 
+elseif not(isempty(handles.img.path_names.root))
     path_outline = handles.img.path_names.root;
 else
     path_outline = cd;
@@ -898,6 +898,7 @@ end
 if file_name_results ~= 0
     handles = load_outline_file(fullfile(path_name_results,file_name_results),hObject, eventdata, handles); 
     handles = analyze_outline(hObject, eventdata, handles); 
+    handles = plot_image(handles,handles.axes_image);
     guidata(hObject, handles);
 end
 
@@ -912,9 +913,9 @@ global status_plot_first
 status_plot_first = 1;
 
 %- Get directory with images
-if  not(isempty(handles.img.path_names.img)); 
+if  not(isempty(handles.img.path_names.img))
     path_image = handles.img.path_names.img;
-elseif not(isempty(handles.img.path_names.root)); 
+elseif not(isempty(handles.img.path_names.root))
     path_image = handles.img.path_names.root;
 else
     path_image = cd;

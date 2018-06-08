@@ -580,16 +580,11 @@ if not(isnan(ind_spot))
        
     %- Uncheck check-box and start datacursormode again
     set(handles.checkbox_remove_man,'Value',0);
-%     zoom off
-%     pan off
     
     %- Save everything and plot
     handles = plot_image(hObject, eventdata, handles);
     guidata(hObject, handles); 
 end
-
-
-%button_image_data_cursor_Callback(hObject, eventdata, handles)
 
 
 %=== Options
@@ -664,7 +659,7 @@ y_max = v(4);
 str = get(handles.pop_up_view, 'String');
 val = get(handles.pop_up_view,'Value');
 
-switch str{val};    
+switch str{val}
     case 'Maximum projection' 
         status_z_stack = 0;
         set(handles.text_z_slice,'String','');
@@ -676,8 +671,8 @@ switch str{val};
         z_min = ind_slice - handles.marker_extend_z;
         z_max = ind_slice + handles.marker_extend_z;
 
-        if z_min < 1; z_min = 1;end;
-        if z_max > handles.img.dim.Z; z_max = handles.img.dim.Z; end; 
+        if z_min < 1; z_min = 1;end
+        if z_max > handles.img.dim.Z; z_max = handles.img.dim.Z; end
 end
 
 %== Select which image
@@ -739,7 +734,6 @@ end
 %== Show image
 handles.h_img = imshow(img_plot,[contr_min contr_max]);
 axis off
-%colormap(hot)
 
 %==== Which cell?
 ind_cell      = get(handles.pop_up_cell_select,'Value');
@@ -871,9 +865,6 @@ if not(isempty(spots_fit))
         end
 
         hold off  
-
-        %colormap(hot)
-        freezeColors(gca)
 
         if     sum(ind_spots_range & ind_plot_in) && sum(ind_spots_range & ind_plot_out) && sum(ind_spots_range & ind_plot_out_man)
             legend('Rejected Spots','Rejected Spots [man]','Selected Spots');  

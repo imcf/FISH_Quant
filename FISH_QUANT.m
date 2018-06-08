@@ -2923,7 +2923,6 @@ end
 guidata(hObject, handles); 
 
 
-
 %== Determine function to open images
 function menu_fun_img_open_Callback(hObject, eventdata, handles)
 
@@ -2938,7 +2937,6 @@ switch choice
         handles.img.use_tiffread = 1;
 end
 guidata(hObject, handles); 
-
 
 
 % ===== CREATE FUNCTIONS and CALL BACKS with no additional code

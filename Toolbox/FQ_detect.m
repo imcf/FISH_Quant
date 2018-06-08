@@ -75,7 +75,7 @@ set(handles.text_N_cells,'String',num2str(N_worker));
 %- Populate filter
 popup_filter_type_Callback(hObject, eventdata, handles)
 
-% Update handles structure
+%- Update handles structure
 guidata(hObject, handles);
 
 function varargout = FQ_detect_OutputFcn(hObject, eventdata, handles) 
@@ -89,13 +89,12 @@ varargout{1} = handles.output;
 function button_define_path_img_Callback(hObject, eventdata, handles)
 disp('Specify folder containing the images')
 path_img = uigetdir();
-
 if path_img ~= 0
     handles.flags.path_img = 'Specified';
     handles.path_img = path_img;
     
-    % Update handles structure
-guidata(hObject, handles);
+    %- Update handles structure
+    guidata(hObject, handles);
 end
 
 %=== Pop-up to select filter
@@ -164,7 +163,7 @@ if file_name_outline ~= 0
     img.reinit;
     
     disp('Loading  outline and image ....')
-    status  =    img.load_results(fullfile(path_name_outline,file_name_outline),path_img); 
+    status = img.load_results(fullfile(path_name_outline,file_name_outline),path_img); 
 
     %- Check if outline file was found
     if status.outline == 0
@@ -535,17 +534,27 @@ img = getappdata(0,'img');
 
 %- Get pixel-size
 img.par_microscope.pixel_size.xy = str2double(get(handles.txt_pixel_xy,'String'));
-img.par_microscope.pixel_size.z = str2double(get(handles.txt_pixel_z,'String'));
+img.par_microscope.pixel_size.z  = str2double(get(handles.txt_pixel_z,'String'));
 
 %- Get file-names for settings
-str_folder = ['FQ_results__Script_',handles.version_GMM,'__',datestr(date,'yymmdd')];
 switch handles.flags.path_img
 
     case 'HCS_Montpellier'
+        str_folder = ['FQ_results__Script_',handles.version_GMM,'__',datestr(date,'yymmdd')];
         path_settings = strrep(img.path_names.outlines,'FQ_outlines',str_folder);
 
     case 'Specified'
-        path_settings = img.path_names.outlines;
+        
+        %- Create string for new folder
+        str_folder = ['FQ_results__',datestr(date,'yymmdd')];
+        
+        %- Create folder in parental directory
+        %  Not elegant but didn't find another way .... 
+        current_dir = pwd;
+        cd(fullfile(img.path_names.outlines,'..'))
+        parent_dir = pwd;
+        path_settings = fullfile(parent_dir,str_folder);
+        cd(current_dir)
 end    
     
 %- Create folder if necessary

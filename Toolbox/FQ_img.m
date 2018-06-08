@@ -248,9 +248,11 @@ classdef FQ_img < handle
             end
             
             %- Open file
-            par_load.range     = img.range;
-            par_load.status_3D = img.status_3D;
-            par_load.use_tiffread = img.use_tiffread;
+            par_load.range        = img.range;
+            par_load.status_3D    = img.status_3D;
+            if ~isfield(par_load,'use_tiffread')
+                par_load.use_tiffread = img.use_tiffread;
+            end
  
             [img_struct, status_file] = img_load_stack_v1(file_name,par_load);
 
@@ -263,13 +265,6 @@ classdef FQ_img < handle
                 %- Get path
                 [img.path_names.img, file_name_only,ext] = fileparts(file_name);
                 
-                %- Dimensions
-                %if isempty(img.dim.X)
-                    img.dim.X             = img_struct.NX;
-                    img.dim.Y             = img_struct.NY;
-                    img.dim.Z             = img_struct.NZ;
-                %end
-                    
                %- Which type of image?
                 switch img_type
                 
@@ -277,6 +272,10 @@ classdef FQ_img < handle
                         img.raw  = (img_struct.data);
                         img.file_names.raw = [file_name_only,ext];
                         
+                        img.dim.X             = img_struct.NX;
+                        img.dim.Y             = img_struct.NY;
+                        img.dim.Z             = img_struct.NZ;
+
                     case {'filt','filtered'}
                         img.filt  = (img_struct.data);
                         img.file_names.filtered = [file_name_only,ext];
@@ -617,6 +616,11 @@ classdef FQ_img < handle
            parameters.par_microscope      = img.par_microscope;
            parameters.version             = img.version; 
            
+           %- Comments
+           if ~isfield(parameters,'comment') || isempty(parameters.comment)
+               parameters.comment             = img.comment;
+           end
+           
            %- Other parameters
            if ~isfield(parameters,'path_save')
                parameters.path_save = fileparts(name_full);
@@ -627,8 +631,10 @@ classdef FQ_img < handle
                parameters.flag_type = 'spots';
            end
            
-           %- Save settings if not already saved
-           if isempty(img.file_names.settings) && ~strcmp(parameters.flag_type,'outline')
+           %- Save settings if not already saved, and any kind of outline
+           if isempty(img.file_names.settings) && ... 
+                   ~strcmp(parameters.flag_type,'outline') && ... 
+                   ~strcmp(parameters.flag_type,'FISH_sim')
                
                if isfield(parameters,'path_save_settings')
                    path_save_settings = parameters.path_save_settings;
