@@ -102,7 +102,7 @@ if name_save ~= 0
 
             %- Check if GMM results are present
             if strcmp(flag_type,'spots_GMM')
-                if ~isempty(cell_prop(i_cell).spots_fit_GMM)
+                if isfield(cell_prop(i_cell),'spots_fit_GMM')
                     fprintf(fid,'%s\t%s\n', 'CELL_START', cell_prop(i_cell).label_GMM);
                 else
                     fprintf(fid,'%s\t%s\n', 'CELL_START', cell_prop(i_cell).label);
