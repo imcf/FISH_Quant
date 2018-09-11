@@ -1,9 +1,11 @@
 Matlab toolbox to analyze single molecule mRNA FISH data. 
+
 1. Counting the number of mature and nascent transcripts in 3D images.
 2. (locFISH) Simulating realistic smFISH images with different RNA localization patterns.
 3. (locFISH) Analyzing RNA localization in simulated and experimental data. 
 
 For more details see **publications**: 
+
 * Mueller F, Senecal A, Tantale K, Marie-Nelly H, Ly N, Collin O, Basyuk E, Bertrand E, Darzacq X, Zimmer C. FISH-quant: automatic counting of transcripts in 3D FISH images. Nature Methods 2013; 10(4): 277–278.
 * Samacoits A, Chouaib R,  Safieddine A, Traboulsi AM, Ouyang W, Zimmer C, Peter M, Bertrand E, Walter T, Mueller F. A computational framework to study sub-cellular RNA localization. In preparation.
 
