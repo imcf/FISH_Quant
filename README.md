@@ -27,14 +27,16 @@ Program is provided as an **ZIP archive**. On rare occasions problems might occu
 
 ## Getting started ##
 
-We provide several files to help new user getting used to FISH-quant. We recommend working with the example data and using either step-by-step tutorial or the video tutorials to familiarize yourself with the basic functionality. The more detailed user manual can then be used to adjust more advanced options.
+We provide several help files in the Documents folder for new users to getting used to FISH-quant. We recommend working with the example data and using either step-by-step tutorial to familiarize yourself with the basic functionality. The more detailed user manual can then be used to adjust more advanced options.
 
-**Example data**. This zip archive contains already processed FISH data. For these data the entire analysis has been performed and the different results files are provided.
 
-**Tutorial**: In this PDF we explain in detail the basic workflow for the analysis of FISH data. This is done based on the example data.
+**FISH_QUANT__Tutorials.pdf**: In this PDF we explain in detail the basic workflow for the analysis of FISH data. This is done based on the example data.
 
-**User manual**. An PDF containing with a detailed user manual describing the entire functionality of FISH-quant. 
+**Example data**. This zip archive can be downloaded from the "Download" section and contains already processed FISH data. For these data the entire analysis has been performed and the different results files are provided.
 
+**FISH_QUANT_v3.pdf**. An PDF containing with a detailed user manual describing the entire functionality of FISH-quant. 
+
+**locFISH_manual.pdf** Describes the entire functionality to analyze RNA localization (simulating images, calculation of localization features, and cell classification based on RNA localization).
 
 
 ## Bugs, other issues and suggestions for improvements ##
