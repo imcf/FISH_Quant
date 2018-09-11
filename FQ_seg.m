@@ -71,7 +71,6 @@ varargout{1} = handles.output;
 % Diverse functions for general control of the GUI
 %==========================================================================
 
-
 %=== Enable controls
 function enable_controls(hObject, eventdata, handles) 
 
@@ -400,15 +399,14 @@ if param.flags.save
     param.save.flag_folder   = ''; % Create but don't assign a value --> will be populated only if a choice will be made
     save_opt_specified       = 0;  % Check if at least one optino has been specified
     
-    
     %- Same folder
-    if get(handles.check_save_folder_same,'Value');
+    if get(handles.check_save_folder_same,'Value')
         save_opt_specified = 1;
         param.save.flag_folder = 'same';
     end
     
     %- Replace parts of the folder name
-    if get(handles.check_save_folder_replace,'Value');
+    if get(handles.check_save_folder_replace,'Value')
         save_opt_specified = 1;
         param.save.flag_folder   = 'replace';
         param.save.string_orig   = get(handles.txt_folder_replace_orig,'String');
@@ -416,7 +414,7 @@ if param.flags.save
     end
     
     %- Create subfolder
-    if get(handles.check_save_folder_sub,'Value');
+    if get(handles.check_save_folder_sub,'Value')
         save_opt_specified          = 1;
         param.save.stats_folder_sub = 1;
         param.save.name_sub         = get(handles.txt_save_folder_sub,'String');    

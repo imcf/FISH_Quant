@@ -635,10 +635,10 @@ status_file = handles.img.load_img(file_name,'raw');
 
 if status_file
 
-    if handles.img.dim.Z == 1
-        warndlg('FISH images have to be 3D stacks!','FISH-quant')
-        fprintf('\nName of image: %s\n', file_name_image);  
-    else
+%     if handles.img.dim.Z == 1
+%         warndlg('FISH images have to be 3D stacks!','FISH-quant')
+%         fprintf('\nName of image: %s\n', file_name_image);  
+%     else
         handles.img_plot      =  max(handles.img.raw,[],3); 
         handles.img_min       =  min(handles.img.raw(:)); 
         handles.img_max       =  max(handles.img.raw(:)); 
@@ -675,7 +675,7 @@ if status_file
         set(handles.listbox_TS,'String', []);
         handles = plot_image(handles,handles.axes_image); 
         guidata(hObject, handles); 
-    end
+  %  end
 end
 
 

@@ -12,7 +12,7 @@ classdef FQ_img < handle
         PSF_exp
         version
         comment     % Comment
-        range       % Range for planes in a mult-plane image (e.g. 4D stack)
+        range       % Range for planes in a multi-plane image (e.g. 4D stack)
         
         %- 3D stacks
         raw
@@ -93,8 +93,8 @@ classdef FQ_img < handle
             img.settings.filter.LoG_sigma = 1;
             
             %- Default detection settings
-            img.settings.detect.reg_size.xy = round(2*img.PSF_theo.xy_pix)+1;       % Size of detection zone in xy 
-            img.settings.detect.reg_size.z  = round(2*img.PSF_theo.z_pix)+1;       % Size of detection zone in z 
+            img.settings.detect.reg_size.xy = round(2*img.PSF_theo.xy_pix)+1;   % Size of detection zone in xy 
+            img.settings.detect.reg_size.z  = round(2*img.PSF_theo.z_pix);    % Size of detection zone in z 
             
             %- Separate region for detection and fitting
             img.settings.detect.reg_size.xy_sep = img.settings.detect.reg_size.xy;
