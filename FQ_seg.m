@@ -42,7 +42,7 @@ handles.status_store_results = 0;
 %- Load default settings
 settings_load  = FQ_load_settings_v1(fullfile(handles.FQ_path,'FISH-QUANT_default_par.txt'),{});
 
-if isfield(settings_load,  'par_microscope');
+if isfield(settings_load,  'par_microscope')
     handles.par_microscope    = settings_load.par_microscope;
     handles.par_microscope_c2 = settings_load.par_microscope;
 end

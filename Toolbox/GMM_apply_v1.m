@@ -275,7 +275,7 @@ if (flags.save_plot || flags.show_GMM)
         
         %- Plot individual mRNAs
         if ~isempty(FQ_obj.cell_prop(i_cell).spots_single)
-            plot(FQ_obj.cell_prop(i_cell).spots_single(:,2), FQ_obj.cell_prop(i_cell).spots_single(:,1), '+', 'col', 'green', 'MarkerSize',2)
+            plot(FQ_obj.cell_prop(i_cell).spots_single(:,2), FQ_obj.cell_prop(i_cell).spots_single(:,1), '+', 'col', 'blue', 'MarkerSize',2)
         end
         
         %- For GMM - don't plot crosses but how many mRNAs per aggregate
@@ -283,16 +283,16 @@ if (flags.save_plot || flags.show_GMM)
             ind_accepted = find(vertcat(FQ_obj.cell_prop(i_cell).RESULT_GMM.nspot) > GMM_thresh_size == 1);
             
             for i_GMM = 1:length(ind_accepted)
-                text(FQ_obj.cell_prop(i_cell).RESULT_GMM(ind_accepted(i_GMM)).centroid(2)-2, FQ_obj.cell_prop(i_cell).RESULT_GMM(ind_accepted(i_GMM)).centroid(1)-2, num2str(size(FQ_obj.cell_prop(i_cell).RESULT_GMM(ind_accepted(i_GMM)).position,1)),'col','red','FontSize',9)
+                text(FQ_obj.cell_prop(i_cell).RESULT_GMM(ind_accepted(i_GMM)).centroid(2)-2, FQ_obj.cell_prop(i_cell).RESULT_GMM(ind_accepted(i_GMM)).centroid(1)-2, num2str(size(FQ_obj.cell_prop(i_cell).RESULT_GMM(ind_accepted(i_GMM)).position,1)),'col','green','FontSize',9)
             end
         end
         
         %- Plot outline of cell
-        plot(FQ_obj.cell_prop(i_cell).x ,FQ_obj.cell_prop(i_cell).y, 'col', 'red')
+        plot(FQ_obj.cell_prop(i_cell).x ,FQ_obj.cell_prop(i_cell).y, '-y')
         
         %- Draw nuclear outline if present
         if ~isempty(FQ_obj.cell_prop(i_cell).pos_Nuc)
-            plot(FQ_obj.cell_prop(i_cell).pos_Nuc.x ,FQ_obj.cell_prop(i_cell).pos_Nuc.y, 'col', 'blue')
+            plot(FQ_obj.cell_prop(i_cell).pos_Nuc.x ,FQ_obj.cell_prop(i_cell).pos_Nuc.y, '--y')
         end
     end
     hold off

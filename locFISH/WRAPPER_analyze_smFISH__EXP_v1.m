@@ -38,7 +38,6 @@ param.GMM = define_GMM_param_v1();
 
 %=== Parameters controling calculation of localization features.
 %    Set to an empty structure "param.features =  {};"  to not calculate features
-
 param.features = define_locFeat_param_v1();  % = {};
 
 
