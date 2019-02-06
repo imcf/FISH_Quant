@@ -46,12 +46,6 @@ end
 
 % --- Executes just before FQ_IF is made visible.
 function FQ_IF_OpeningFcn(hObject, eventdata, handles, varargin)
-% This function has no output args, see OutputFcn.
-% hObject    handle to figure
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to FQ_IF (see VARARGIN)
-
 % Choose default command line output for FQ_IF
 handles.output = hObject;
 
@@ -74,7 +68,6 @@ varargout{1} = handles.output;
 
 % ==== Call function to specify files
 function button_IF_files_Callback(hObject, eventdata, handles)
-
 
 %- Get files with results - multi-select is possible
 disp('Specify FQ results files!')
