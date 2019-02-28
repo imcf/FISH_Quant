@@ -576,18 +576,18 @@ names_struct.suffix.cell = get(handles.text_outline_seg_cell,'String');    %- Su
 parameters.ext_orig = get(handles.text_CP_ext_orig,'String');
 
 %-  Where to save results
-if get(handles.check_save_folder_outline_replace,'Value');
+if get(handles.check_save_folder_outline_replace,'Value')
     parameters.save.flag_folder = 'replace';
     parameters.save.string_orig   = get(handles.txt_folder_outline_replace_orig,'String');
     parameters.save.string_new    = get(handles.txt_folder_outline_replace_new,'String');
 end
 
-if get(handles.check_save_folder_outline_sub,'Value');
+if get(handles.check_save_folder_outline_sub,'Value')
     parameters.save.flag_folder = 'sub';
     parameters.save.name_sub    = get(handles.txt_save_folder_outline_sub,'String');
 end
 
-if get(handles.check_save_folder_outline_same,'Value');
+if get(handles.check_save_folder_outline_same,'Value')
     parameters.save.flag_folder = 'same';
 end
 

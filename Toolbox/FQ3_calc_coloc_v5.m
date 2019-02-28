@@ -1,10 +1,12 @@
-function [drift, summary_coloc, results_coloc] = FQ3_calc_coloc_v4(parameters,dist_th)
+function [drift, summary_coloc, results_coloc,ch1_all_spots,ch2_all_spots] = FQ3_calc_coloc_v5(parameters,dist_th)
 
 
 %% Output
 summary_coloc = {};
 values_coloc = [];
 results_coloc = [];
+ch1_all_spots = [];
+ch2_all_spots = [];
 
 %% Global variables for shifts in 3D
 global X1 X2 Y1 Y2 Z1 Z2 u v w 
@@ -329,6 +331,18 @@ for i_file = 1:N_files
         results_coloc.data_det_ch1{i_cell_all,1} = spots_det_ch1(ind_close_ch1,:);
         results_coloc.data_det_ch2{i_cell_all,1} = spots_det_ch2(ind_close_ch2,:);
   
+        
+        %- Save results co-localization results for all spots
+        ch1_all_spots = [ch1_all_spots;
+                         spots_fit_ch1(ind_close_ch1,:) spots_det_ch1(ind_close_ch1,:),ones(length(ind_close_ch1),1);
+                         spots_fit_ch1(ind_NOT_close_ch1,:) spots_det_ch1(ind_NOT_close_ch1,:),zeros(length(ind_NOT_close_ch1),1)];
+                     
+        ch2_all_spots = [ch2_all_spots;
+                 spots_fit_ch2(ind_close_ch2,:) spots_det_ch2(ind_close_ch2,:),ones(length(ind_close_ch2),1);
+                 spots_fit_ch2(ind_NOT_close_ch2,:) spots_det_ch2(ind_NOT_close_ch2,:),zeros(length(ind_NOT_close_ch2),1)];             
+
+        
+        %- Update counter
         i_cell_all = i_cell_all +1;
         
         %==================================================================
@@ -440,7 +454,6 @@ for i_file = 1:N_files
             save2pdf(fullfile(folder_img_cells,name),gcf,300)
             close(gcf);
             
-            
         end
     end
 end
@@ -454,21 +467,28 @@ if isempty(values_coloc)
      return
 end
 
-summary_coloc.values    = values_coloc;
-summary_coloc.ident_ch1 =  ident_ch1;
+summary_coloc.values      = values_coloc;
+summary_coloc.ident_ch1   =  ident_ch1;
 summary_coloc.flags_drift =  flags.drift_apply;
-summary_coloc.dist_th =  dist_th;
+summary_coloc.dist_th     =  dist_th;
 summary_coloc.N_spots_max =  N_spots_max;
 
 
 %% Plot summary results for different length thresholds
-[f,x] = ecdf(distance_spots_all);
-N_total = length(distance_spots_all);
+if isempty(distance_spots_all)
+    x= [0 dist_th];
+    fplot = zeros(1,length(x));
+else
+    [f,x] = ecdf(distance_spots_all);
+    N_total = length(distance_spots_all);
+    fplot = f*N_total;
+end
+
 
 figure; set(gcf,'Color', 'w')
 
 hold on
-plot(x,f*N_total,'r' )
+plot(x,fplot,'r' )
 plot([0 dist_th], [N_ch2_total N_ch2_total],'--g' )
 plot([0 dist_th], [N_ch1_total N_ch1_total],'b' )            
 hold off

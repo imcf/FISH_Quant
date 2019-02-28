@@ -28,7 +28,7 @@ N_spots_max =  summary_coloc.N_spots_max;
 %% Co-localized spots
 
 %- Get file-name
-file_name_save = ['__FQ_coloc_SPOTS__',ident_ch1,'-',ident_ch2,'__' , datestr(now,'yymmdd'),'.txt'];  % Name to save the results
+file_name_save = ['_FQ_coloc_SPOTS__',ident_ch1,'-',ident_ch2,'__' , datestr(now,'yymmdd'),'.txt'];  % Name to save the results
 file_save_full = fullfile(folder_coloc,file_name_save);
 
 %- Wich part should be saved
@@ -94,6 +94,9 @@ for i_cell = 1:N_files
         end
     end
 end
+
+%terminate if no co-localization found
+if isempty(cell_write_all); return; end
 
 % Sort results
 cell_write_all = sortrows(cell_write_all,[1 2]);    %- Sort by column 1 and then by 2
