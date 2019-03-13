@@ -75,7 +75,8 @@ else
 end
 
 %- Actual loop
-N_files = length(file_name_all);
+N_files     = length(file_name_all);
+folder_save = [];
 
 for i_file = 1:N_files
     
@@ -275,20 +276,21 @@ for i_file = 1:N_files
         close(h_fig)
     end
     
-end
-
-if param.flags.save
-    %- Save settings file
-    
-    if files_proc.flag_ignore
-        str_ignore = [files_proc.name_ignore{:}];
-    else
-        str_ignore = '';
+    if param.flags.save && ~isempty(folder_save)
+        
+        %- Save settings file
+        if files_proc.flag_ignore
+            str_ignore = [files_proc.name_ignore{:}];
+        else
+            str_ignore = '';
+        end
+        
+        file_settings = ['_FQ_Zproj_settings__',param.project.type,'__ignore_',str_ignore,'.txt'];
+        save_settings(fullfile(folder_save,file_settings),param);
     end
     
-    file_settings = ['_FQ_Zproj_settings__',param.project.type,'__ignore_',str_ignore,'.txt'];
-    save_settings(fullfile(folder_save,file_settings),param);
 end
+
 
 disp('   ')
 disp('=====   FINISHED')
