@@ -230,6 +230,7 @@ for i_file = 1:N_files
             
             case 'replace'
                 folder_save = strrep(path_name, param.save.string_orig, param.save.string_new);
+                
                 if strcmp(folder_save,path_name)
                     disp('== COULD NOT FIND STRING TO REPLACE IN FOLDER NAME')
                     disp(['Folder: ',path_name])
@@ -245,12 +246,14 @@ for i_file = 1:N_files
         
         %- Make subfolder
         if param.save.stats_folder_sub
-            folder_save = fullfile(folder_save,param.save.name_sub );
+            folder_save = fullfile(folder_save,param.save.name_sub);
         end
         
         
         %- Make folder if it doesn't exist already
-        if ~exist(folder_save,'dir'); mkdir(folder_save); end
+        if ~exist(folder_save,'dir')
+            mkdir(folder_save); 
+        end
         
         %- Save
         if ~exist(fullfile(folder_save,name_save),'file')
@@ -276,7 +279,13 @@ end
 
 if param.flags.save
     %- Save settings file
-    str_ignore = [files_proc.name_ignore{:}];
+    
+    if files_proc.flag_ignore
+        str_ignore = [files_proc.name_ignore{:}];
+    else
+        str_ignore = '';
+    end
+    
     file_settings = ['_FQ_Zproj_settings__',param.project.type,'__ignore_',str_ignore,'.txt'];
     save_settings(fullfile(folder_save,file_settings),param);
 end

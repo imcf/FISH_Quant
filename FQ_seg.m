@@ -131,31 +131,30 @@ else
 end
     
 
-%- What's going on with the second color
-check_2nd = get(handles.check_outline_2nd_color,'Value');
-
-if ~check_2nd
-    status_2nd = 1;
-    set(handles.button_parameters_2nd,'ForegroundColor','k');
-else
-    if handles.status_par2_def 
-        status_2nd = 1;
-        set(handles.button_parameters_2nd,'ForegroundColor','k');
-    else
-        status_2nd = 0;
-        set(handles.button_parameters_2nd,'ForegroundColor','r');
-    end
-end
 
 %- What's going on with first channel
-status_1st = 0;
+%  Pass either when it will not be created or if created and parameters defined
 status_make_1st = ~get(handles.check_outline_not_1st,'Value');
 
-if  (~check_2nd && handles.status_par_def)      || ...         % Only 1st one and parameters are define
-    (check_2nd && status_make_1st && handles.status_par_def)   % First and second color are made & parameters of first one are defined
+if ~status_make_1st   || (status_make_1st && handles.status_par_def)
     status_1st = 1;
+else
+    status_1st = 0;
 end
-    
+
+
+%- What's going on with the second color
+%  Pass either when it will not be created or if created and parameters defined
+check_2nd = get(handles.check_outline_2nd_color,'Value');
+
+if  ~check_2nd || (check_2nd && handles.status_par2_def) 
+	status_2nd = 1;
+    set(handles.button_parameters_2nd,'ForegroundColor','k');
+else
+    status_2nd = 0;
+     set(handles.button_parameters_2nd,'ForegroundColor','r');
+end
+
     
 %- Stored results for inspection
 %  (i) Parameters have to be defined, 
@@ -521,6 +520,7 @@ end
 
 % --- Executes on button press in button_define_images_proj.
 function button_define_images_proj_Callback(hObject, eventdata, handles)
+
 %== Define images
 [file_name_all,path_name] = uigetfile({'*.tif';'*.TIF';'*.STK';'*.stk'},'Select images','MultiSelect','on');
 
