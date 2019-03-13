@@ -319,8 +319,12 @@ end
 if file_name_all{1} ~=0
 
     handles.files_proc.input_type = 'file';
-    handles.files_proc.file_name_all = file_name_all;
-    handles.files_proc.path_name     = path_name;
+    
+    %- Add path name to each file-name
+    handles.files_proc.file_name_all = strcat(path_name,file_name_all);
+   
+    %handles.files_proc.file_name_all = file_name_all;
+    %handles.files_proc.path_name     = path_name;
     
     %== Update handles structure
     handles.status_img = 1;

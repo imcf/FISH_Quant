@@ -27,32 +27,40 @@ switch files_proc.input_type
         if files_proc.flag_folder_rec
             string_search = fullfile(path_scan,'**',['*',img_ext]);
             file_list     = rdir(string_search);
-            path_name     = '';   % Will be empty - path included in file-name!
+            file_name_all = {file_list.name};  % Already complete file-name
+           
         else
             
-            string_search = fullfile(path_scan,['*',img_ext]);
-            file_list     = dir(string_search);
-            path_name     = path_scan;
+            string_search  = fullfile(path_scan,['*',img_ext]);
+            file_list      = dir(string_search);
+            file_list_name = {file_list.name};
+            file_name_all =  cellfun(@(x)fullfile(path_scan,x),file_list_name,'UniformOutput',false);
+           
+            %file_list_short = struct('name',{file_list.name});
+           % files_proc.file_name_all = strcat(path_name,file_name_all)
+            
+            
         end
+       
         
         %- Return if no files were found
-        if isempty(file_list)
+        if isempty(file_name_all)
             disp('== NO files found when searching directory')
             disp('File extensions are CASE sensitive')
             disp(['Search string: ', string_search])
             return
             
-        else
-            
-            %- Convert output of dir/rdir to a cells
-            file_list_short = struct('name',{file_list.name});
-            file_name_all   = squeeze(struct2cell(file_list_short));
+%         else
+%             
+%             %- Convert output of dir/rdir to a cell
+%             file_list_short = struct('name',{file_list.name});
+%             file_name_all   = squeeze(struct2cell(file_list_short));
         end
         
     case 'file'
         
         file_name_all = files_proc.file_name_all;
-        path_name     = files_proc.path_name;
+        %path_name     = files_proc.path_name;
         
 end
 
@@ -90,7 +98,7 @@ for i_file = 1:N_files
     %== Load image file
     disp('==   Load image')
     file_name = file_name_all{i_file};
-    [dum, name_base, ext] = fileparts(file_name);
+    [path_name, name_base, ext] = fileparts(file_name);
     
     FM = [];
     
@@ -105,14 +113,21 @@ for i_file = 1:N_files
     
     %- Load image
     img = FQ_img;
-    img.load_img(fullfile(path_name,file_name),'raw');
+    img.load_img(file_name,'raw');
     img_loop  = uint16(img.raw);
     clear img;
     
     %- Check if image is already a projection
+    if isempty(img_loop)
+        disp('Image is empty - incorrect file-name?')
+        disp(file_name)
+        continue
+    end
+    
     NZ = size(img_loop,3);
     if NZ <= 3
         disp('Fewer than 3 Z slices - no projection will be performed')
+        disp(file_name)
         continue
     end
     
