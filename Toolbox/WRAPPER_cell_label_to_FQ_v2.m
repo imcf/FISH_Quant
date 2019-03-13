@@ -1,4 +1,4 @@
-function WRAPPER_cell_label_to_FQ_v1(parameters)
+function WRAPPER_cell_label_to_FQ_v2(parameters)
 
 % WRAPPER FUNCTION TO CONVERT segmentation results  
 % (CellProfiler, CellCognition, ...) into FISH-quant outline files. 
@@ -40,15 +40,14 @@ else
     names_struct.suffix.FISH = '_CY3';           %- Identifier for FISH images
 
     %- Identifiers for masks
-    names_struct.suffix.nuc  = '_MASK_nuc.tif';   %- Suffix of CellProfiler for nucleus
-    names_struct.suffix.cell = '_MASK_cell.tif';   %- Suffix of CellProfiler for cells
+    names_struct.suffix.nuc  = '_MASK_nuc.tif';   %- CellProfiler for nucleus
+    names_struct.suffix.cell = '_MASK_cell.tif';  %- CellProfiler for cells
 
 end
 
-
 %== Suffix and extension
-names_struct.ext_image = '.tif';      %- Extension for images (FISH, DAPI)
-names_struct.ext_mask  = '.tif';      %- Extension for CellProfiler masks
+names_struct.ext_image = parameters.ext_orig;   % '.tif';     %- Extension for images (FISH, DAPI)
+names_struct.ext_mask  = parameters.ext_masks;  %'.tif';      %- Extension for CellProfiler masks
 
 
 %% Get files with results 
@@ -62,7 +61,7 @@ switch files_proc.input_type
    
         %- Get parameters
         path_scan  = files_proc.path_scan;
-        img_ext    = '.tif';
+        img_ext    = names_struct.ext_mask; %'.tif';
 
         %- Make sure that there is a dot in front of the file extension
         if ~strcmp(img_ext(1),'.')

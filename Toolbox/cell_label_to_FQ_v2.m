@@ -374,7 +374,6 @@ function [file_name_outline, file_name_outline_full]  = save_outline(parameters,
     path_name        = parameters.names_struct.path;
 
     %- Suffix and extension
-    %ext_image = names_struct.ext_image;
     suffix    = names_struct.suffix;
 
     %- Depending on how directories were scanned path_name might be empty
@@ -439,7 +438,7 @@ function [file_name_outline, file_name_outline_full]  = save_outline(parameters,
         par_outline.par_microscope  = par_microscope;
    else
        par_outline.par_microscope = parameters.save_2nd.par_microscope_c2;
-       folder_save = fullfile(folder_save,parameters.save_2nd.suffix);
+       folder_save = fullfile(folder_save,['_FQ_outline_',parameters.save_2nd.suffix]);
    end
  
    %- Make folder if it doesn't exist already & generate file-name

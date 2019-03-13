@@ -1,5 +1,5 @@
 function proj_struct = FQ3_proj_z_v1(files_proc,param)
-%% FUNCTION to generate z-projections for 3D stacks
+% FUNCTION to generate z-projections for 3D stacks
 
 proj_struct = {};
 

@@ -4,7 +4,7 @@ function varargout = FQ_seg(varargin)
 
 % Edit the above text to modify the response to help FQ_seg
 
-% Last Modified by GUIDE v2.5 10-Oct-2016 11:03:40
+% Last Modified by GUIDE v2.5 13-Mar-2019 16:37:11
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -578,6 +578,7 @@ names_struct.suffix.cell = get(handles.text_outline_seg_cell,'String');    %- Su
 
 %- Extension of original images
 parameters.ext_orig = get(handles.text_CP_ext_orig,'String');
+parameters.ext_masks = get(handles.text_CP_ext_masks,'String');
 
 %-  Where to save results
 if get(handles.check_save_folder_outline_replace,'Value')
@@ -616,7 +617,7 @@ parameters.names_struct   = names_struct;
 parameters.par_microscope = handles.par_microscope;
 parameters.files_proc = handles.files_outline_proc;
 
-WRAPPER_cell_label_to_FQ_v1(parameters)
+WRAPPER_cell_label_to_FQ_v2(parameters)
 
 
 % =========================================================================
@@ -984,22 +985,22 @@ end
 
 
 function FISH_image_identifier_cellcog_Callback(hObject, eventdata, handles)
-% hObject    handle to FISH_image_identifier_cellcog (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of FISH_image_identifier_cellcog as text
-%        str2double(get(hObject,'String')) returns contents of FISH_image_identifier_cellcog as a double
 
 
 % --- Executes during object creation, after setting all properties.
 function FISH_image_identifier_cellcog_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to FISH_image_identifier_cellcog (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
 
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
+
+
+function text_CP_ext_masks_Callback(hObject, eventdata, handles)
+
+
+% --- Executes during object creation, after setting all properties.
+function text_CP_ext_masks_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
