@@ -165,7 +165,7 @@ if ~par_coloc.flags.drift_apply
 end
     
 %- Call routine
-[drift, summary_coloc, results_coloc,ch1_all_spots, ch2_all_spots] = FQ3_calc_coloc_v5(par_coloc,dist_th);
+[drift, summary_coloc, results_coloc] = FQ3_calc_coloc_v6(par_coloc,dist_th);
 
 %- Save results of drift correction only if not applied at the same time
 if par_coloc.flags.drift_calc && ~par_coloc.flags.drift_apply
@@ -177,9 +177,6 @@ end
 handles.par_coloc = par_coloc;
 handles.summary_coloc = summary_coloc;
 handles.results_coloc = results_coloc;
-handles.ch1_all_spots = ch1_all_spots;
-handles.ch2_all_spots = ch2_all_spots;
-
 
 % Update handles structure
 guidata(hObject, handles);
@@ -197,10 +194,10 @@ FQ3_DualColor_save_summary_v1(handles.par_coloc,handles.summary_coloc,handles.re
 FQ3_DualColor_save_details_v1(handles.par_coloc,handles.summary_coloc,handles.results_coloc)
 
 %- Save individual summary
-FQ3_DualColor_save_indiv_v1(handles.par_coloc,handles.summary_coloc,handles.ch1_all_spots,'ch1')
+FQ3_DualColor_save_indiv_v2(handles.par_coloc,handles.summary_coloc,handles.results_coloc,'ch1')
 
 %- Save individual summary
-FQ3_DualColor_save_indiv_v1(handles.par_coloc,handles.summary_coloc,handles.ch2_all_spots,'ch2')
+FQ3_DualColor_save_indiv_v2(handles.par_coloc,handles.summary_coloc,handles.results_coloc,'ch2')
 
 
 

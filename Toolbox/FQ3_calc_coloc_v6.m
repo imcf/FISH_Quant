@@ -1,12 +1,11 @@
-function [drift, summary_coloc, results_coloc,ch1_all_spots,ch2_all_spots] = FQ3_calc_coloc_v5(parameters,dist_th)
+function [drift, summary_coloc, results_coloc] = FQ3_calc_coloc_v6(parameters,dist_th)
 
 
 %% Output
 summary_coloc = {};
 values_coloc = [];
 results_coloc = [];
-ch1_all_spots = [];
-ch2_all_spots = [];
+
 
 %% Global variables for shifts in 3D
 global X1 X2 Y1 Y2 Z1 Z2 u v w 
@@ -332,14 +331,25 @@ for i_file = 1:N_files
         results_coloc.data_det_ch2{i_cell_all,1} = spots_det_ch2(ind_close_ch2,:);
   
         
-        %- Save results co-localization results for all spots
-        ch1_all_spots = [ch1_all_spots;
-                         spots_fit_ch1(ind_close_ch1,:) spots_det_ch1(ind_close_ch1,:),ones(length(ind_close_ch1),1);
+        %- Results all spots
+        results_coloc.ch1_all{i_cell_all,1} = [spots_fit_ch1(ind_close_ch1,:) spots_det_ch1(ind_close_ch1,:),ones(length(ind_close_ch1),1);
                          spots_fit_ch1(ind_NOT_close_ch1,:) spots_det_ch1(ind_NOT_close_ch1,:),zeros(length(ind_NOT_close_ch1),1)];
                      
-        ch2_all_spots = [ch2_all_spots;
-                 spots_fit_ch2(ind_close_ch2,:) spots_det_ch2(ind_close_ch2,:),ones(length(ind_close_ch2),1);
-                 spots_fit_ch2(ind_NOT_close_ch2,:) spots_det_ch2(ind_NOT_close_ch2,:),zeros(length(ind_NOT_close_ch2),1)];             
+        results_coloc.ch2_all{i_cell_all,1} = [spots_fit_ch2(ind_close_ch2,:) spots_det_ch2(ind_close_ch2,:),ones(length(ind_close_ch2),1);
+                 spots_fit_ch2(ind_NOT_close_ch2,:) spots_det_ch2(ind_NOT_close_ch2,:),zeros(length(ind_NOT_close_ch2),1)];
+                                 
+                     
+%         results_all_ch1
+%         
+%         
+%         %- Save results co-localization results for all spots
+%         ch1_all_spots = [ch1_all_spots;
+%                          spots_fit_ch1(ind_close_ch1,:) spots_det_ch1(ind_close_ch1,:),ones(length(ind_close_ch1),1);
+%                          spots_fit_ch1(ind_NOT_close_ch1,:) spots_det_ch1(ind_NOT_close_ch1,:),zeros(length(ind_NOT_close_ch1),1)];
+%                      
+%         ch2_all_spots = [ch2_all_spots;
+%                  spots_fit_ch2(ind_close_ch2,:) spots_det_ch2(ind_close_ch2,:),ones(length(ind_close_ch2),1);
+%                  spots_fit_ch2(ind_NOT_close_ch2,:) spots_det_ch2(ind_NOT_close_ch2,:),zeros(length(ind_NOT_close_ch2),1)];             
 
         
         %- Update counter

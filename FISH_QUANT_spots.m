@@ -201,9 +201,9 @@ elseif not(isempty(handles.img.path_names.root))
 end
 
 %- Get directory with images
-if  not(isempty(handles.img.path_names.img)); 
+if  not(isempty(handles.img.path_names.img))
     path_image = handles.img.path_names.img;
-elseif not(isempty(handles.img.path_names.root)); 
+elseif not(isempty(handles.img.path_names.root))
     path_image = handles.img.path_names.root;
 else
     path_image = cd;
@@ -229,9 +229,9 @@ function tool_save_ClickedCallback(hObject, eventdata, handles)
 %- Get current directory and go to directory with outlines
 current_dir = cd;
 
-if     not(isempty(handles.img.path_names.results)); 
+if     not(isempty(handles.img.path_names.results))
     path_save = handles.img.path_names.results;
-elseif not(isempty(handles.img.path_names.root)); 
+elseif not(isempty(handles.img.path_names.root))
     path_save = handles.img.path_names.root;
 else
     path_save = cd;
@@ -284,16 +284,6 @@ if isfield(handles,'h_impixregion')
     end
 end
 
-% %- Deactivate zoom
-% if ishandle(handles.h_zoom)
-%     set(handles.h_zoom,'Enable','off');  
-% end
-% 
-% %- Deactivate pan
-% if ishandle(handles.h_pan)
-%     set(handles.h_pan,'Enable','off');  
-% end
-
 %- Datacursormode
 dcm_obj = datacursormode;
 drawnow;
@@ -316,9 +306,9 @@ function menu_save_spots_Callback(hObject, eventdata, handles)
 %- Get current directory and go to directory with outlines
 current_dir = cd;
 
-if     not(isempty(handles.img.path_names.results)); 
+if     not(isempty(handles.img.path_names.results))
     path_save = handles.img.path_names.results;
-elseif not(isempty(handles.img.path_names.root)); 
+elseif not(isempty(handles.img.path_names.root)) 
     path_save = handles.img.path_names.root;
 else
     path_save = cd;
@@ -354,9 +344,9 @@ elseif not(isempty(handles.img.path_names.root))
 end
 
 %- Get directory with images
-if  not(isempty(handles.img.path_names.img)); 
+if  not(isempty(handles.img.path_names.img))
     path_image = handles.img.path_names.img;
-elseif not(isempty(handles.img.path_names.root)); 
+elseif not(isempty(handles.img.path_names.root))
     path_image = handles.img.path_names.root;
 else
     path_image = cd;

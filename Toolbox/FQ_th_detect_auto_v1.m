@@ -90,7 +90,8 @@ if par.flag_plot
     ylabel('Number of dots')
     legend('Raw data',['TH-intp: ',num2str(round(int_th.intp)),' (',num2str(round(count_th.intp)),')'] , ...
                        ['TH-raw: ',num2str(round(int_th.raw)),' (',num2str(round(count_th.raw)),')']   , ...
-                       ['TH-mean: ',num2str(round(int_th.mean)),' (',num2str(round(count_th.mean)),')'],1)
+                       ['TH-mean: ',num2str(round(int_th.mean)),' (',num2str(round(count_th.mean)),')'], ...
+                       'Location','northeast')
     title('RAW data')
 
 
@@ -117,7 +118,8 @@ if par.flag_plot
     ylabel('Number of dots')
     legend('Raw data',['TH-intp: ',num2str(round(int_th.intp)),' (',num2str(round(count_th.intp)),')'] , ...
                        ['TH-raw: ',num2str(round(int_th.raw)),' (',num2str(round(count_th.raw)),')']   , ...
-                       ['TH-mean: ',num2str(round(int_th.mean)),' (',num2str(round(count_th.mean)),')'],1)
+                       ['TH-mean: ',num2str(round(int_th.mean)),' (',num2str(round(count_th.mean)),')'], ...
+                       'Location','northeast')
     title('Interpolated data')
 
     subplot(2,2,4),cla

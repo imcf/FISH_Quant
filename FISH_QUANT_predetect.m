@@ -566,7 +566,7 @@ switch str{val}
 
               counts(i_th) = size(pos_pre_detect,1);
               fprintf('\b\b\b%3i',i_th);
-            end;
+            end
 
             fprintf('\n');
             
