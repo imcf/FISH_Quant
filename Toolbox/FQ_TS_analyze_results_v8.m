@@ -207,8 +207,6 @@ if ~flag_TS_only_background
 
         par_mod_int(7)  = mRNA_amp;
         par_mod_int(8)  = 0 ;
-
-
    
         integrated_int        = fun_Gaussian_3D_triple_integral_v1(x_int,y_int,z_int,par_mod_int);
     

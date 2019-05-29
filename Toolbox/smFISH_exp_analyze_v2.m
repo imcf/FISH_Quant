@@ -61,13 +61,17 @@ for i_settings = 1:length(setting_file_process)
     %=== Get all outline files 
     file_list_loop = dir(path_proc);
     
-    %-  Find all settings files, e.g. text files containing "FQ_settings" in their name
+    %-  Find all outline files, e.g. text files containing "_outline.txt" in their name
     file_list_loop_name   = {file_list_loop.name};
 
     ind_outline           = cellfun(@(x) strfind(x,'_outline.txt'), file_list_loop_name, 'UniformOutput',false);
     ind_outline           = cellfun(@(x) isempty(x), ind_outline);
     outline_file_process  = {file_list_loop_name{~ind_outline}};
   
+    if numel(outline_file_process) == 0
+        print('No FQ outlines (files containing _outline.txt) were found')
+    end
+    
     %=== Set parameters for analysis function
     file_info.path_results              = path_proc;
     file_info.path_results_localization = path_proc;
