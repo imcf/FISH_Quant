@@ -6,7 +6,7 @@ function [ripley_features, ripley_curves] = loc_feature_Ripley_v1(pos_points,pos
 a               = distmat([transpose(pos_border.x) transpose(pos_border.y)]);
 size_cell       = max(max(a));
 R_mid_cell      = ripley_k_function_edge_corr_v1(pos_points,pos_border,round(size_cell/4),param);
-L_mid_cell = sqrt(R_mid_cell/pi) - transpose(size_cell/4);
+L_mid_cell      = sqrt(R_mid_cell/pi) - transpose(size_cell/4);
 
 
 %==== Calculate R and L functions for aggregates

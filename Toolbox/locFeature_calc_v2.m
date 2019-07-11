@@ -68,18 +68,16 @@ pixel_nuc                  = find(mask_nuc == 1) ;
 [pixel_nuc_x, pixel_nuc_y] = ind2sub(size(mask_cell),pixel_nuc);
 nucleus_centroid           = [mean(pixel_nuc_y) mean(pixel_nuc_x)];
 
-%- Polygon of cell
-cell_poly               = transpose([ pos_border.x; pos_border.y]);
-
-%- Polygon of nucleus
-nucleus_poly            = transpose([cell_prop.pos_Nuc.x - min(cell_prop.x); cell_prop.pos_Nuc.y - min(cell_prop.y)]);
 
 if any(strcmp(verbose,'pre-proc'))
     figure, set(gcf,'color','w'),clf
+    
+    imshow(max(image_cell,[],3))
     hold on
     plot(pos_border.x,pos_border.y,'b')
     plot(pos_points.x,pos_points.y,'og')
     axis image
+    
 end
 
 
@@ -166,6 +164,7 @@ if any(strcmp(verbose,'cell-ext'))
 end
 
 %- Loop over all openings
+
 for i_disk = 1:length(disk_size)
     
     %- Morphological opening with different disk-size
@@ -202,6 +201,7 @@ for i_disk = 1:length(disk_size)
         box on
         title(['Opening with disk (in/total) ',num2str(disk_size(i_disk)),' (',num2str(n_RNA-N_RNA_cut),'/',num2str(n_RNA),')'])
     end
+    
 end
     
 
@@ -262,7 +262,7 @@ if ~ isempty(image_cell)
     mdl                = fitlm(img_int_pos_z, pos_points_z_corr);
     locFeature.cell_heigth_rsquared = mdl.Rsquared.Ordinary;
     
-    if any(strcmp(verbose,'membrane')); 
+    if any(strcmp(verbose,'membrane'))
         figure, set(gcf,'color','w')
         subplot(2,2,1)
         imshow(mean(img_crop(:,:,:),3),[])

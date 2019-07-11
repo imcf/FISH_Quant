@@ -165,8 +165,7 @@ else
             tline = fgetl(fid);
             if isempty(strfind(tline, 'CELL_END'))
                 k     = strfind(tline, sprintf('\t') );
-                if ~ isempty(k)
-                    %z_pos = str2num(tline(k(1)+1:k(end)-1));
+                if ~isempty(k)
                     z_pos = sscanf(tline(k(1)+1:k(end)-1),'%f')';
                 else
                     z_pos = [];
@@ -188,7 +187,6 @@ else
             %- Polygon of cell: x- coordinates
             tline = fgetl(fid);
             k     = strfind(tline, sprintf('\t') );
-            %x_pos = str2num(tline(k(1)+1:k(end)-1));
             x_pos = sscanf(tline(k(1)+1:k(end)-1),'%f')';
             
             cell_prop(ind_cell).pos_Nuc(ind_nuc).x = x_pos;
@@ -196,7 +194,6 @@ else
             %- Polygon of cell: y-coordinates
             tline = fgetl(fid);
             k     = strfind(tline, sprintf('\t') );
-            %y_pos = str2num(tline(k(1)+1:k(end)-1));
             y_pos = sscanf(tline(k(1)+1:k(end)-1),'%f')';
             cell_prop(ind_cell).pos_Nuc(ind_nuc).y = y_pos;
             
@@ -204,8 +201,11 @@ else
             tline = fgetl(fid);
             if isempty(strfind(tline, 'Nucleus_END'))
                 k     = strfind(tline, sprintf('\t') );
-                %z_pos = str2num(tline(k(1)+1:k(end)-1));
-                z_pos = sscanf(tline(k(1)+1:k(end)-1),'%f')';
+                if ~isempty(k)
+                    z_pos = sscanf(tline(k(1)+1:k(end)-1),'%f')';
+                else
+                    z_pos = [];
+                end
                 cell_prop(ind_cell).pos_Nuc(ind_nuc).z = z_pos;          
             end
        
