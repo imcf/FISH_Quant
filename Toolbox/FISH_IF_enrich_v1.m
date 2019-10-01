@@ -27,16 +27,33 @@ nRNA_max = param.nRNA_max;
 img = FQ_img;
 iCell_all = 1;
 
+
+int_RNA_cells = {};     
+median_RNA_int = [];
+GFP_cyto_median = [];        
+N_RNA_cyto      = [];
+N_RNA           = [];
+
+
 for iFile = 1:length(name_results)
     
+    disp(' == Processing results file')
+   
     %- Load file and check if there are cells
     file_loop = fullfile(folder_results,name_results{iFile});
     disp(file_loop)
     img.load_results(file_loop,[]);
     if isempty(img.cell_prop); disp('No cells'); continue; end
+   
+    %- Open IF file
+    name_IF = strrep(img.file_names.raw,txt_smFISH,txt_protein);
+    if strcmp(name_IF,img.file_names.raw)
+        disp('ERROR: name of IF and FISH image are identical.')
+        disp('Check if channel identifier strings are set properly')
+        continue
+    end
     
-    %- Open GFP file
-    [img_GFP_struct, status_file] = img_load_stack_v1(fullfile(folder_images,strrep(img.file_names.raw,txt_smFISH,txt_protein)),'');
+    [img_GFP_struct, status_file] = img_load_stack_v1(fullfile(folder_images,name_IF),'');
     if ~status_file; disp('No GFP image'); continue; end
     
     img_GFP = img_GFP_struct.data;
@@ -155,4 +172,10 @@ for iCellTotal = 1:length(int_RNA_cells)
 end
 
 %- Calculate enrichment
-enrich_quant(:,5) = enrich_quant(:,3) ./ enrich_quant(:,4);
+if not(isempty(enrich_quant))
+    enrich_quant(:,5) = enrich_quant(:,3) ./ enrich_quant(:,4);
+else
+    disp(' ')
+    disp('NO RESULTS OBTAINED!!!!')
+    disp('VERIFY SETTINGS!')
+end

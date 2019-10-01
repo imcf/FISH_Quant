@@ -36,6 +36,9 @@ for i_folder = 1:length(folder_list)
     %- Loop over all settings files that should be processed
     for i_settings = 1:length(setting_file_process)
         
+        disp('Processing settings file')
+        disp(setting_file_process{i_settings})
+        
         %== Folder for results  = folder where settings are stored
         settings_file = setting_file_process{i_settings};
         path_result   = fileparts(settings_file);
@@ -54,10 +57,14 @@ for i_folder = 1:length(folder_list)
   
         %- Folder with outlines = replace the last level in folder hierachy
         %  by FQ_outlines
+        
         name_split    = strsplit(settings_file,filesep);
         path_outline  = {name_split{1:end-2}};
         path_outline  = strjoin(path_outline, filesep);
         path_outline  = fullfile(path_outline, 'FQ_outlines');
+        
+        disp('Looking for outlines in folder:')
+        disp(path_outline)
         
         %- Folder with images
         path_image = strrep(path_outline, 'Analysis', 'Acquisition'); 
@@ -67,6 +74,8 @@ for i_folder = 1:length(folder_list)
                 
         %=== Get all outline files by recersive    search 
         outline_names = dir(path_outline);
+        
+        disp([outline_names(:).name])
         
         %- Remove folders
         isub = [outline_names(:).isdir]; % returns logical vector

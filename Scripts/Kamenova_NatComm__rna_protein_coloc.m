@@ -54,8 +54,8 @@ file_info.folder_images = 'PathToIFimages';
 %% Set general analysis parameters
 
 %- Unique identifier for FISH and IF
-file_info.txt_smFISH  = 'C3-';
-file_info.txt_protein = 'C1-';     
+file_info.txt_smFISH  = 'C3';
+file_info.txt_protein = 'C1';     
    
 %- Size of cropping region around detected RNA position to quantify IF signal
 param.size_crop.xy = 0;
@@ -75,16 +75,22 @@ ind_results_file       =  cellfun(@(x) strfind(x, 'spots'), file_list_name, 'Uni
 ind_results_file       = cellfun(@(x) isempty(x), ind_results_file);
 file_info.name_results = {file_list_name{~ind_results_file}};
 
+fprintf('\n=== Found FQ results files for analysis: \n')
+disp(file_info.name_results)
+
 %% Perform analysis
 %  The first analysis quantifies the IF signal at the exact location of the
 %  localized RNAs. The second analysis performs an internal control, here 
 %  the IF images are quantified with an offset of 5 pixels.
 
 %- Co-localization analysis
+fprintf('\n\n=== WILL PERFORM ACTUAL CO-LOCALIZATION ANALYSIS: \n\n')
+
 param.pix_offset = 0;
 enrich_coLoc = FISH_IF_enrich_v1(file_info,param);
 
 %- Co-localization offset control
+fprintf('\n\n=== WILL PERFORM OFF-set CONTROL ANALYSIS: \n\n')
 param.pix_offset = 5;
 enrich_Offset = FISH_IF_enrich_v1(file_info,param);
 
@@ -110,8 +116,8 @@ ylabel('Enrichment ratio')
 %- KS test
 x1 = data_plot((data_plot(:,2) == 1),1); x2 = data_plot((data_plot(:,2) == 2),1);
 [h,p] =  kstest2(x1,x2);
-disp('=== KS test: ')
+fprintf('\n=== KS test: \n')
 disp('  - null hypothesis that the data are from the same continuous distribution')
 disp('  - h is 1 if the test rejects the null hypothesis at the 5% significance level, and 0 otherwise.')
-fprintf('\n\KS-test : h = %d, p = %f\n',h,p);
+fprintf('\n KS-test : h = %d, p = %f\n',h,p);
 

@@ -62,7 +62,13 @@ pixel_cell                   = find(mask_cell == 1) ;
 cell_centroid                = [mean(pixel_cell_y) mean(pixel_cell_x)];
 
 %- Polygon of nucleus
-mask_nuc                   = poly2mask( cell_prop.pos_Nuc.y - min(cell_prop.y),  cell_prop.pos_Nuc.x- min(cell_prop.x), size_mask(1), size_mask(2));
+try
+    mask_nuc                   = poly2mask( cell_prop.pos_Nuc.y - min(cell_prop.y),  cell_prop.pos_Nuc.x- min(cell_prop.x), size_mask(1), size_mask(2));
+catch err
+    disp('Error mean determining mask of nucleus. Is there a nucleus defined in this cell?')
+    disp(err)
+    return
+end
 
 pixel_nuc                  = find(mask_nuc == 1) ;
 [pixel_nuc_x, pixel_nuc_y] = ind2sub(size(mask_cell),pixel_nuc);
@@ -292,7 +298,7 @@ if ~ isempty(image_cell)
     end  
 end
 
-%% CALCULATION OF DIFFERENT DISTANCE FEATURS
+%% CALCULATION OF DIFFERENT DISTANCE FEATURES
         
 dist_membrane      = zeros(1,n_RNA) ;
 dist_nucleus       = zeros(1,n_RNA) ;
@@ -300,13 +306,30 @@ dist_cell_centroid = zeros(1,n_RNA) ;
 dist_nucleus_membrane = zeros(1,n_RNA) ;
 
 %=== Loop over all spots to calculate different distances
-for i_spot = 1:n_RNA
-    dist_membrane(i_spot)           =  abs(p_poly_dist(pos_RNA(i_spot,2), pos_RNA(i_spot,1), cell_prop.x, cell_prop.y));
-    dist_nucleus_membrane(i_spot)   =  abs(p_poly_dist(pos_RNA(i_spot,2), pos_RNA(i_spot,1), cell_prop.pos_Nuc.x, cell_prop.pos_Nuc.y));
-    dist_nucleus(i_spot)            =  pdist([pos_RNA(i_spot,2) pos_RNA(i_spot,1); nucleus_centroid(2) + min(cell_prop.x), nucleus_centroid(1) + min(cell_prop.y)]);
-    dist_cell_centroid(i_spot)      =  pdist([pos_RNA(i_spot,2) pos_RNA(i_spot,1); cell_centroid(:,2) +  min(cell_prop.x) cell_centroid(:,1)+ min(cell_prop.y)]);
-end
 
+% Remove duplicate positions in outlines ... 
+nuc_pos = [];
+nuc_pos(:,1) = cell_prop.pos_Nuc.y;
+nuc_pos(:,2) = cell_prop.pos_Nuc.x;
+nuc_pos = unique(nuc_pos, 'rows');
+
+% Remove duplicate positions in outlines ... 
+cell_pos = [];
+cell_pos(:,1) = cell_prop.y;
+cell_pos(:,2) = cell_prop.x;
+cell_pos = unique(cell_pos, 'rows');
+
+try
+    for i_spot = 1:n_RNA
+        dist_membrane(i_spot)           =  abs(p_poly_dist(pos_RNA(i_spot,2), pos_RNA(i_spot,1), cell_pos(:,2), cell_pos(:,1)));
+        dist_nucleus_membrane(i_spot)   =  abs(p_poly_dist(pos_RNA(i_spot,2), pos_RNA(i_spot,1), nuc_pos(:,2), nuc_pos(:,1)));
+        dist_nucleus(i_spot)            =  pdist([pos_RNA(i_spot,2) pos_RNA(i_spot,1); nucleus_centroid(2) + min(cell_prop.x), nucleus_centroid(1) + min(cell_prop.y)]);
+        dist_cell_centroid(i_spot)      =  pdist([pos_RNA(i_spot,2) pos_RNA(i_spot,1); cell_centroid(:,2) +  min(cell_prop.x) cell_centroid(:,1)+ min(cell_prop.y)]);
+    end
+
+catch err
+    disp(err)
+end
      
 %==== Calculate normalization factors for different distances
 

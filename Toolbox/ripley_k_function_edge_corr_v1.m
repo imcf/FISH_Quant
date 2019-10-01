@@ -17,13 +17,20 @@ lambda         = n_RNA/param.area_cell ;
 pos          = [pos_points.x  pos_points.y];
 dist_mat     = distmat(pos);
 
+% Remove duplicate positions in outlines ... 
+border_pos = [];
+border_pos(:,1) = pos_border.x;
+border_pos(:,2) = pos_border.y;
+border_pos = unique(border_pos, 'rows');
+
+
 %=== Correction with normalized counts at border
 if param.correction == 1
    
     % Get the distance from the border
     dist_cell = zeros(size(pos,1),1);
     for i_point = 1:n_RNA
-        dist_cell(i_point) = abs(p_poly_dist(pos(i_point,1),pos(i_point,2), pos_border.x,pos_border.y)) ;
+        dist_cell(i_point) = abs(p_poly_dist(pos(i_point,1),pos(i_point,2),border_pos(:,1),border_pos(:,2))) ;
     end
     
     for i_dist = 1:length(t)

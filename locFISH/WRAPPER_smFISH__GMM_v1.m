@@ -36,14 +36,17 @@
 
 %%  Specify folder that should be processed
 param.GMM = define_GMM_param_v1(); %=== Parameter controlling the GMM to analyze mRNA blobs
+param.GMM.flags.GMM_parameter = 1;    %  Flag: specify how parameters describing mRNAs are obtained (1 = from entire image, 0 = from each cell)
+
 disp('Select the ANALYSIS folders that should be processed')
 param.folder_proc = uigetdir; 
+param.features = '';
 if param.folder_proc == 0; return; end 
 
 
 %% Perform analysis
-param.txt_outlines = '__outlines.txt';
-param.txt_settings = '__settings_MATURE.txt';
+param.txt_outlines = '_outline.txt';
+param.txt_settings = '';
 
 smFISH_exp_GMM_v1(param);
     
