@@ -1,4 +1,4 @@
-function cell_label_to_FQ_v2(parameters)
+function cell_label_to_FQ_v3(parameters)
 % Florian Mueller, Institut Pasteur
 % email: muellerf.research@gmail.com
 
@@ -45,21 +45,29 @@ function cell_label_to_FQ_v2(parameters)
 
             %= Conversion for cells
             disp('RUNNING CONVERSION for cells ...') 
-            [reg_CELLS,img_size] = label_to_region(fullfile(path_loop,name_img_loop),options);
+            [reg_CELLS, img_size] = label_to_region(fullfile(path_loop,name_img_loop),options);
 
-            %== Name for cel
-            name_cell = name_img_loop(1:pos_string_cell-1);
+            %== Name for cell
+            %name_cell = name_img_loop(1:pos_string_cell-1);
+            name_cell = strrep(name_img_loop, names_struct.suffix.cell, '');
             
             %== Infer name of nuclear outline and check if it exists
-            name_dum      = [name_img_loop(1:pos_string_cell-1),names_struct.suffix.nuc];
-            name_mask_nuc = strrep(name_dum, names_struct.suffix.FISH, names_struct.suffix.DAPI);               
+            %name_dum      = [name_img_loop(1:pos_string_cell-1),names_struct.suffix.nuc];
+            %name_mask_nuc = strrep(name_dum, names_struct.suffix.FISH, names_struct.suffix.DAPI);
+            
+            % Replace channel identifier
+            name_mask_nuc = strrep(name_img_loop, names_struct.suffix.FISH, names_struct.suffix.DAPI);
+            
+            % Replace segmentation mask identifier
+            name_mask_nuc = strrep(name_mask_nuc, names_struct.suffix.cell, names_struct.suffix.nuc);
             name_mask_nuc_full  = fullfile(path_loop,name_mask_nuc);
 
             if exist(name_mask_nuc_full,'file')
                 fprintf('Name (nucleus): %s\n',name_mask_nuc);
                 disp('RUNNING CONVERSION for nuclei ...') 
                 reg_NUC  = label_to_region(fullfile(path_loop,name_mask_nuc),options);
-                name_nuc = strrep(name_cell, names_struct.suffix.FISH, names_struct.suffix.DAPI);
+                %name_nuc = strrep(name_cell, names_struct.suffix.FISH, names_struct.suffix.DAPI);
+                name_nuc = strrep(name_mask_nuc, names_struct.suffix.nuc, '');
             else
                 fprintf('Name (nucleus): %s DOES NOT EXIST!\n',name_mask_nuc);
                 reg_NUC = {};
@@ -70,8 +78,8 @@ function cell_label_to_FQ_v2(parameters)
             cell_prop = make_cell_prop(reg_CELLS,reg_NUC,img_size);
  
             %== Save outlines
-            parameters.names_struct.cell = name_cell;
-            parameters.names_struct.nuc  = name_nuc;
+            parameters.names_struct.cell = strrep(name_cell, names_struct.ext_mask, '');
+            parameters.names_struct.nuc  = strrep(name_nuc, names_struct.ext_mask, '');
             parameters.names_struct.path = path_loop;
             parameters.cell_prop         = cell_prop;  
             
@@ -307,7 +315,7 @@ function cell_prop = make_cell_prop(reg_CELLS,reg_NUC,img_size)
                 end
             end
 
-            if sum(cell_tot) >= 0.9*length(Nuc_X)   % Allow somewhat larger nuclei than cells - can help with imprecise conversion from segmentation masks to outlines
+            if sum(cell_tot) >= 0.7*length(Nuc_X)   % Allow somewhat larger nuclei than cells - can help with imprecise conversion from segmentation masks to outlines
                 ind_cell_Nuc = i_cell; 
             end
 

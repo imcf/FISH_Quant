@@ -1,4 +1,4 @@
-function WRAPPER_cell_label_to_FQ_v2(parameters)
+function WRAPPER_cell_label_to_FQ_v3(parameters)
 
 % WRAPPER FUNCTION TO CONVERT segmentation results  
 % (CellProfiler, CellCognition, ...) into FISH-quant outline files. 
@@ -109,5 +109,5 @@ parameters.path_name      = path_name;
 
 parameters.flag_bgd           = 'index_0';     % Background corresponds to region with value 0
 
-cell_label_to_FQ_v2(parameters);
+cell_label_to_FQ_v3(parameters);
 

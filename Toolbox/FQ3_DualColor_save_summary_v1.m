@@ -9,6 +9,7 @@ if isempty(summary_coloc.folder_coloc)
     else
         folder_coloc = fullfile(par_coloc.folder_ch1, ['_results_coloc_DriftCorrection',datestr(date,'yymmdd')]);
     end
+    
     if ~(exist(folder_coloc,'dir')); mkdir(folder_coloc); end
     
     summary_coloc.folder_coloc = folder_coloc;

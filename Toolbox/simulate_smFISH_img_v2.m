@@ -1,4 +1,4 @@
-function [im_final, im_no_bgd, prop_cell] = simulate_smFISH_img_v2(sim_prop,cell_prop,cell_library_info)
+function [im_final, im_no_bgd, prop_cell] = simulate_smFISH_img_v3(sim_prop,cell_prop,cell_library_info)
 % Function to simulate images from specified mRNA positions.
 
 %% Get parameters 
@@ -31,15 +31,15 @@ if ~isempty(img_bgd)
     
     %- Load mRNA coordinates
     pos_RNA          = sim_prop.RNA_pos;
-    pos_RNA(:,[1,2]) = pos_RNA(:,[1,2])   + pad_xy;             % Consider padding in XY
+    pos_RNA(:,[1,2]) = pos_RNA(:,[1,2])   + pad_xy;                     % Consider padding in XY
     pos_RNA(:,3)     = pos_RNA(:,3)       + cell_prop.cell_bottom_pix;  % Bring z-coordiantes to lower limit of cell in z
-    pos_RNA_scaled   = round(factor_binning * pos_RNA);             % Consider binning and round
+    pos_RNA_scaled   = round(factor_binning * pos_RNA);                 % Consider binning and round
     
     %- Creating the actual image - on larger pixel grid
     size_img               = size(img_bgd);
     size_large             = factor_binning*size_img;
     img_support            = uint16(zeros(size_large));
-    [img_large,  RNA_int]  = PSF_add_v2(img_support,pos_RNA_scaled,sim_prop);
+    [img_large,  RNA_int]  = PSF_add_v3(img_support,pos_RNA_scaled,sim_prop);
     
     %- Perform binning
     img_6D     = reshape(img_large,[factor_binning size_img(1) factor_binning size_img(2) factor_binning size_img(3)]);

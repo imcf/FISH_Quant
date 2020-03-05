@@ -9,6 +9,9 @@ switch sim_prop.pattern_name
     
     case 'random' 
         RNA_pos = sim_random_v2(sim_prop,cell_prop);
+        
+   case 'random_cell' 
+        RNA_pos = sim_random_cell_v1(sim_prop,cell_prop);
     
     case 'cell3D'
         RNA_pos = sim_cell_membrane_v2(sim_prop,cell_prop);
@@ -21,7 +24,10 @@ switch sim_prop.pattern_name
   
     case 'nuc2D' 
         RNA_pos = sim_nucleus_edge_v2(sim_prop,cell_prop,cell_library_info); 
-    
+
+    case 'perinuc'
+        RNA_pos = sim_perinuclear_v1(sim_prop,cell_prop);    
+        
     case 'foci' 
         RNA_pos = sim_foci_v3(sim_prop,cell_prop,cell_library_info)  ;
         
@@ -36,8 +42,7 @@ switch sim_prop.pattern_name
         
     case 'inNUC' 
         RNA_pos = sim_inNucleus_v1(sim_prop,cell_prop)  ;
-        
-        
+           
     otherwise
         fprintf(' Pattern not known: %s \n',sim_prop.pattern_name)
 
@@ -52,6 +57,7 @@ if flag.output
     pos_nuc  = cell_prop.pos_nuc_pix;
     nuc_2D  = cell_prop.nuc_2D;
     cell_2D  = cell_prop.cell_2D;
+    cell_bottom_pix = cell_prop.cell_bottom_pix;
  
     figure, set(gcf,'color','w')
     subplot(1,3,1)
@@ -59,7 +65,7 @@ if flag.output
     trisurf(K_cell,pos_cell(:,1),pos_cell(:,2),pos_cell(:,3), ...
         'FaceColor','yellow','FaceAlpha', 0.1);
     trisurf(K_nuc,pos_nuc(:,1),pos_nuc(:,2),pos_nuc(:,3),0.1)
-    plot3(RNA_pos(:,1),RNA_pos(:,2),RNA_pos(:,3) ,'.','MarkerSize',15, 'col','red')
+    plot3(RNA_pos(:,1),RNA_pos(:,2),RNA_pos(:,3) + cell_bottom_pix ,'.','MarkerSize',15, 'col','red')
     hold off
     box on
     axis image
@@ -72,9 +78,9 @@ if flag.output
     hold off
     axis image
     box on
-    title(pattern,'interpreter','none')
+    title(sim_prop.pattern_name,'interpreter','none')
     
     subplot(1,3,3)
-    plot3(RNA_pos(:,1),RNA_pos(:,2),RNA_pos(:,3) ,'.','MarkerSize',10, 'col','red')
+    plot3(RNA_pos(:,1),RNA_pos(:,2),RNA_pos(:,3)+cell_bottom_pix ,'.','MarkerSize',10, 'col','red')
 end
 

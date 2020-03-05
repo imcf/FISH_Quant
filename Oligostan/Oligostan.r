@@ -245,6 +245,7 @@ isOk4PNASFilter <- function(TheSeq,filtertobeuse = c(1,2,3,4,5)){
 }
 
 isOk4GCFilter <- function(TheSeq,minGC=0.45,maxGC=0.55){
+  tolower(TheSeq) -> TheSeq
   theVerdict <- FALSE
   summary(TheSeq)$compo -> tmpcompo
   tmpcompo[names(tmpcompo)=="g"] -> gnb
@@ -255,6 +256,7 @@ isOk4GCFilter <- function(TheSeq,minGC=0.45,maxGC=0.55){
 }
 
 isitok4aComp <- function(theProbeSeq){
+  tolower(theProbeSeq) -> theProbeSeq
   theVerdict <- FALSE
   if((summary(theProbeSeq)$compo[names(summary(theProbeSeq)$compo)=="a"] / summary(theProbeSeq)$length) < 0.28) theVerdict <- TRUE
   return(theVerdict)
@@ -268,13 +270,15 @@ isitok4aStack <- function(theProbeSeq){
 }
 
 isitok4cComp <- function(theProbeSeq){
+  tolower(theProbeSeq) -> theProbeSeq
   theVerdict <- FALSE
-  (summary(theProbeSeq)$compo[names(summary(theProbeSeq)$compo)=="a"] / summary(theProbeSeq)$length) -> cComp
+  (summary(theProbeSeq)$compo[names(summary(theProbeSeq)$compo)=="c"] / summary(theProbeSeq)$length) -> cComp
   if(cComp < 0.28 & cComp > 0.22) theVerdict <- TRUE
   return(theVerdict)
 }
 
 isitok4cSpecStack <- function(theProbeSeq){
+  tolower(theProbeSeq) -> theProbeSeq
   theVerdict <- FALSE
   matrix(rep(times=6,seq(1,6,1)),ncol=6,byrow=T) -> posrow
   matrix(rep(times=6,seq(0,5,1)),ncol=6,byrow=F) -> poscol

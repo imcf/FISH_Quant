@@ -74,7 +74,6 @@ varargout{1} = handles.output;
 %=== Enable controls
 function enable_controls(hObject, eventdata, handles) 
 
-
 %---------- PROJECTION
 
 %- Only one focus measurement can be enabled
@@ -120,7 +119,6 @@ else
 end    
 
 
-
 %---------- FQ outlines from CP
 
 %- First parameters are defined
@@ -130,8 +128,6 @@ else
     set(handles.button_define_exp,'ForegroundColor','r');
 end
     
-
-
 %- What's going on with first channel
 %  Pass either when it will not be created or if created and parameters defined
 status_make_1st = ~get(handles.check_outline_not_1st,'Value');
@@ -154,7 +150,6 @@ else
     status_2nd = 0;
      set(handles.button_parameters_2nd,'ForegroundColor','r');
 end
-
     
 %- Stored results for inspection
 %  (i) Parameters have to be defined, 
@@ -165,7 +160,6 @@ if status_1st && status_2nd && handles.status_img_outline
 else
     set(handles.button_create_FQ_outlines,'enable','off')
 end    
-
 
 %- Save handles
 guidata(hObject, handles);
@@ -617,7 +611,7 @@ parameters.names_struct   = names_struct;
 parameters.par_microscope = handles.par_microscope;
 parameters.files_proc = handles.files_outline_proc;
 
-WRAPPER_cell_label_to_FQ_v2(parameters)
+WRAPPER_cell_label_to_FQ_v3(parameters)
 
 
 % =========================================================================
