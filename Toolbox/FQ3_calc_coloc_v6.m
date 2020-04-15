@@ -78,7 +78,6 @@ if flags.save_img_cells
 end
 
 
-
 %% Loop over files
 N_files      = length(file_name_results);
 
@@ -173,7 +172,6 @@ for i_file = 1:N_files
             
                 [dim.Y, dim.X, dim.Z] = size(img_ch1);
             end
-
         end
 
         if ~strcmp(file_ch2_open,file_raw_ch2)
@@ -192,7 +190,6 @@ for i_file = 1:N_files
                 img_ch2_MIP   = max(img_ch2,[],3);
                 file_ch2_open = file_raw_ch2;  
              end
-
         end
     end
     
@@ -305,7 +302,6 @@ for i_file = 1:N_files
         perc_coloc_ch1 = length(ind_close_ch1)/N_ch1;
        
         values_coloc(i_cell_all,:)      = [100*perc_coloc_ch2 100*perc_coloc_ch1 N_ch2 length(ind_close_ch2) N_ch1 length(ind_close_ch1)];
-        
         
         %- Save summary 
         results_coloc.perc_coloc_ch2{i_cell_all,1}   = perc_coloc_ch2;

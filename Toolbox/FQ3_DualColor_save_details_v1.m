@@ -115,7 +115,7 @@ fprintf(fid,'\nDrift-correction: \t%g\n',flags_drift);
 fprintf(fid,'Dist_threshold: \t%g\n\n',dist_th);
 fprintf(fid,'Maximum number of spots: \t%g\n\n',N_spots_max);
 
-fprintf(fid,'File\tCell\tch1_ind\tch2_ind\tIntInt_ch1\tch1_x\tch1_y\tch1_Z\tch1_amp\tch1_bgd\tch1_simgaX\tch1_sigmaZ\tch1_int\tch1_intFilt\tIntInt_ch2\tch2_x\tch2_y\tch2_Z\tch2_amp\tch2_bgd\tch2_simgaX\tch2_sigmaZ\tch2_int\tch2_intFilt\tDISTANCE\n');
+fprintf(fid,'File\tCell\tch1_ind\tch2_ind\tIntInt_ch1\tch1_y\tch1_x\tch1_Z\tch1_amp\tch1_bgd\tch1_simgaX\tch1_sigmaZ\tch1_int\tch1_intFilt\tIntInt_ch2\tch2_y\tch2_x\tch2_Z\tch2_amp\tch2_bgd\tch2_simgaX\tch2_sigmaZ\tch2_int\tch2_intFilt\tDISTANCE\n');
 fprintf(fid,string_write,cell_write_all{:});      
         
 fclose(fid);

@@ -89,7 +89,7 @@ fprintf(fid,'Identifier - channel 2:  %s \n',par_coloc.ident_ch2);
 
 fprintf(fid,'Maximum number of spots: \t%g\n\n',par_coloc.N_spots_max);
 
-fprintf(fid,'file\tcell\tch1_x\tch1_y\tch1_Z\tch1_amp\tch1_bgd\tch1_simgaX\tch1_sigmaZ\tch1_int\tch1_intFilt\tCoLoc\n');
+fprintf(fid,'file\tcell\tch1_y\tch1_x\tch1_Z\tch1_amp\tch1_bgd\tch1_simgaX\tch1_sigmaZ\tch1_int\tch1_intFilt\tCoLoc\n');
 fprintf(fid,string_write,cell_write_all{:});      
         
 fclose(fid);
