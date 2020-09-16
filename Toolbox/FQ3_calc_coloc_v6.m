@@ -27,8 +27,6 @@ folder_img_ch2     = parameters.folder_img_ch2;
 
 drift              = parameters.drift;
 
-
-
 flag_save_results = flags.save_results;
 
 %% Check if routine is called to correct for drift
@@ -301,7 +299,7 @@ for i_file = 1:N_files
         perc_coloc_ch2 = length(ind_close_ch2)/N_ch2;
         perc_coloc_ch1 = length(ind_close_ch1)/N_ch1;
        
-        values_coloc(i_cell_all,:)      = [100*perc_coloc_ch2 100*perc_coloc_ch1 N_ch2 length(ind_close_ch2) N_ch1 length(ind_close_ch1)];
+        values_coloc(i_cell_all,:) = [100*perc_coloc_ch2 100*perc_coloc_ch1 N_ch2 length(ind_close_ch2) N_ch1 length(ind_close_ch1)];
         
         %- Save summary 
         results_coloc.perc_coloc_ch2{i_cell_all,1}   = perc_coloc_ch2;

@@ -32,11 +32,11 @@ foci_diameter = pattern_prop.foci_diameter;
 patt_strength = pattern_prop.level.(pattern_level);
 
 %-- Number of foci, number of mRNA, and spatial extent
-n_foci_cell   = floor(pearsrnd(n_foci.mu,n_foci.sigma,n_foci.skew,n_foci.kurt))+1;
+n_foci_cell   = floor(pearsrnd(n_foci.mu,n_foci.sigma,n_foci.skew,n_foci.kurt));
 n_foci_cell   = round(patt_strength*n_foci_cell);
 
 %-- # mRNA per foc
-n_RNA_in_foci = floor(pearsrnd(RNA_in_foci.mu,RNA_in_foci.sigma,RNA_in_foci.skew,RNA_in_foci.kurt,n_foci_cell,1))+1;
+n_RNA_in_foci = floor(pearsrnd(RNA_in_foci.mu,RNA_in_foci.sigma,RNA_in_foci.skew,RNA_in_foci.kurt,n_foci_cell,1));
 n_RNA_in_foci = round(patt_strength*n_RNA_in_foci);
 
 

@@ -170,7 +170,7 @@ end
 %- Save results of drift correction only if not applied at the same time
 if par_coloc.flags.drift_calc && ~par_coloc.flags.drift_apply
     par_coloc.drift = drift;
-    set(handles.checkbox_dc_drift_apply,'enable','on')
+    set(handles.checkbox_dc_drift_apply,'enable', 'on')
 end
 
 %- Save results   
