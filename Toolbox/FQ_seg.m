@@ -29,9 +29,8 @@ end
 function FQ_seg_OpeningFcn(hObject, eventdata, handles, varargin)
 
 
-%- Get installation directory of FISH-QUANT and initiate 
-p               = mfilename('fullpath');        
-handles.FQ_path = fileparts(p);
+%- Initiate 
+
 handles.status_par_def  = 0;
 handles.status_par2_def = 0;
 
@@ -40,7 +39,9 @@ handles.status_img_outline   = 0;
 handles.status_store_results = 0;
 
 %- Load default settings
-settings_load  = FQ_load_settings_v1(fullfile(handles.FQ_path,'FISH-QUANT_default_par.txt'),{});
+p               = mfilename('fullpath');        
+file_settings = fullfile(fileparts(p), '..','FISH-QUANT_default_par.txt');
+settings_load  = FQ_load_settings_v1(file_settings,{});
 
 if isfield(settings_load,  'par_microscope')
     handles.par_microscope    = settings_load.par_microscope;
