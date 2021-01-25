@@ -2709,3 +2709,10 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
 end
 
 function checkbox_nuc_auto_in_curr_cell_Callback(hObject, eventdata, handles)
+
+
+% --- Executes when h_fishquant_outline is resized.
+function h_fishquant_outline_SizeChangedFcn(hObject, eventdata, handles)
+% hObject    handle to h_fishquant_outline (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
