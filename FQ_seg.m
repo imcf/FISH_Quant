@@ -39,9 +39,9 @@ handles.status_img_outline   = 0;
 handles.status_store_results = 0;
 
 %- Load default settings
-p               = mfilename('fullpath');        
-file_settings = fullfile(fileparts(p), '..','FISH-QUANT_default_par.txt');
-settings_load  = FQ_load_settings_v1(file_settings,{});
+p             = mfilename('fullpath');        
+file_settings = fullfile(fileparts(p), 'FISH-QUANT_default_par.txt');
+settings_load = FQ_load_settings_v1(file_settings,{});
 
 if isfield(settings_load,  'par_microscope')
     handles.par_microscope    = settings_load.par_microscope;

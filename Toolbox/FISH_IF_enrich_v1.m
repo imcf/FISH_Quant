@@ -64,10 +64,10 @@ for iFile = 1:length(name_results)
     %- Loop over cells
     for iCell = 1:length(img.cell_prop)
         
-        %==== Get all spots outside of the nucleus & peform quality checks
+        %==== Get all spots outside of the nucleus & perform quality checks
         thresh_in = logical(img.cell_prop(iCell).thresh.in);        
         spots_detected = img.cell_prop(iCell).spots_detected(thresh_in,1:3);
-         spots_int = img.cell_prop(iCell).spots_detected(thresh_in,10);
+        spots_int = img.cell_prop(iCell).spots_detected(thresh_in,10);
          
         %- Not co-loc control
         spots_detected(:,1:2) = spots_detected(:,1:2) - pix_offset;
