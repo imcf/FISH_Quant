@@ -44,11 +44,11 @@ Please report bugs via the Issues menu item or email Florian Mueller (Contact se
 Development team
 
 ## Development team ##
-* FISH-quant v1 and v2 developed by Florian Mueller (ENS Paris, Institut Pasteur) based on work of Hervé Marie-Nelly (Institut Pasteur). 
-* FISH-quant v3  and locFISH developed by Florian Mueller, Aubin Samacoits (Institut Pasteur), and Thomas Walter (Institut Curie)
+* RNA detection: Florian Mueller (ENS Paris, Institut Pasteur) based on work of Hervé Marie-Nelly (Institut Pasteur). 
+* Focus projection & RNA localization: Aubin Samacoits (Institut Pasteur) under the supervision of Florian Mueller (Institut Pasteur) and Thomas Walter (Institut Curie)
 
-Research was conducted in the group of Christophe Zimmer (Institut Pasteur), Xavier Darzacq (ENS Paris; Adrien Senecal and Nathalie Lao), and Edouard Bertrand (IGMM Montpellier; Eugenia Basyuk and Katjana Tantale).
-Depot at APP
+
+## Depot at APP ##
 
 A depot of the software was issued at APP (http://www.app.asso.fr/en/) under the reference number IDDN.FR.001.090009.000.S.A.2013.000.10000
 
