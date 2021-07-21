@@ -19,7 +19,7 @@ flags = parameters.flags;
 
 %- Create folder to save outlines
 path_name_outline_save = fullfile(path_name_outline,'_batch');
-if ~exist(path_name_outline_save,'dir'); 
+if ~exist(path_name_outline_save,'dir')
    mkdir(path_name_outline_save)
 end
 

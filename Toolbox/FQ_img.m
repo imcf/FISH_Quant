@@ -492,7 +492,7 @@ classdef FQ_img < handle
             par.flag_identifier = 0;
             par.col_par         = img.col_par;
             
-            [img.cell_prop, img.par_microscope, img.file_names, status_open.outline,dum,dum,img.comment] = FQ_load_results_WRAPPER_v2(file_name_open,par); 
+            [img.cell_prop, img.par_microscope, img.file_names, status_open.outline, dum, dum, img.comment] = FQ_load_results_WRAPPER_v2(file_name_open,par); 
                
             %==== Load settings
             if flag_load_settings && isfield(img.file_names,'settings') && ~isempty(img.file_names.settings)
@@ -1102,9 +1102,9 @@ classdef FQ_img < handle
             
             %- 2D or 3D fitting
             if img.status_3D
-                [spots_fit, FIT_Result,thresh] = FQ_spots_fit_3D_v1(img,ind_cell);
+                [spots_fit, FIT_Result, thresh] = FQ_spots_fit_3D_v1(img,ind_cell);
             else
-                [spots_fit, FIT_Result,thresh] = FQ_spots_fit_2D_v1(img,ind_cell);    
+                [spots_fit, FIT_Result, thresh] = FQ_spots_fit_2D_v1(img,ind_cell);    
             end
 
             

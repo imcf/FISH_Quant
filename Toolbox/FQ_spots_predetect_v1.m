@@ -38,7 +38,6 @@ image_filt_mask      = img.filt;
 
 flag_cell_crop  = 0;
 
-
 if not(isempty(cell_prop))
     
     %=== Restrict analysis to a certain sub-region
@@ -82,8 +81,7 @@ if not(isempty(cell_prop))
                 mask_nuc_3D  = mask_cell_3D;
                 mask_cyto_3D = mask_nuc_3D;
             end
-        
-                       
+                 
         else       
             mask_cell_3D = cell_prop.mask_cell_3D;
             mask_nuc_3D  = cell_prop.mask_nuc_3D;
@@ -117,8 +115,6 @@ if not(isempty(cell_prop))
     cell_y_max = max(cell_prop.y);
     
     flag_cell_crop = 1;
-    
-    %[dim.Y dim.X dim.Z] = size(image_filt_mask_full);
     
     if cell_x_min < 1;     cell_x_min = 1;     end
     if cell_x_max > dim.X; cell_x_max = dim.X; end
@@ -353,7 +349,7 @@ if ~isempty(CC_best) && CC_best.NumObjects > 0
     pixel_list_crop = CC_best.PixelIdxList(ind_spots_GOOD_logic);
     pixel_list_full = {};
     
-    for i_list = 1:length(pixel_list_crop);
+    for i_list = 1:length(pixel_list_crop)
              
        %- Get list 
        list_loop =  pixel_list_crop{i_list};
@@ -369,7 +365,6 @@ if ~isempty(CC_best) && CC_best.NumObjects > 0
            
     end
     
-    
     %- Get CC for best spots
     try 
         CC_GOOD                   = CC_best;
@@ -378,7 +373,7 @@ if ~isempty(CC_best) && CC_best.NumObjects > 0
         CC_GOOD.PixelIdxList_crop = pixel_list_crop;
     catch err
         disp(mfilename)
-        err
+        disp(err)
     end
  
 end

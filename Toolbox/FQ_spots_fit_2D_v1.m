@@ -26,7 +26,6 @@ options_fit.fit_mode   = 'sigma_free_xz';
 flag_struct.output     = 0;
 N_spots_fit_max        = img.settings.fit.N_spots_fit_max;
     
-
 %=== Prepare some of the parameters needed for fitting
 
 %-- Dimension of default image
@@ -53,7 +52,7 @@ if (N_spots_fit_max < 0)  ||  (N_Spots < N_spots_fit_max)
     if N_Spots
         
         %- Fit all thresholded spots
-        fprintf('\n= Fit detected spots with 3D Gaussian\n');
+        fprintf('\n= Fit detected spots with 2D Gaussian\n');
         disp(['N spots = ' num2str(N_Spots)]);
 
         parfor k = 1:N_Spots

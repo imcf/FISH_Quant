@@ -179,7 +179,7 @@ if name_save ~= 0
             if strcmp(flag_type,'spots')
 
                 %- Are spots detected
-                if isfield(cell_prop(i_cell),'spots_fit') && not(isempty(cell_prop(i_cell).spots_fit));
+                if isfield(cell_prop(i_cell),'spots_fit') && not(isempty(cell_prop(i_cell).spots_fit))
                     
                     %- Is field with spots in nucleus defined
                     if isfield(cell_prop(i_cell),'in_Nuc') && not(isempty(cell_prop(i_cell).in_Nuc))

@@ -2509,9 +2509,9 @@ function save_summary_spots(hObject, eventdata, handles,flag_threshold)
 %- Get current directory and go to directory with outlines
 current_dir = cd;
 
-if  not(isempty(handles.img.path_names.results)); 
+if  not(isempty(handles.img.path_names.results))
     path_save = handles.img.path_names.results;
-elseif not(isempty(handles.img.path_names.root)); 
+elseif not(isempty(handles.img.path_names.root))
     path_save = handles.img.path_names.root;
 else
     path_save = cd;

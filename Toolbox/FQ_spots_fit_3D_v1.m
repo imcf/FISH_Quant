@@ -102,7 +102,6 @@ else
     
 end
 
-
 %- Thresholding status
 thresh.all  = ones(N_Spots,1);
 thresh.in   = ones(N_Spots,1);
