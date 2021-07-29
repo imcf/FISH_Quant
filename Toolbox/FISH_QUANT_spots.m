@@ -75,6 +75,7 @@ handles.h_spots_out  = [];
 handles.h_spots_out_man = [];
 
 %= Load data if called from other GUI
+
 %- Some controls are different when spot inspector is called from main
 %interface or as stand-alone GUI
 handles.status_child = 0;
@@ -803,7 +804,6 @@ if not(isempty(spots_fit))
         %- Rejected spots (manual)
         if sum(ind_spots_range & ind_plot_out_man)
 
-
             if flag_spot_ID
 
                 ind_plot_all = find(ind_spots_range & ind_plot_out_man);
@@ -1327,7 +1327,7 @@ if hAxesParent  ==   handles.axes_main
         set(handles.checkbox_remove_man,'Value',0);
     end
 
-        
+  
     %- Update cursor accordingly
     img_plot = handles.img_plot_GUI;
     x_pos = round(pos(1));
@@ -1360,15 +1360,10 @@ end
 %=== Function for Cell selector
 function FQ_plot_spots_axes(h_ax,img,pixel,spot_pos)
 imshow(img,[ ],'XData',[0 (size(img,2)-1)*pixel.x],'YData',[0 (size(img,1)-1)*pixel.y],'Parent', h_ax)  
-% colorbar('peer',handles.axes_zoom_xy)   
 
 
 %=== Function for Cell selector
 function pop_up_cell_select_Callback(hObject, eventdata, handles)
-
-% axes(handles.axes_main)
-% v = axis
-
 handles = plot_image(hObject, eventdata, handles);
 guidata(hObject, handles);
 
