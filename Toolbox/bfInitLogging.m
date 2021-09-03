@@ -1,54 +1,53 @@
 function bfInitLogging(varargin)
-% BFINITLOGGING initializes Bio-Formats and its logging level
+% BFINITLOGGING initializes the Bio-Formats logging system
 %
-%   bfInitLogging() autoloads Bio-Formats is in the Java path and checks
-%   whether log4j is initialized. If not, it initializes logging at the
-%   WARN level.
+%   bfInitLogging() initializes the logging system at WARN level by default.
 %
-%   bfInitLogging(level) sets the logging to the input level.
+%   bfInitLogging(level) sets the logging level to use when initializing
+%   the logging system
 %
 % Examples
 %
 %    bfInitLogging();
 %    bfInitLogging('DEBUG');
-%
-% Sebastien Besson, Nov 2014
-%
-% Copyright (C) 2014 LCCB 
-%
-% This file is part of u-track.
-% 
-% u-track is free software: you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation, either version 3 of the License, or
-% (at your option) any later version.
-% 
-% u-track is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
-% 
-% You should have received a copy of the GNU General Public License
-% along with u-track.  If not, see <http://www.gnu.org/licenses/>.
-% 
-% 
 
-% Autoload Bio-Formats Java path
+% OME Bio-Formats package for reading and converting biological file formats.
+%
+% Copyright (C) 2016 - 2021 Open Microscopy Environment:
+%   - Board of Regents of the University of Wisconsin-Madison
+%   - Glencoe Software, Inc.
+%   - University of Dundee
+%
+% Redistribution and use in source and binary forms, with or without
+% modification, are permitted provided that the following conditions are met:
+%
+% 1. Redistributions of source code must retain the above copyright
+%    notice, this list of conditions and the following disclaimer.
+%
+% 2. Redistributions in binary form must reproduce the above copyright
+%    notice, this list of conditions and the following disclaimer in
+%    the documentation and/or other materials provided with the distribution.
+%
+% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+% AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+% IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+% ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+% LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+% CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+% SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+% INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+% CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+% ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+% POSSIBILITY OF SUCH DAMAGE.
+
+% Check Bio-Formats is set in the Java class path
 bfCheckJavaPath();
 
-% Return if log4j is alreadyinitialied
-import org.apache.log4j.Logger;
-root = Logger.getRootLogger();
-appenders = root.getAllAppenders();
-if appenders.hasMoreElements(), return; end
-
 % Input check
-import org.apache.log4j.Level;
-levels = Level.getAllPossiblePriorities();
-levels = arrayfun(@(x) char(x.toString()), levels, 'Unif', false);
-ip=inputParser;
+levels = {'ALL', 'DEBUG', 'ERROR', 'FATAL', 'INFO', 'OFF', 'TRACE', 'WARN'};
+ip = inputParser;
 ip.addOptional('level', 'WARN', @(x) ismember(x, levels));
 ip.parse(varargin{:});
 
-% Configure log4j and set debug level
-loci.common.DebugTools.enableLogging(ip.Results.level);
+% Set logging level
+javaMethod('enableLogging', 'loci.common.DebugTools', ip.Results.level);
