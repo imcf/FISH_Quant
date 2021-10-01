@@ -30,58 +30,58 @@ function handles = FISH_QUANT_OpeningFcn(hObject, eventdata, handles, varargin)
 global FQ_open h_fishquant
 
 if isempty(FQ_open) || FQ_open == 0
-    
-    % == Some housekeeping 
+
+    % == Some housekeeping
     FQ_open = 1;                       % Indicate that FQ is open
     h_fishquant = handles.h_fishquant; % Figure handle as global
-        
-    % == Set font-size to 10 (On Windows machines fonts can be set to 8) 
+
+    % == Set font-size to 10 (On Windows machines fonts can be set to 8)
     set(findobj(handles.h_fishquant,'FontSize',8),'FontSize',10)
 
     % ==  Initialize GUI
-    handles     = FQ_init_v1(handles);  
-    
+    handles     = FQ_init_v1(handles);
+
     % == Fenerate FQ image object
     handles.img = FQ_img;
- 
+
     % == Load default parameters
     handles.FQ_path     = fileparts(mfilename('fullpath'));
     settings_load       = FQ_load_settings_v1(fullfile(handles.FQ_path,'FISH-QUANT_default_par.txt'),{});
-    handles.img.version = settings_load.version;  
-    
+    handles.img.version = settings_load.version;
+
     if isfield(settings_load, 'par_microscope');
         handles.img.par_microscope = settings_load.par_microscope;
         handles.img.calc_PSF_theo;
     end
-       
-    
+
+
     %== Initialize Bioformats
     [status, ver_bf] = bfCheckJavaPath(1);
     disp(['Bio-Formats ',ver_bf,' will be used.'])
-    
+
     %- Initializes Bio-Formats and its logging level
     try
         bfInitLogging();
-    catch 
+    catch
         disp('FQ-startup: problems with bfInitlogging!')
     end
-        
-    
+
+
     %== Populate GUI
     handles         = FQ_populate_v1(handles);
     popup_filter_type_Callback(hObject, eventdata, handles); % Adjust GUI for default filter
-    
+
     % == Save values
     status_update(hObject, eventdata, handles,{'FISH-QUANT successfully initiated.'})
     handles.output = hObject;
     guidata(hObject, handles);
-    
+
     % == Enable controls
     FQ_enable_controls_v1(handles)
 end
 
 % --- Outputs from this function are returned to the command line.
-function varargout = FISH_QUANT_OutputFcn(hObject, eventdata, handles) 
+function varargout = FISH_QUANT_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 % --- Executes during object deletion, before destroying properties.
@@ -89,7 +89,7 @@ function h_fishquant_DeleteFcn(hObject, eventdata, handles)
 
 
 %==========================================================================
-%==== Define folder 
+%==== Define folder
 %==========================================================================
 
 %== Define folder for root
@@ -97,23 +97,23 @@ function menu_folder_root_Callback(hObject, eventdata, handles)
 path_usr  = uigetdir(handles.img.path_names.root, 'Choose ROOT directory');
 
 if path_usr
-    
+
     %- Assign roots folder
     handles.img.path_names.root = path_usr;
-    
+
     %- Check if other folders are defined
     if isempty(handles.img.path_names.img)
         handles.img.path_names.img = path_usr;
     end
-    
+
     if isempty(handles.img.path_names.outlines)
         handles.img.path_names.outlines = path_usr;
-    end   
-    
+    end
+
     if isempty(handles.img.path_names.results)
         handles.img.path_names.results = path_usr;
-    end  
-    
+    end
+
     %- Save handles
     guidata(hObject, handles);
 end
@@ -133,7 +133,7 @@ path_usr  =  uigetdir(dir_default, 'Choose directory for images');
 if path_usr
     handles.img.path_names.img = path_usr;
     guidata(hObject, handles);
-end 
+end
 
 
 %== Define folder for outines
@@ -149,7 +149,7 @@ path_usr  =  uigetdir(dir_default, 'Choose directory for outlines');
 if path_usr
     handles.img.path_names.outlines = path_usr;
     guidata(hObject, handles);
-end 
+end
 
 
 %== Define folder for outines
@@ -165,7 +165,7 @@ path_usr  =  uigetdir(dir_default, 'Choose directory for results');
 if path_usr
     handles.img.path_names.results = path_usr;
     guidata(hObject, handles);
-end 
+end
 
 
 %== Reset folders
@@ -174,7 +174,7 @@ function menu_folder_reset_Callback(hObject, eventdata, handles)
 
 button = questdlg('Are you sure?','Reset folders','Yes','No','No');
 
-if strcmp(button,'Yes') 
+if strcmp(button,'Yes')
     handles.img.path_names.root     = [];
     handles.img.path_names.img      = [];
     handles.img.path_names.results  = [];
@@ -201,12 +201,12 @@ else
     button = 'Yes';
 end
 
-if strcmp(button,'Yes')    
-         
+if strcmp(button,'Yes')
+
     [file_folder,path_folder] = uigetfile({'*.txt'},'Select files with FQ folders.');
-   
-    if file_folder ~= 1 
-        
+
+    if file_folder ~= 1
+
         [handles_loaded,flag_file] = FQ_load_folders_v1(fullfile(path_folder,file_folder));
 
         if flag_file
@@ -214,14 +214,14 @@ if strcmp(button,'Yes')
             handles.img.path_names.results = handles_loaded.path_name_results;
             handles.img.path_names.img     = handles_loaded.path_name_image;
             handles.img.path_names.outlines = handles_loaded.path_name_outline;
-            
+
             disp(' ')
             disp('=== LOADED FOLDERS')
             fprintf('ROOT:    %s\n' , handles.img.path_names.root);
             fprintf('RESULTS: %s\n' , handles.img.path_names.results);
             fprintf('IMAGE:   %s\n' , handles.img.path_names.img);
             fprintf('OUTLINE: %s\n' , handles.img.path_names.outlines);
-            
+
             guidata(hObject, handles);
         end
     end
@@ -242,8 +242,8 @@ set(handles.text_psf_theo_xy,'String',num2str(round(handles.img.PSF_theo.xy_nm))
 set(handles.text_psf_theo_z, 'String',num2str(round(handles.img.PSF_theo.z_nm)));
 
 %- Calculate size of detection region and show it
-handles.detect.region.xy = round(2*handles.img.PSF_theo.xy_pix)+1;       % Size of detection zone in xy 
-handles.detect.region.z  = round(2*handles.img.PSF_theo.z_pix)+1;        % Size of detection zone in z 
+handles.detect.region.xy = round(2*handles.img.PSF_theo.xy_pix)+1;       % Size of detection zone in xy
+handles.detect.region.z  = round(2*handles.img.PSF_theo.z_pix)+1;        % Size of detection zone in z
 
 %- Update handles structure
 guidata(hObject, handles);
@@ -261,7 +261,7 @@ current_dir = pwd;
 
 if not(isempty(handles.img.path_names.img))
    cd(handles.img.path_names.img)
-   
+
 elseif not(isempty(handles.img.path_names.root))
     cd(handles.img.path_names.root)
 end
@@ -273,8 +273,8 @@ else
     button = 'Yes';
 end
 
-if strcmp(button,'Yes')    
-         
+if strcmp(button,'Yes')
+
     %- Make new FQ object and keep experimental parameters
     handles.img = handles.img.reinit;
 
@@ -287,20 +287,20 @@ if strcmp(button,'Yes')
         %- Load image, make MIP along Z
         handles.img.project_Z('raw','max');
 
-        %- Check image is 3D        
+        %- Check image is 3D
         if handles.img.dim.Z == 1  && handles.img.status_3D
             warndlg('FISH images have to be 3D stacks!','FISH-quant')
             handles.img = FQ_img;
-        else        
-            
+        else
+
             %- Assign raw image as filtered image
             handles.img.filt        = handles.img.raw;
             handles.img.filt_proj_z = handles.img.raw_proj_z;
 
             handles.status_image      = 1;
             handles.status_filtered   = 0;
-            
-            %- Save path as root if no root is define 
+
+            %- Save path as root if no root is define
             if isempty(handles.img.path_names.root)
                 handles.img.path_names.root =  handles.img.path_names.img;
             end
@@ -308,7 +308,7 @@ if strcmp(button,'Yes')
             %- Prepare GUI
             handles = FQ_populate_v1(handles);
             popup_filter_type_Callback(hObject, eventdata, handles); % Adjust GUI for default filter
- 
+
 
             %- Save handles
             guidata(hObject, handles);
@@ -316,7 +316,7 @@ if strcmp(button,'Yes')
             %- Plot results and enable controls
             status_update(hObject, eventdata, handles,{'Image loaded.'})
             set(handles.pop_up_image_select,'Value',1);     % Save selection to raw image
- 
+
             FQ_enable_controls_v1(handles)
             plot_image(handles,handles.axes_image);
         end
@@ -342,14 +342,14 @@ current_dir = pwd;
 if not(isempty(handles.img.path_names.img))
    cd(handles.img.path_names.img)
 elseif not(isempty(handles.img.path_names.root))
-   cd(handles.img.path_names.root) 
+   cd(handles.img.path_names.root)
 end
 
 %- Load filtered image
 status_file = handles.img.load_img([],'filt');
 
 if status_file
-    
+
     %- Assigng image
     handles.img.project_Z('filt','max');
     handles.status_filtered   = 1;
@@ -360,7 +360,7 @@ if status_file
     set(handles.pop_up_image_select,'Value',2);     % Save selection to filtered image
 
     plot_image(handles,handles.axes_image);
-    
+
     plot_image(handles,handles.axes_image);
     FQ_enable_controls_v1(handles)
 end
@@ -377,7 +377,7 @@ current_dir = pwd;
 if    not(isempty(handles.img.path_names.img))
    cd(handles.img.path_names.img)
 elseif not(isempty(handles.img.path_names.root))
-   cd(handles.img.path_names.root) 
+   cd(handles.img.path_names.root)
 end
 
 %- Save image
@@ -392,7 +392,7 @@ cd(current_dir)
 %==== SETTINGS: load & save
 %==========================================================================
 
-%== Menu: save settings  
+%== Menu: save settings
 function menu_save_settings_Callback(hObject, eventdata, handles)
 
 %- Get current directory and go to directory with results/settings
@@ -400,7 +400,7 @@ current_dir = cd;
 
 if     not(isempty(handles.img.path_names.results)); path_save = handles.img.path_names.results;
 elseif not(isempty(handles.img.path_names.root));    path_save = handles.img.path_names.root;
-else                                            path_save = cd; 
+else                                            path_save = cd;
 end
 
 cd(path_save)
@@ -410,10 +410,10 @@ handles.img.save_settings([]);
 guidata(hObject, handles);
 
 %- Go back to original directory
-cd(current_dir) 
+cd(current_dir)
 
 
-%== Menu: load settings  
+%== Menu: load settings
 function menu_load_settings_Callback(hObject, eventdata, handles)
 
 %- Get current directory and go to directory with results/settings
@@ -430,27 +430,27 @@ cd(path_save)
 [file_name_settings,path_name_settings] = uigetfile({'*.txt'},'Select file with settings');
 
 if file_name_settings ~= 0
-    
+
     handles.img.load_settings(fullfile(path_name_settings,file_name_settings));
-    handles = FQ_populate_v1(handles);  
-    
+    handles = FQ_populate_v1(handles);
+
     %- Set filter
     switch handles.img.settings.filter.method
         case '3D_2xGauss'
             set(handles.popup_filter_type,'Value',2);
-            
+
         case '3D_LoG'
             set(handles.popup_filter_type,'Value',1);
     end
-            
+
     popup_filter_type_Callback(hObject, eventdata, handles); % Adjust GUI for default filter
-    
+
     %- Save data
     guidata(hObject, handles);
 end
 
 %- Go back to original directory
-cd(current_dir) 
+cd(current_dir)
 
 
 
@@ -458,7 +458,7 @@ cd(current_dir)
 function handles = load_settings(file_name_full, handles)
 
 %- Set all threshold locks to zero - the ones which are locked will be
-% changed to one 
+% changed to one
 handles.img.settings.thresh.sigmaxy.lock   = 0;
 handles.img.settings.thresh.sigmaz.lock    = 0;
 handles.img.settings.thresh.amp.lock       = 0;
@@ -474,11 +474,11 @@ handles.img.load_settings(fullfile(path_name_settings,file_name_settings));
 %- Update some of the parameters
 handles = FQ_populate_v1(handles);
 popup_filter_type_Callback(hObject, eventdata, handles); % Adjust GUI for default filter
- 
+
 
 %- Update the ones that had a locked threshold
 names_all = fieldnames(handles.img.settings.thresh);
-    
+
 N_names   = size(names_all,1);
 
 for i_name = 1:N_names
@@ -487,44 +487,44 @@ for i_name = 1:N_names
     locked     = par_fields.lock;
 
     if locked
-                     
+
             switch par_name
-                
+
                 case 'sigmaxy'
-                    handles.img.settings.thresh.sigmaxy.min_hist = par_fields.min_hist;                 
-                    handles.img.settings.thresh.sigmaxy.max_hist = par_fields.max_hist;   
-                
+                    handles.img.settings.thresh.sigmaxy.min_hist = par_fields.min_hist;
+                    handles.img.settings.thresh.sigmaxy.max_hist = par_fields.max_hist;
+
                 case 'sigmaz'
-                    handles.img.settings.thresh.sigmaz.min_hist = par_fields.min_hist;                 
-                    handles.img.settings.thresh.sigmaz.max_hist = par_fields.max_hist;   
-                
+                    handles.img.settings.thresh.sigmaz.min_hist = par_fields.min_hist;
+                    handles.img.settings.thresh.sigmaz.max_hist = par_fields.max_hist;
+
                 case 'amp'
-                    handles.img.settings.thresh.amp.min_hist = par_fields.min_hist;                 
-                    handles.img.settings.thresh.amp.max_hist = par_fields.max_hist;                  
-                    
+                    handles.img.settings.thresh.amp.min_hist = par_fields.min_hist;
+                    handles.img.settings.thresh.amp.max_hist = par_fields.max_hist;
+
                 case 'bgd'
-                    handles.img.settings.thresh.bgd.min_hist = par_fields.min_hist;                 
-                    handles.img.settings.thresh.bgd.max_hist = par_fields.max_hist; 
-                    
+                    handles.img.settings.thresh.bgd.min_hist = par_fields.min_hist;
+                    handles.img.settings.thresh.bgd.max_hist = par_fields.max_hist;
+
                 case 'pos_z'
-                    handles.img.settings.thresh.pos_z.min_hist = par_fields.min_hist;                 
-                    handles.img.settings.thresh.pos_z.max_hist = par_fields.max_hist;    
-                    
+                    handles.img.settings.thresh.pos_z.min_hist = par_fields.min_hist;
+                    handles.img.settings.thresh.pos_z.max_hist = par_fields.max_hist;
+
                 case 'int_raw'
-                    handles.img.settings.thresh.int_raw.min_hist = par_fields.min_hist;                 
-                    handles.img.settings.thresh.int_raw.max_hist = par_fields.max_hist; 
-                    
+                    handles.img.settings.thresh.int_raw.min_hist = par_fields.min_hist;
+                    handles.img.settings.thresh.int_raw.max_hist = par_fields.max_hist;
+
                 case 'int_filt'
-                    handles.img.settings.thresh.int_filt.min_hist = par_fields.min_hist;                 
-                    handles.img.settings.thresh.int_filt.max_hist = par_fields.max_hist;     
-                 
+                    handles.img.settings.thresh.int_filt.min_hist = par_fields.min_hist;
+                    handles.img.settings.thresh.int_filt.max_hist = par_fields.max_hist;
+
                 otherwise
                     warndlg('Thresholding parameter not defined.','load_settings');
             end
     end
 end
-       
- 
+
+
 
 %==========================================================================
 %==== OUTLINES & RESULTS: load & save
@@ -535,18 +535,18 @@ end
 function menu_save_outline_Callback(hObject, eventdata, handles)
 
 %- Get directory with outlines
-if  not(isempty(handles.img.path_names.outlines)); 
+if  not(isempty(handles.img.path_names.outlines));
     path_save = handles.img.path_names.outlines;
-elseif not(isempty(handles.img.path_names.root)); 
+elseif not(isempty(handles.img.path_names.root));
     path_save = handles.img.path_names.root;
 else
     path_save = cd;
 end
 
 %- Get directory with results
-if  not(isempty(handles.img.path_names.results)); 
+if  not(isempty(handles.img.path_names.results));
     path_save_settings = handles.img.path_names.results;
-elseif not(isempty(handles.img.path_names.root)); 
+elseif not(isempty(handles.img.path_names.root));
     path_save_settings = handles.img.path_names.root;
 else
     path_save_settings = cd;
@@ -558,20 +558,20 @@ parameters.path_save           = path_save;
 parameters.path_save_settings  = path_save_settings;
 parameters.path_name_image     = handles.img.path_names.img;
 parameters.version             = handles.img.version;
-parameters.flag_type           = 'outline';  
+parameters.flag_type           = 'outline';
 
 handles.img.save_results([],parameters);
 
 
-%== Menu: save results of spot detection   
+%== Menu: save results of spot detection
 function file_name_results = save_spots(hObject, handles, flag_th_only)
 
 %- Get current directory and go to directory with outlines
 current_dir = cd;
 
-if     not(isempty(handles.img.path_names.results)); 
+if     not(isempty(handles.img.path_names.results));
     path_save = handles.img.path_names.results;
-elseif not(isempty(handles.img.path_names.root)); 
+elseif not(isempty(handles.img.path_names.root));
     path_save = handles.img.path_names.root;
 else
     path_save = cd;
@@ -586,31 +586,37 @@ end
 
 %- Save results
 if handles.img.file_names.settings ~= 0
-    
+
     %- Parameters to save results
     parameters.path_save           = path_save;
     parameters.path_name_image     = handles.img.path_names.img;
     parameters.version             = handles.img.version;
-    parameters.flag_type           = 'spots'; 
+    parameters.flag_type           = 'spots';
     parameters.flag_th_only        = flag_th_only;
-    
+    parameters.manual_value        = 5500;
+
+    % print(parameters)
+
+
     [file_name_results, path_save] = handles.img.save_results([],parameters);
+else
+    file_name_results = [];
 end
 
 %- Go back to original directory
-cd(current_dir)    
+cd(current_dir)
 
 
-%== Menu: save results of spot detection   
+%== Menu: save results of spot detection
 function menu_save_spots_Callback(hObject, eventdata, handles)
 handles.file_names.results = save_spots(hObject, handles, 0);
-guidata(hObject, handles); 
+guidata(hObject, handles);
 
 
 %== Menu: save results of spot detection [only thresholded]
 function menu_save_spots_th_Callback(hObject, eventdata, handles)
 handles.file_names.results = save_spots(hObject, handles, 1);
-guidata(hObject, handles); 
+guidata(hObject, handles);
 
 
 %= Menu to load detected spots
@@ -620,22 +626,22 @@ function handles = load_result_files(hObject, eventdata, handles)
 [file_name_results,path_name_results] = uigetfile({'*.txt'},'Select file');
 
 if file_name_results ~= 0
-        
+
     %- Find path with images
     if     not(isempty(handles.img.path_names.img))
         path_img = handles.img.path_names.img;
     elseif not(isempty(handles.img.path_names.root))
-        path_img = handles.img.path_names.root; 
+        path_img = handles.img.path_names.root;
     else
         handles.img.path_names.root = path_name_results;
-        path_img                    = path_name_results;     
+        path_img                    = path_name_results;
     end
-    
+
     %- Generate new FQ object
     handles.img = handles.img.reinit;
-    status_open = handles.img.load_results(fullfile(path_name_results,file_name_results),path_img);       
+    status_open = handles.img.load_results(fullfile(path_name_results,file_name_results),path_img);
     set(handles.checkbox_plot_outline,'Value',1);
-    
+
     if ~status_open.outline
         warndlg('OUTLINE could not be opened!','FISH-quant')
         fprintf('=== FILE COULD NOT BE OPENED\n');
@@ -643,8 +649,8 @@ if file_name_results ~= 0
         fprintf('Folder: %s\n', path_name_results)
         return
     end
-    
-    
+
+
     if ~status_open.img
         warndlg('Image could not be opened!','FISH-quant')
         fprintf('=== FILE COULD NOT BE OPENED\n');
@@ -652,29 +658,29 @@ if file_name_results ~= 0
         fprintf('Folder: %s\n', path_img)
         return
     else
-        
+
         %- Check if image is 2D
         if handles.img.dim.Z == 1  && handles.img.status_3D
                 warndlg('FISH images have to be 3D stacks!','FISH-quant')
                 img = FQ_img;
-                fprintf('\nName of image: %s\n', img.file_names.raw);   
+                fprintf('\nName of image: %s\n', img.file_names.raw);
         else
-  
+
             %- Set status of raw image
             handles.status_image    = 1;
-            
+
             %- Assign raw image as filtered image
             handles.img.filt        = handles.img.raw;
             handles.img.filt_proj_z = handles.img.raw_proj_z;
-            
-            %- Load filtered image if specified 
+
+            %- Load filtered image if specified
             if not(isempty(handles.img.file_names.filtered))
 
                 status_file = handles.img.load_img(fullfile(path_img,handles.img.file_names.filtered),'filt');
 
                 if status_file
                     handles.img.project_Z('filt','max');
-                    handles.status_filtered   = 1;  
+                    handles.status_filtered   = 1;
                 end
              end
 
@@ -687,19 +693,19 @@ if file_name_results ~= 0
             handles.img.settings.thresh.int_raw.lock   = 0;
             handles.img.settings.thresh.int_filt.lock  = 0;
             handles.detect.flag_detect_region = 0;
-          
-            handles = FQ_populate_v1(handles); 
+
+            handles = FQ_populate_v1(handles);
             popup_filter_type_Callback(hObject, eventdata, handles); % Adjust GUI for default filter
 
             set(handles.text_psf_theo_xy,'String',num2str(round(handles.img.PSF_theo.xy_nm)));
             set(handles.text_psf_theo_z, 'String',num2str(round(handles.img.PSF_theo.z_nm)));
 
             %- Analyze detected regions
-            handles = analyze_cellprop(hObject, eventdata, handles);    
-            status_update(hObject, eventdata, handles,{'Results of spot detection loaded.'}) 
+            handles = analyze_cellprop(hObject, eventdata, handles);
+            status_update(hObject, eventdata, handles,{'Results of spot detection loaded.'})
 
             %- Save everything
-            guidata(hObject, handles); 
+            guidata(hObject, handles);
 
         end
     end
@@ -713,8 +719,8 @@ function menu_load_outline_Callback(hObject, eventdata, handles)
 current_dir = pwd;
 
 if      not(isempty(handles.img.path_names.outlines))
-   cd(handles.img.path_names.outlines)    
-elseif  not(isempty(handles.img.path_names.root))   
+   cd(handles.img.path_names.outlines)
+elseif  not(isempty(handles.img.path_names.root))
     cd(handles.img.path_names.root)
 end
 
@@ -734,7 +740,7 @@ current_dir = pwd;
 if not(isempty(handles.img.path_names.results))
    cd(handles.img.path_names.results)
 elseif not(isempty(handles.img.path_names.root))
-   cd(handles.img.path_names.root) 
+   cd(handles.img.path_names.root)
 end
 
 handles = load_result_files(hObject, eventdata, handles);
@@ -752,20 +758,20 @@ function menu_load_outline_other_Callback(hObject, eventdata, handles)
 current_dir = pwd;
 
 if      not(isempty(handles.img.path_names.outlines))
-   cd(handles.img.path_names.outlines)    
-elseif  not(isempty(handles.img.path_names.root))   
+   cd(handles.img.path_names.outlines)
+elseif  not(isempty(handles.img.path_names.root))
     cd(handles.img.path_names.root)
 end
-    
+
 %- Generate new FQ object
-status_open = handles.img.load_existing_outline([]);       
+status_open = handles.img.load_existing_outline([]);
 
 if status_open.outline
-    handles = analyze_cellprop(hObject, eventdata, handles); 
     set(handles.checkbox_plot_outline,'Value',1);
-    status_update(hObject, eventdata, handles,{'Results loaded.'})
+    handles = analyze_cellprop(hObject, eventdata, handles);
+    status_update(hObject, eventdata, handles,{'Outline loaded.'})
     guidata(hObject, handles);
-    
+
 end
 %- Go back to original folder
 cd(current_dir)
@@ -783,7 +789,7 @@ handles.img = FISH_QUANT_outline('HandlesMainGui',handles);
 %- Can be returned empty if outline designer is already open
 if ~isempty(handles.img)
     set(handles.checkbox_plot_outline,'Value',1);
-    handles = analyze_cellprop(hObject, eventdata, handles); 
+    handles = analyze_cellprop(hObject, eventdata, handles);
     guidata(hObject, handles);
 end
 
@@ -799,7 +805,7 @@ function handles = analyze_cellprop(hObject, eventdata, handles)
 cell_prop = handles.img.cell_prop;
 dim_sub_z = 2*handles.img.settings.detect.reg_size.z+1;
 
-%- Parallel computing - open MATLAB session for parallel computation 
+%- Parallel computing - open MATLAB session for parallel computation
 %flag_struct.parallel = get(handles.checkbox_parallel_computing, 'Value');
 
 %- Populate pop-up menu with labels of cells
@@ -818,32 +824,32 @@ if N_cell > 0
         cell_prop(i).status_avg      = 0;    % Spots averaged
         cell_prop(i).status_avg_rad  = 0;    % Averaged spots were fit
         cell_prop(i).status_avg_con  = 0;    % Averaged spots were used for reconstruction
-        cell_prop(i).spots_proj      = 0;    % Averaged spots were fit        
-        
+        cell_prop(i).spots_proj      = 0;    % Averaged spots were fit
+
         %- Assign thresholding parameters
         if not(isempty(cell_prop(i).spots_fit))
             cell_prop(i).status_fit        = 1;
-            cell_prop(i).FIT_Result        = [];            
-            
+            cell_prop(i).FIT_Result        = [];
+
             %- Extract sub-spots for fitting
-            img_mask        = []; 
+            img_mask        = [];
             flags.output    = 0;
-        
-            %= Options 
-            [sub_spots, sub_spots_filt] = FQ_spots_predetect_mosaic_v1(handles.img,img_mask,i,flags);                      
-                                  
+
+            %= Options
+            [sub_spots, sub_spots_filt] = FQ_spots_predetect_mosaic_v1(handles.img,img_mask,i,flags);
+
             %- Calculate projections for plot with montage function
             spots_proj = [];
             for k=1:size(cell_prop(i).spots_fit,1)
-                
+
                 %- MIP in xy
                 MIP_xy = max(sub_spots{k},[],3);
                 spots_proj.xy(:,:,1,k) = MIP_xy;
-                
+
                 %- MIP in XZ
                 MIP_xz = squeeze(max(sub_spots{k},[],1))';
-                dim_MIP_z = size(MIP_xz,1); 
-            
+                dim_MIP_z = size(MIP_xz,1);
+
                 %- Add zeros if not enough planes (for incomplete spots)
                 if     dim_MIP_z < dim_sub_z
                    MIP_xz(dim_MIP_z+1:dim_sub_z,:) = 0;
@@ -853,15 +859,14 @@ if N_cell > 0
                 end
                 spots_proj.xz(:,:,1,k) = MIP_xz;
             end
-            
+
             %- Save results
             cell_prop(i).spots_proj     = spots_proj;
-            cell_prop(i).status_detect  = 1;            
+            cell_prop(i).status_detect  = 1;
             cell_prop(i).sub_spots      = sub_spots;
-            cell_prop(i).sub_spots_filt = sub_spots_filt;            
-        end        
-  
-    end  
+            cell_prop(i).sub_spots_filt = sub_spots_filt;
+        end
+    end
 else
     str_menu = {' '};
 end
@@ -872,14 +877,14 @@ set(handles.pop_up_outline_sel_cell,'Value',1);
 
 handles.img.cell_prop = cell_prop;
 
-handles = pop_up_outline_sel_cell_Callback(hObject, eventdata, handles);        
+handles = pop_up_outline_sel_cell_Callback(hObject, eventdata, handles);
 
 %- Enable outline selection
 FQ_enable_controls_v1(handles)
 
 %- Save everything
-guidata(hObject, handles); 
-status_update(hObject, eventdata, handles,{'Spot data analyzed.'})        
+guidata(hObject, handles);
+status_update(hObject, eventdata, handles,{'Spot data analyzed.'})
 
 
 %= Function to analyze detected regions
@@ -894,7 +899,7 @@ if N_cell > 0
     %- Call pop-up function to show results and bring values into GUI
     for i = 1:N_cell
         str_menu{i,1} = cell_prop(i).label;
-    end  
+    end
 else
     str_menu = {' '};
 end
@@ -908,10 +913,10 @@ cell_prop = handles.img.cell_prop;
 
 %- If results of spot detection were saved as well
 if not(isempty(cell_prop))
-    if not(isempty(cell_prop(val).spots_fit))     
+    if not(isempty(cell_prop(val).spots_fit))
         handles.img.cell_prop(val).status_fit = 1;
-        handles = fit_analyze(hObject,eventdata, handles);    
-        FQ_enable_controls_v1(handles)    
+        handles = fit_analyze(hObject,eventdata, handles);
+        FQ_enable_controls_v1(handles)
     else
         cla(handles.axes_histogram_th,'reset');
         cla(handles.axes_histogram_all,'reset');
@@ -923,9 +928,9 @@ if not(isempty(cell_prop))
         set(handles.axes_histogram_all,'Visible','off');
         set(handles.axes_proj_xy,'Visible','off');
         set(handles.axes_proj_xz,'Visible','off');
-        set(handles.axes_resid_xy,'Visible','off');   
+        set(handles.axes_resid_xy,'Visible','off');
     end
-    
+
 else
     cla(handles.axes_histogram_th,'reset');
     cla(handles.axes_histogram_all,'reset');
@@ -937,10 +942,10 @@ else
     set(handles.axes_histogram_all,'Visible','off');
     set(handles.axes_proj_xy,'Visible','off');
     set(handles.axes_proj_xz,'Visible','off');
-    set(handles.axes_resid_xy,'Visible','off');   
+    set(handles.axes_resid_xy,'Visible','off');
 end
 
-%- Save results 
+%- Save results
 guidata(hObject, handles);
 
 %- Update controls and plot
@@ -961,40 +966,40 @@ str = get(handles.popup_filter_type,'Value');
 val = get(handles.popup_filter_type,'String');
 
 switch val{str}
-    
+
     case '3D_LoG'
         handles.img.settings.filter.method = val{str};
-        
+
         set(handles.text_kernel_factor_bgd_xy,'String',num2str(handles.img.settings.filter.LoG_H));
         set(handles.text_kernel_factor_filter_xy,'String',num2str(handles.img.settings.filter.LoG_sigma));
-        
+
         set(handles.text_kernel_factor_bgd_z,'Visible','off');
-        set(handles.text_kernel_factor_filter_z,'Visible','off');        
-        
+        set(handles.text_kernel_factor_filter_z,'Visible','off');
+
         set(handles.text6,'String','Size');
         set(handles.text7,'String','Standard deviation (sigma)');
-        
-        
+
+
     case '3D_2xGauss'
         handles.img.settings.filter.method = val{str};
-        
+
         set(handles.text_kernel_factor_bgd_xy,'String',num2str(handles.img.settings.filter.kernel_size.bgd_xy));
         set(handles.text_kernel_factor_bgd_z,'String',num2str(handles.img.settings.filter.kernel_size.bgd_z));
         set(handles.text_kernel_factor_filter_xy,'String',num2str(handles.img.settings.filter.kernel_size.psf_xy));
         set(handles.text_kernel_factor_filter_z,'String',num2str(handles.img.settings.filter.kernel_size.psf_z));
-          
+
         set(handles.text6,'String','Kernel BGD [pixel]: XY, Z');
-        set(handles.text7,'String','Kernel SNR [pixel]: XY, Z'); 
-        
+        set(handles.text7,'String','Kernel SNR [pixel]: XY, Z');
+
         set(handles.text_kernel_factor_bgd_z,'Visible','on');
         set(handles.text_kernel_factor_filter_z,'Visible','on');
 
-        
+
     otherwise
         warndlg('INCORRECT SELECTION',mfilename)
-        
+
 end
-        
+
 
 %=== Filter image for pre-detection
 function button_filter_Callback(hObject, eventdata, handles)
@@ -1013,18 +1018,18 @@ filter_type  =str{val};
 handles.img.settings.filter.method = filter_type;
 
 switch filter_type
-    
+
     case '3D_LoG'
         handles.img.settings.filter.LoG_H = str2double(get(handles.text_kernel_factor_bgd_xy,'String'));
-        handles.img.settings.filter.LoG_sigma = str2double(get(handles.text_kernel_factor_filter_xy,'String'));  
-        
+        handles.img.settings.filter.LoG_sigma = str2double(get(handles.text_kernel_factor_filter_xy,'String'));
+
     case '3D_2xGauss'
         handles.img.settings.filter.kernel_size.bgd_xy = str2double(get(handles.text_kernel_factor_bgd_xy,'String'));
         handles.img.settings.filter.kernel_size.bgd_z  = str2double(get(handles.text_kernel_factor_bgd_z,'String'));
         handles.img.settings.filter.kernel_size.psf_xy = str2double(get(handles.text_kernel_factor_filter_xy,'String'));
         handles.img.settings.filter.kernel_size.psf_z  = str2double(get(handles.text_kernel_factor_filter_z,'String'));
 end
- 
+
 
 %= Apply filter
 flag.output = 1;
@@ -1043,7 +1048,7 @@ FQ_enable_controls_v1(handles)
 axes(handles.axes_image);
 h_plot = imshow(handles.img.filt_proj_z,[]);
 set(h_plot, 'ButtonDownFcn', @axes_image_ButtonDownFcn)
-title('Maximum projection of filtered image (Gaussian)','FontSize',8); 
+title('Maximum projection of filtered image (Gaussian)','FontSize',8);
 colormap(hot)
 status_update(hObject, eventdata, handles,{'Filtering: FINISHED!'})
 set(handles.h_fishquant,'Pointer','arrow');
@@ -1061,12 +1066,12 @@ status_update(hObject, eventdata, handles,{'Pre-detection in progress ..... star
 
 try
     handles.img = FISH_QUANT_predetect('HandlesMainGui',handles);
-  
+
 catch err
     errordlg('Error occured during pre-detection. See user-manual & command window for detailed error message.', 'FISH-QUANT: pre-dection')
-    disp(err) 
+    disp(err)
 end
-    
+
 %- Get names of cells (in case outline was defined during pre-detection)
 str_menu = cells_get_names(handles.img.cell_prop);
 set(handles.pop_up_outline_sel_cell,'String',str_menu);
@@ -1076,7 +1081,7 @@ FQ_enable_controls_v1(handles)
 status_update(hObject, eventdata, handles,{'Pre-detection: FINISHED'})
 set(handles.h_fishquant,'Pointer','arrow');
 
-%- Save results 
+%- Save results
 guidata(hObject, handles);
 
 
@@ -1093,7 +1098,7 @@ userValue = inputdlg(prompt,dlgTitle,numlines,defaultValue);
 
 if( ~ isempty(userValue))
     handles.img.settings.fit.N_spots_fit_max = str2double(userValue{1});
-    
+
     %- Save results
     guidata(hObject, handles);
 end
@@ -1109,7 +1114,7 @@ status_update(hObject, eventdata, handles,{'Fitting: STARTED ... '})
 %- Some parameters
 %handles.img.settings.fit.flags.parallel = get(handles.checkbox_parallel_computing, 'Value');
 
-%- Used to compensate for spots that were close the edge 
+%- Used to compensate for spots that were close the edge
 dim_sub_xy = 2*handles.img.settings.detect.reg_size.xy+1;
 dim_sub_z  = 2*handles.img.settings.detect.reg_size.z+1;
 
@@ -1117,29 +1122,29 @@ dim_sub_z  = 2*handles.img.settings.detect.reg_size.z+1;
 %== Loop over cells
 tic
 for ind_cell = 1:length(handles.img.cell_prop);
-    
+
     % = Fit spots
     handles.img.spots_fit_3D(ind_cell);
-    
+
     % = Get projections of residuals
     FIT_Result = handles.img.cell_prop(ind_cell).FIT_Result;
-    spots_proj = handles.img.cell_prop(ind_cell).spots_proj; 
+    spots_proj = handles.img.cell_prop(ind_cell).spots_proj;
     N_spots    = size(handles.img.cell_prop(ind_cell).spots_fit,1);
-    
+
     if not(isempty(FIT_Result))
         spots_proj.res_xy = zeros(size(spots_proj.xy));
     end
 
     for k=1:N_spots
         if not(isempty(FIT_Result))
-            MIP_xy = max(FIT_Result{k}.im_residual,[],3);   
+            MIP_xy = max(FIT_Result{k}.im_residual,[],3);
             [dim_MIP_1,dim_MIP_2] = size(MIP_xy);
-            MIP_xy = padarray(MIP_xy,[dim_sub_xy-dim_MIP_1 dim_sub_xy-dim_MIP_2],'post'); 
+            MIP_xy = padarray(MIP_xy,[dim_sub_xy-dim_MIP_1 dim_sub_xy-dim_MIP_2],'post');
             spots_proj.res_xy(:,:,1,k) = MIP_xy;
-            
+
         %- Loaded results have sub-spots but not fits and residuals
         elseif not(isempty(spots_proj))
-            spots_proj.res_xy(:,:,1,k) =  0;        
+            spots_proj.res_xy(:,:,1,k) =  0;
         else
             spots_proj = [];
             spots_proj.res_xy(:,:,1,k) =  0;
@@ -1147,11 +1152,11 @@ for ind_cell = 1:length(handles.img.cell_prop);
             spots_proj.xz(:,:,1,k)     =  0;
         end
     end
-    
-    handles.img.cell_prop(ind_cell).spots_proj = spots_proj; 
-    
+
+    handles.img.cell_prop(ind_cell).spots_proj = spots_proj;
+
 end
-    
+
 toc
 
 %- Set all locks back to 0
@@ -1186,7 +1191,7 @@ for i_reg = 1:N_cell
 end
 
 parameters.summary_fit_all  = summary_fit_all;
-parameters.fit_limits = handles.img.settings.fit.limits; 
+parameters.fit_limits = handles.img.settings.fit.limits;
 parameters.col_par    = handles.img.col_par;
 
 [handles.img.settings.fit.limits]  = FISH_QUANT_restrict_par(parameters);
@@ -1205,7 +1210,7 @@ col_par = handles.img.col_par;
 ind_cell        = get(handles.pop_up_outline_sel_cell,'Value');
 spots_fit       = handles.img.cell_prop(ind_cell).spots_fit;
 spots_detected  = handles.img.cell_prop(ind_cell).spots_detected;
-thresh          = handles.img.cell_prop(ind_cell).thresh; 
+thresh          = handles.img.cell_prop(ind_cell).thresh;
 th_sett         = handles.img.settings.thresh;
 
 % - Clear the plot axes
@@ -1214,14 +1219,14 @@ cla(handles.axes_histogram_th,'reset');
 cla(handles.axes_histogram_all,'reset');
 cla(handles.axes_proj_xy,'reset');
 cla(handles.axes_proj_xz,'reset');
-cla(handles.axes_resid_xy,'reset');    
+cla(handles.axes_resid_xy,'reset');
 
 %- Get averaged values for PSF
 if not(isempty(spots_fit))
     PSF_exp.sigmax_all = mean(spots_fit(:,col_par.sigmax));
     PSF_exp.sigmax_th  = mean(spots_fit(:,col_par.sigmax));
     PSF_exp.sigmax_avg = mean(spots_fit(:,col_par.sigmax));
-    
+
     PSF_exp.sigmax_all_std = std(spots_fit(:,col_par.sigmax));
     PSF_exp.sigmax_th_std  = std(spots_fit(:,col_par.sigmax));
     PSF_exp.sigmax_avg_std = std(spots_fit(:,col_par.sigmax));
@@ -1229,15 +1234,15 @@ if not(isempty(spots_fit))
     PSF_exp.sigmay_all = mean(spots_fit(:,col_par.sigmay));
     PSF_exp.sigmay_th  = mean(spots_fit(:,col_par.sigmay));
     PSF_exp.sigmay_avg = mean(spots_fit(:,col_par.sigmay));
-    
+
     PSF_exp.sigmay_all_std = std(spots_fit(:,col_par.sigmay));
     PSF_exp.sigmay_th_std  = std(spots_fit(:,col_par.sigmay));
     PSF_exp.sigmay_avg_std = std(spots_fit(:,col_par.sigmay));
-    
+
     PSF_exp.sigmaz_all = mean(spots_fit(:,col_par.sigmaz));
     PSF_exp.sigmaz_th  = mean(spots_fit(:,col_par.sigmaz));
     PSF_exp.sigmaz_avg = mean(spots_fit(:,col_par.sigmaz));
-    
+
     PSF_exp.sigmaz_all_std = std(spots_fit(:,col_par.sigmaz));
     PSF_exp.sigmaz_th_std  = std(spots_fit(:,col_par.sigmaz));
     PSF_exp.sigmaz_avg_std = std(spots_fit(:,col_par.sigmaz));
@@ -1245,10 +1250,10 @@ if not(isempty(spots_fit))
     PSF_exp.amp_all    = mean(spots_fit(:,col_par.amp));
     PSF_exp.amp_th     = mean(spots_fit(:,col_par.amp));
     PSF_exp.amp_avg    = mean(spots_fit(:,col_par.amp));
-    
+
     PSF_exp.amp_all_std  = std(spots_fit(:,col_par.amp));
     PSF_exp.amp_th_std   = std(spots_fit(:,col_par.amp));
-    PSF_exp.amp_avg_std  = std(spots_fit(:,col_par.amp));    
+    PSF_exp.amp_avg_std  = std(spots_fit(:,col_par.amp));
 
     PSF_exp.bgd_all    = mean(spots_fit(:,col_par.bgd));
     PSF_exp.bgd_th     = mean(spots_fit(:,col_par.bgd));
@@ -1257,78 +1262,78 @@ if not(isempty(spots_fit))
     PSF_exp.bgd_all_std    = std(spots_fit(:,col_par.bgd));
     PSF_exp.bgd_th_std     = std(spots_fit(:,col_par.bgd));
     PSF_exp.bgd_avg_std    = std(spots_fit(:,col_par.bgd));
-    
+
     set(handles.text_psf_fit_sigmaX,'String', num2str(PSF_exp.sigmax_all,'%.0f'));
     set(handles.text_psf_fit_sigmaY,'String', num2str(PSF_exp.sigmay_all,'%.0f'));
     set(handles.text_psf_fit_sigmaZ,'String', num2str(PSF_exp.sigmaz_all,'%.0f'));
     set(handles.text_psf_fit_amp,'String',    num2str(PSF_exp.amp_all,'%.0f'));
     set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_all,'%.0f'));
     set(handles.pop_up_select_psf,'Value',1);
-    
+
     %- Set-up structure for thresholding
     thresh.sigmaxy.in       = thresh.in;
     if th_sett.sigmaxy.lock == 0
-        thresh.sigmaxy.min_th = min(spots_fit(:,col_par.sigmax));               
-        thresh.sigmaxy.max_th = max(spots_fit(:,col_par.sigmax)); 
+        thresh.sigmaxy.min_th = min(spots_fit(:,col_par.sigmax));
+        thresh.sigmaxy.max_th = max(spots_fit(:,col_par.sigmax));
     else
-        thresh.sigmaxy.min_th = th_sett.sigmaxy.min_th;               
-        thresh.sigmaxy.max_th = th_sett.sigmaxy.max_th; 
+        thresh.sigmaxy.min_th = th_sett.sigmaxy.min_th;
+        thresh.sigmaxy.max_th = th_sett.sigmaxy.max_th;
     end
 
-    thresh.sigmaz.in       = thresh.in;  
+    thresh.sigmaz.in       = thresh.in;
     if th_sett.sigmaz.lock == 0
-        thresh.sigmaz.min_th = min(spots_fit(:,col_par.sigmaz));               
-        thresh.sigmaz.max_th = max(spots_fit(:,col_par.sigmaz)); 
+        thresh.sigmaz.min_th = min(spots_fit(:,col_par.sigmaz));
+        thresh.sigmaz.max_th = max(spots_fit(:,col_par.sigmaz));
     else
-        thresh.sigmaz.min_th = th_sett.sigmaz.min_th;               
-        thresh.sigmaz.max_th = th_sett.sigmaz.max_th; 
+        thresh.sigmaz.min_th = th_sett.sigmaz.min_th;
+        thresh.sigmaz.max_th = th_sett.sigmaz.max_th;
     end
 
-    thresh.amp.in       = thresh.in;             
+    thresh.amp.in       = thresh.in;
     if th_sett.amp.lock == 0
-        thresh.amp.min_th = min(spots_fit(:,col_par.amp));               
-        thresh.amp.max_th = max(spots_fit(:,col_par.amp)); 
+        thresh.amp.min_th = min(spots_fit(:,col_par.amp));
+        thresh.amp.max_th = max(spots_fit(:,col_par.amp));
     else
-        thresh.amp.min_th = th_sett.amp.min_th;               
-        thresh.amp.max_th = th_sett.amp.max_th; 
+        thresh.amp.min_th = th_sett.amp.min_th;
+        thresh.amp.max_th = th_sett.amp.max_th;
     end
 
-    thresh.bgd.in       = thresh.in;           
+    thresh.bgd.in       = thresh.in;
     if th_sett.bgd.lock == 0
-        thresh.bgd.min_th = min(spots_fit(:,col_par.bgd));               
-        thresh.bgd.max_th = max(spots_fit(:,col_par.bgd)); 
+        thresh.bgd.min_th = min(spots_fit(:,col_par.bgd));
+        thresh.bgd.max_th = max(spots_fit(:,col_par.bgd));
     else
-        thresh.bgd.min_th = th_sett.bgd.min_th;               
-        thresh.bgd.max_th = th_sett.bgd.max_th; 
-    end 
-     
-    thresh.int_raw.in       = thresh.in;           
-    if th_sett.int_raw.lock == 0
-        thresh.int_raw.min_th = min(spots_detected(:,col_par.int_raw));               
-        thresh.int_raw.max_th = max(spots_detected(:,col_par.int_raw)); 
-    else
-        thresh.int_raw.min_th = th_sett.int_raw.min_th;               
-        thresh.int_raw.max_th = th_sett.int_raw.max_th; 
-    end   
-    
-    thresh.int_filt.in  = thresh.in;           
-    if th_sett.int_filt.lock == 0
-        thresh.int_filt.min_th = min(spots_detected(:,col_par.int_filt));               
-        thresh.int_filt.max_th = max(spots_detected(:,col_par.int_filt)); 
-    else
-        thresh.int_filt.min_th = th_sett.int_filt.min_th;               
-        thresh.int_filt.max_th = th_sett.int_filt.max_th; 
-    end 
-
-    thresh.pos_z.in  = thresh.in;           
-    if th_sett.pos_z.lock == 0
-        thresh.pos_z.min_th = min(spots_fit(:,col_par.pos_z));               
-        thresh.pos_z.max_th = max(spots_fit(:,col_par.pos_z)); 
-    else
-        thresh.pos_z.min_th = th_sett.pos_z.min_th;               
-        thresh.pos_z.max_th = th_sett.pos_z.max_th; 
+        thresh.bgd.min_th = th_sett.bgd.min_th;
+        thresh.bgd.max_th = th_sett.bgd.max_th;
     end
-    
+
+    thresh.int_raw.in       = thresh.in;
+    if th_sett.int_raw.lock == 0
+        thresh.int_raw.min_th = min(spots_detected(:,col_par.int_raw));
+        thresh.int_raw.max_th = max(spots_detected(:,col_par.int_raw));
+    else
+        thresh.int_raw.min_th = th_sett.int_raw.min_th;
+        thresh.int_raw.max_th = th_sett.int_raw.max_th;
+    end
+
+    thresh.int_filt.in  = thresh.in;
+    if th_sett.int_filt.lock == 0
+        thresh.int_filt.min_th = min(spots_detected(:,col_par.int_filt));
+        thresh.int_filt.max_th = max(spots_detected(:,col_par.int_filt));
+    else
+        thresh.int_filt.min_th = th_sett.int_filt.min_th;
+        thresh.int_filt.max_th = th_sett.int_filt.max_th;
+    end
+
+    thresh.pos_z.in  = thresh.in;
+    if th_sett.pos_z.lock == 0
+        thresh.pos_z.min_th = min(spots_fit(:,col_par.pos_z));
+        thresh.pos_z.max_th = max(spots_fit(:,col_par.pos_z));
+    else
+        thresh.pos_z.min_th = th_sett.pos_z.min_th;
+        thresh.pos_z.max_th = th_sett.pos_z.max_th;
+    end
+
     %- Save results
     handles.img.cell_prop(ind_cell).thresh = thresh;
     handles.img.PSF_exp                    = PSF_exp;
@@ -1341,13 +1346,13 @@ if not(isempty(spots_fit))
     guidata(hObject, handles);
 
 else
-    status_update(hObject, eventdata, handles,{'Fitting: ... no spots for fitting! '})    
+    status_update(hObject, eventdata, handles,{'Fitting: ... no spots for fitting! '})
 end
 
 %- Update GUI and enable controls
 FQ_enable_controls_v1(handles)
-    
-    
+
+
 %==========================================================================
 %==== THRESHOLD SPOTS
 %==========================================================================
@@ -1363,91 +1368,91 @@ th_sett   = handles.img.settings.thresh;
 
 %- Executes only if there are results
 if not(isempty(spots_fit))
-    
+
     thresh = handles.img.cell_prop(ind_cell).thresh;
-    
+
     str = get(handles.pop_up_threshold,'String');
     val = get(handles.pop_up_threshold,'Value');
     popup_parameter = str{val};
-  
+
     %-Check which parameters
     switch (popup_parameter)
-        
+
         case 'Sigma - XY'
            field_name = 'sigmaxy';
-           
+
         case 'Sigma - Z'
             field_name = 'sigmaz';
-            
+
         case 'Amplitude'
-            field_name = 'amp';          
-            
+            field_name = 'amp';
+
         case 'Background'
             field_name = 'bgd';
-            
+
         case 'Pos (Z)'
-            field_name = 'pos_z';          
-            
+            field_name = 'pos_z';
+
         case 'Pixel-intensity (Raw)'
             field_name = 'int_raw';
-            
+
         case 'Pixel-intensity (Filtered)'
-            field_name = 'int_filt';       
-            
+            field_name = 'int_filt';
+
     end
-    
+
     thresh_sel  = thresh.(field_name);
-    th_sett_sel = th_sett.(field_name);         
+    th_sett_sel = th_sett.(field_name);
 
     %- Enable lock if specififed
     set(handles.checkbox_th_lock,'Value',th_sett_sel.lock);
 
-    %== Set sliders and text box according to selection   
-    
+    %== Set sliders and text box according to selection
+
     %-  Locked - based on saved values
-    if th_sett_sel.lock == 1; 
-        
+    if th_sett_sel.lock == 1;
+
         %- Assign global values to this particular cell
         thresh_sel.min_th = th_sett_sel.min_th;
         thresh_sel.max_th = th_sett_sel.max_th;
-        
+
         %- Update slider values
         value_min = (thresh_sel.min_th-thresh_sel.min)/thresh_sel.diff;
         if value_min < 0; value_min = 0; end    % Might be necessary if slider was at the left end
         if value_min > 1; value_min = 1; end    % Might be necessary if slider was at the right end
-        
+
         value_max = (thresh_sel.max_th-thresh_sel.min)/thresh_sel.diff;
-        if value_max < 0; value_max = 0; end   % Might be necessary if slider was at the left end  
-        if value_max > 1; value_max = 1; end   % Might be necessary if slider was at the right end        
-        
+        if value_max < 0; value_max = 0; end   % Might be necessary if slider was at the left end
+        if value_max > 1; value_max = 1; end   % Might be necessary if slider was at the right end
+
         %- Slider for lower limit and corresponding text box
         set(handles.slider_th_min,'Value',value_min)
-        set(handles.text_th_min,'String', num2str(thresh_sel.min_th));     
-     
+        set(handles.text_th_min,'String', num2str(thresh_sel.min_th));
+
         %- Slider for upper limit and corresponding text box
         set(handles.slider_th_max,'Value',value_max)
         set(handles.text_th_max,'String', num2str(thresh_sel.max_th));
-    
+
     %- Not locked - not thresholding
-    else                    
-        
+    else
+
         %- Slider for lower limit and corresponding text box
         set(handles.slider_th_min,'Value',0)
-        set(handles.text_th_min,'String', num2str(thresh_sel.min));     
-     
+        set(handles.text_th_min,'String', num2str(thresh_sel.min));
+
         %- Slider for upper limit and corresponding text box
         set(handles.slider_th_max,'Value',1)
         set(handles.text_th_max,'String', num2str(thresh_sel.max));
     end
- 
+
     %== For slider functions calls and call of threshold function
     handles.img.cell_prop(ind_cell).thresh.diff = thresh_sel.diff;  %- Save 'diff' for histogram plotting later
     handles.img.cell_prop(ind_cell).thresh.min  = thresh_sel.min;   %- Save 'diff' for histogram plotting later
     handles.img.cell_prop(ind_cell).thresh.max  = thresh_sel.max;   %- Save 'diff' for histogram plotting later
-    
+
     %- Save handles-structure
     handles = button_threshold_Callback(hObject, eventdata, handles);
-    guidata(hObject, handles);  
+    guidata(hObject, handles);
 
 end
 
@@ -1466,106 +1471,106 @@ th_sett    = handles.img.settings.thresh;
 
 %- Execute only if there are results
 if not(isempty(spots_fit))
-    
+
     thresh     = handles.img.cell_prop(ind_cell).thresh;
-    
+
     %- Locked threshold?
     th_lock  = get(handles.checkbox_th_lock, 'Value');
-    
+
     %- Selected thresholds
     min_th = floor(str2double(get(handles.text_th_min,'String')));        % floor and ceil necessary for extreme slider position to select all points.
-    max_th = ceil(str2double(get(handles.text_th_max,'String')));      
-    
+    max_th = ceil(str2double(get(handles.text_th_max,'String')));
+
     %- Save for plotting of the histograms
-    thresh.min_th =  min_th;    
+    thresh.min_th =  min_th;
     thresh.max_th =  max_th;
-    
-    % =====================================================================   
+
+    % =====================================================================
     % Assign thresholding parameters
-    % ===================================================================== 
-    
+    % =====================================================================
+
     str = get(handles.pop_up_threshold,'String');
     val = get(handles.pop_up_threshold,'Value');
-    popup_parameter = str{val};     
-    
+    popup_parameter = str{val};
+
     switch (popup_parameter)
-        
-        case 'Sigma - XY'                       
+
+        case 'Sigma - XY'
             th_sett.sigmaxy.lock   = th_lock;
             th_sett.sigmaxy.min_th = min_th;
             th_sett.sigmaxy.max_th = max_th;
-            
+
             values_for_th      = spots_fit(:,col_par.sigmax);
             name_field         = 'sigmaxy';
-            
-        case 'Sigma - Z'            
+
+        case 'Sigma - Z'
             th_sett.sigmaz.lock   = th_lock;
             th_sett.sigmaz.min_th = min_th;
-            th_sett.sigmaz.max_th = max_th;  
-            
+            th_sett.sigmaz.max_th = max_th;
+
             values_for_th     = spots_fit(:,col_par.sigmaz);
             name_field        = 'sigmaz';
 
-        case 'Amplitude'            
+        case 'Amplitude'
             th_sett.amp.lock   = th_lock;
             th_sett.amp.min_th = min_th;
-            th_sett.amp.max_th = max_th;  
-            
+            th_sett.amp.max_th = max_th;
+
             values_for_th  = spots_fit(:,col_par.amp);
             name_field          = 'amp';
 
-        case 'Background'            
+        case 'Background'
             th_sett.bgd.lock = th_lock;
             th_sett.bgd.min_th = min_th;
-            th_sett.bgd.max_th = max_th;  
-            
+            th_sett.bgd.max_th = max_th;
+
             values_for_th  = spots_fit(:,col_par.bgd);
             name_field          = 'bgd';
-             
-       case 'Pos (Z)'            
+
+       case 'Pos (Z)'
             th_sett.pos_z.lock = th_lock;
             th_sett.pos_z.min_th = min_th;
-            th_sett.pos_z.max_th = max_th;   
-            
+            th_sett.pos_z.max_th = max_th;
+
             values_for_th      = spots_fit(:,col_par.pos_z);
             name_field          = 'pos_z';
 
-             
-       case 'Pixel-intensity (Raw)'            
+
+       case 'Pixel-intensity (Raw)'
             th_sett.int_raw.lock = th_lock;
             th_sett.int_raw.min_th = min_th;
-            th_sett.int_raw.max_th = max_th;  
-            
+            th_sett.int_raw.max_th = max_th;
+
             values_for_th      = spots_detected(:,col_par.int_raw);
             name_field          = 'int_raw';
-     
-        case 'Pixel-intensity (Filtered)'            
+
+        case 'Pixel-intensity (Filtered)'
             th_sett.int_filt.lock   = th_lock;
             th_sett.int_filt.min_th = min_th;
-            th_sett.int_filt.max_th = max_th;  
-            
+            th_sett.int_filt.max_th = max_th;
+
             values_for_th       = spots_detected(:,col_par.int_filt);
             name_field          = 'int_filt';
-                
+
     end
-    
+
     %- Apply threshold for currently selected parameter
     thresh.in_sel           = ((values_for_th >= min_th) & ...
                                   (values_for_th <= max_th)) | ...
                                   isnan(values_for_th);
     thresh.(name_field).in  = thresh.in_sel;
-    
-    
-    % =====================================================================   
+
+
+    % =====================================================================
     % Exclude spots that are too close
-    % =====================================================================  
+    % =====================================================================
     data    = spots_fit(:,1:3);
     N_spots = size(data,1);
-    
+
     r_min = str2double(get(handles.text_min_dist_spots,'String'));
-    
+
     if r_min > 0
-    
+
         %- Mask with relative distance and matrix with radius
         dum        = [];
         dum(1,:,:) = data';
@@ -1574,7 +1579,7 @@ if not(isempty(spots_fit))
 
         d_coord = data_3D_1-data_3D_2;
 
-        r = sqrt(squeeze(d_coord(:,1,:).^2 + d_coord(:,2,:).^2 + d_coord(:,3,:).^2)); 
+        r = sqrt(squeeze(d_coord(:,1,:).^2 + d_coord(:,2,:).^2 + d_coord(:,3,:).^2));
 
         %- Determine spots that are too close
         mask_close          = zeros(size(r));
@@ -1595,11 +1600,11 @@ if not(isempty(spots_fit))
         mask_close_spots(mask_close_inv) = 10;
         mask_close_spots(m_diag)         = 10;  %- Set diagonal to 10;
 
-        %- Find ratios of spot that are < 1 
+        %- Find ratios of spot that are < 1
         [row,col] = find(mask_close_spots < 1);
         ind_spots_too_close1 = unique(col);
 
-        %- Find ratios of spot that are == 1 
+        %- Find ratios of spot that are == 1
         [row,col] = find(mask_close_spots == 1);
         ind_spots_too_close2 = unique(col(2:end));
 
@@ -1608,10 +1613,10 @@ if not(isempty(spots_fit))
         ind_spots_too_close = [];
     end
 
-    % =====================================================================   
+    % =====================================================================
     % APPLY THRESHOLD
-    % =====================================================================   
-    
+    % =====================================================================
+
     %- Thresholding under consideration of locked ones
     %  Can be written in boolean algebra: Implication Z = x?y = ?x?y = not(x) or y
     %  http://en.wikipedia.org/wiki/Boolean_algebra_%28logic%29#Basic_operations
@@ -1634,11 +1639,11 @@ if not(isempty(spots_fit))
                        (not(th_sett.bgd.lock)     | thresh.bgd.in == 1) & ...
                        (not(th_sett.pos_z.lock)   | thresh.pos_z.in == 1)& ...
                        (not(th_sett.int_raw.lock) | thresh.int_raw.in == 1)& ...
-                       (not(th_sett.int_filt.lock)| thresh.int_filt.in == 1); 
+                       (not(th_sett.int_filt.lock)| thresh.int_filt.in == 1);
 
-    thresh.logic_in(ind_spots_too_close)  = 0;   % Spots that are too close                
+    thresh.logic_in(ind_spots_too_close)  = 0;   % Spots that are too close
 
-    %- Finalize thresholding    
+    %- Finalize thresholding
     thresh.in(thresh.logic_in == 1) = 1;
     thresh.in(thresh.logic_in == 0) = 0;
     thresh.in(thresh.logic_out_man) = -1;
@@ -1647,33 +1652,33 @@ if not(isempty(spots_fit))
 
 %     %=== Chech which spots are in the nucleus
 %     if not(isempty(handles.img.cell_prop(ind_cell).pos_Nuc))
-% 
+%
 %         %=== Look at spots after thresholding to get overall spot
 %         %counts in the nucleus
-%         
+%
 %         x_Nuc = handles.img.cell_prop(ind_cell).pos_Nuc.x * handles.img.par_microscope.pixel_size.xy;
 %         y_Nuc = handles.img.cell_prop(ind_cell).pos_Nuc.y * handles.img.par_microscope.pixel_size.xy;
-% 
-%         %=== Look at all spots       
+%
+%         %=== Look at all spots
 %         spots_y = data(:,1);
 %         spots_x = data(:,2);
-% 
+%
 %         %- Find spots which are in nucleus
 %         in_Nuc = inpolygon(spots_x,spots_y,x_Nuc,y_Nuc); % Points defined in Positions inside the polygon
-% 
+%
 %     else
 %         in_Nuc = zeros(size(data,1),1);
 %     end
-    
+
     %=== Spots which are in considering the current selection even if it is not locked
-    thresh.in_display = thresh.in_sel  & thresh.logic_in & ~(thresh.in == -1); 
-    
+    thresh.in_display = thresh.in_sel  & thresh.logic_in & ~(thresh.in == -1);
+
     handles.img.cell_prop(ind_cell).thresh  = thresh;
     %handles.img.cell_prop(ind_cell).in_Nuc  = in_Nuc;
     handles.img.settings.thresh   = th_sett;
     handles.thresh.Spots_min_dist = r_min;
-    
-    %=== Update experimental PSF settings    
+
+    %=== Update experimental PSF settings
     PSF_exp.sigmax_th  = nanmean(spots_fit(thresh.in_display,col_par.sigmax));
     PSF_exp.sigmay_th  = nanmean(spots_fit(thresh.in_display,col_par.sigmay));
     PSF_exp.sigmaz_th  = nanmean(spots_fit(thresh.in_display,col_par.sigmaz));
@@ -1697,14 +1702,14 @@ if not(isempty(spots_fit))
     handles.img.PSF_exp = PSF_exp;
 
     %=== Save data
-    guidata(hObject, handles); 
-    
+    guidata(hObject, handles);
+
     %== Make spots fits available as global variable
     global spots_fit_th
     spots_fit_th = [];
-    spots_fit_th = spots_fit(thresh.in == 1,:); 
-    
-    
+    spots_fit_th = spots_fit(thresh.in == 1,:);
+
+
     %=== VARIOUS PLOTS
 
     %- Clear the plot axes
@@ -1735,9 +1740,9 @@ if not(isempty(spots_fit))
 
     %- Set selections for plot accordingly
     set(handles.pop_up_image_spots,'Value',3);
-     
+
 end
-    
+
 
 %==== Button to unlock all thresholds
 function button_th_unlock_all_Callback(hObject, eventdata, handles)
@@ -1751,7 +1756,7 @@ guidata(hObject, handles);
 
 
 %=== Check-box for locking parameters
-function checkbox_th_lock_Callback(hObject, eventdata, handles) 
+function checkbox_th_lock_Callback(hObject, eventdata, handles)
 handles = button_threshold_Callback(hObject, eventdata, handles);
 guidata(hObject, handles);
 
@@ -1772,7 +1777,7 @@ set(handles.text_th_min,'String', value_thresh);
 axes(handles.axes_histogram_all);
 delete(handles.h_hist_min);
 v = axis;
-hold on, 
+hold on,
 handles.h_hist_min = plot([value_thresh value_thresh] , [0 1e5],'r');
 hold off
 axis(v);
@@ -1780,7 +1785,7 @@ axis(v);
 axes(handles.axes_histogram_th);
 delete(handles.h_hist_th_min);
 v = axis;
-hold on, 
+hold on,
 handles.h_hist_th_min = plot([value_thresh value_thresh] , [0 1e5],'r');
 hold off
 axis(v);
@@ -1820,7 +1825,7 @@ axis(v);
 guidata(hObject, handles);      % Update handles structure
 
 
-%=== Edit values of slider selection: minimum 
+%=== Edit values of slider selection: minimum
 function text_th_min_Callback(hObject, eventdata, handles)
 value_edit = str2double(get(handles.text_th_min,'String'));
 
@@ -1830,14 +1835,14 @@ thresh     = handles.img.cell_prop(ind_cell).thresh;
 %- Set new slider value only if value is within range
 if value_edit > thresh.min  && value_edit < thresh.max
     slider_new = (value_edit-thresh.min)/thresh.diff;
-    set(handles.slider_th_min,'Value',slider_new);   
+    set(handles.slider_th_min,'Value',slider_new);
 
 else
-    set(handles.text_th_min,'String',num2str(value_edit))    
+    set(handles.text_th_min,'String',num2str(value_edit))
 end
 
 
-%=== Edit values of slider selection: maximum 
+%=== Edit values of slider selection: maximum
 function text_th_max_Callback(hObject, eventdata, handles)
 value_edit = str2double(get(handles.text_th_max,'String'));
 
@@ -1850,7 +1855,7 @@ if value_edit > thresh.min  && value_edit < thresh.max
     set(handles.slider_th_max,'Value',slider_new);
     slider_th_max_Callback(hObject, eventdata, handles)
 else
-    set(handles.text_th_max,'String',num2str(value_edit))     
+    set(handles.text_th_max,'String',num2str(value_edit))
 end
 
 
@@ -1865,16 +1870,16 @@ status_change = handles.img.define_par_avg;
 
 % If settings changed for the first time
 if status_change && ~handles.status_avg_settings
-    
+
     handles.status_avg_settings = 1;
-    
+
     %- Save handles, enable controls
     guidata(hObject, handles);
     FQ_enable_controls_v1(handles)
 end
-    
-    
-%=== Average spots: from current cell 
+
+
+%=== Average spots: from current cell
 function menu_avg_calc_Callback(hObject, eventdata, handles)
 
 %- Average spots from one cell
@@ -1886,9 +1891,9 @@ handles.status_avg_calc     = 1;  % Average calculated
 %- Save handles, enable controls
 guidata(hObject, handles);
 FQ_enable_controls_v1(handles)
-   
 
-%=== Average spots: from all cell    
+
+%=== Average spots: from all cell
 function menu_avg_calc_all_Callback(hObject, eventdata, handles)
 
 %- Average spots from ALL cells
@@ -1906,12 +1911,12 @@ function handles = menu_avg_fit_Callback(hObject, eventdata, handles)
 
 %- Get some parameters
 parameters_fit.flags.ns     = 0;  % Fit over-sampled (which will be identical to normal-sampling if no over-sampling has been specified)
-parameters_fit.flags.output = 2;
+parameters_fit.flags.output = 1;
 
 %- Image should be cropped to the size of the detection region
 parameters_fit.flags.crop  = 1;
-parameters_fit.par_crop.xy = handles.img.settings.detect.reg_size.xy; 
-parameters_fit.par_crop.z  = handles.img.settings.detect.reg_size.z; 
+parameters_fit.par_crop.xy = handles.img.settings.detect.reg_size.xy;
+parameters_fit.par_crop.z  = handles.img.settings.detect.reg_size.z;
 
 %- Average image
 handles.img.avg_spot_fit(parameters_fit)
@@ -1935,7 +1940,7 @@ set(handles.pop_up_select_psf,'Value',3);
 %handles.img.spot_avg_os_fit = PSF_fit_os;
 handles.status_avg_fit     = 1;
 handles.img.PSF_exp        = PSF_exp;
-guidata(hObject, handles);     
+guidata(hObject, handles);
 
 
 %=== Menu: save averaged spot with normal sampling as tiff
@@ -1947,7 +1952,7 @@ current_dir = pwd;
 if    not(isempty(handles.img.path_names.results))
    cd(handles.img.path_names.results)
 elseif not(isempty(handles.img.path_names.root))
-   cd(handles.img.path_names.root) 
+   cd(handles.img.path_names.root)
 end
 
 %- Save image
@@ -1966,7 +1971,7 @@ current_dir = pwd;
 if    not(isempty(handles.img.path_names.results))
    cd(handles.img.path_names.results)
 elseif not(isempty(handles.img.path_names.root))
-   cd(handles.img.path_names.root) 
+   cd(handles.img.path_names.root)
 end
 
 %- Save image
@@ -2001,7 +2006,7 @@ if isempty(handles.img.cell_prop)
 else
     spots_fit  = handles.img.cell_prop(ind_cell).spots_fit;
     thresh     = handles.img.cell_prop(ind_cell).thresh;
-    cell_prop  = handles.img.cell_prop; 
+    cell_prop  = handles.img.cell_prop;
 end
 
 %- Select image-data to plot
@@ -2009,13 +2014,13 @@ str       = get(handles.pop_up_image_select,'String');
 val       = get(handles.pop_up_image_select,'Value');
 sel_image = str{val};
 
-switch (sel_image)    
-    case 'Raw image'  
+switch (sel_image)
+    case 'Raw image'
         img_plot = handles.img.raw_proj_z;
-        
-    case 'Filtered image'  
+
+    case 'Filtered image'
         img_plot = handles.img.filt_proj_z;
-        
+
     case 'No image'
         img_plot = [];
 end
@@ -2027,11 +2032,11 @@ sel_spots = str{val};
 
 flag_spots = 0;
 
-switch sel_spots      
+switch sel_spots
     case 'Detected spots',       flag_spots = 1;
     case 'Thresholded spots',    flag_spots = 2;
 end
-            
+
 %- 1. Plot image
 if isempty(axes_select)
 
@@ -2042,10 +2047,10 @@ if isempty(axes_select)
         imtool(uint16(img_plot),[]);  % imtool does not work with 32bit
     end
 else
-    axes(axes_select);   
+    axes(axes_select);
     h = imshow(img_plot,[]);
     set(h, 'ButtonDownFcn', @axes_image_ButtonDownFcn)
-   
+
 end
 
 title('Maximum projection of loaded image','FontSize',9);
@@ -2055,7 +2060,7 @@ colormap(hot), axis off
 %- If no image is shown
 if isempty(img_plot)
     h_fig = figure(45);
-    
+    clf
     set(h_fig,'color','w')
     set(gca,'YDir','rev')
     axis equal
@@ -2066,116 +2071,125 @@ end
 
 %- 2. Plot-spots
 if flag_spots
-          
+
     if not(isempty(spots_fit))
-        
+
         %- Select spots which will be shown
         if     flag_spots == 1    %- Detected spots
             ind_plot_in      = logical(thresh.all);
             ind_plot_out     = not(thresh.all);
             ind_plot_out_man = not(thresh.all);
-            
+
         elseif flag_spots == 2   %- Thresholded spots
             ind_plot_in      = logical(thresh.in_display);
             ind_plot_out     = not(thresh.in_display);
             ind_plot_out_man = thresh.in == -1 ;    % Manually removed in spot inspector
         end
-        
-        %- Plot spots        
+
+        %- Plot spots
         %  Add one pixel since image starts at one and detected spots at pixel
         global h_out h_out_man h_in
-        hold on
-            h_out     = plot((spots_fit(ind_plot_out,col_par.pos_x)/pixel_size.xy + 1),     (spots_fit(ind_plot_out,col_par.pos_y)/pixel_size.xy +1)    ,'ob','MarkerSize',10);
-            h_out_man = plot((spots_fit(ind_plot_out_man,col_par.pos_x)/pixel_size.xy + 1), (spots_fit(ind_plot_out_man,col_par.pos_y)/pixel_size.xy +1),'om','MarkerSize',10);
-            h_in      = plot((spots_fit(ind_plot_in,col_par.pos_x)/pixel_size.xy  + 1) ,    (spots_fit(ind_plot_in,col_par.pos_y)/pixel_size.xy +1)     ,'og','MarkerSize',10);
-        hold off
-        title(['Spots Detected ', num2str(length(ind_plot_in ))],'FontSize',9); 
+        if ~ isempty(img_plot)
+            hold on
+                h_out     = plot((spots_fit(ind_plot_out,col_par.pos_x)/pixel_size.xy + 1),     (spots_fit(ind_plot_out,col_par.pos_y)/pixel_size.xy +1)    ,'ob','MarkerSize',10);
+                h_out_man = plot((spots_fit(ind_plot_out_man,col_par.pos_x)/pixel_size.xy + 1), (spots_fit(ind_plot_out_man,col_par.pos_y)/pixel_size.xy +1),'om','MarkerSize',10);
+                h_in      = plot((spots_fit(ind_plot_in,col_par.pos_x)/pixel_size.xy  + 1) ,    (spots_fit(ind_plot_in,col_par.pos_y)/pixel_size.xy +1)     ,'og','MarkerSize',10);
+            hold off
+        else
+            hold on
+                h_out     = plot((spots_fit(ind_plot_out,col_par.pos_x)/pixel_size.xy + 1),     (spots_fit(ind_plot_out,col_par.pos_y)/pixel_size.xy +1)    ,'.b');
+                h_out_man = plot((spots_fit(ind_plot_out_man,col_par.pos_x)/pixel_size.xy + 1), (spots_fit(ind_plot_out_man,col_par.pos_y)/pixel_size.xy +1),'.m');
+                h_in      = plot((spots_fit(ind_plot_in,col_par.pos_x)/pixel_size.xy  + 1) ,    (spots_fit(ind_plot_in,col_par.pos_y)/pixel_size.xy +1)     ,'.g');
+            hold off
+        end
+
+        title(['Spots Detected ', num2str(length(ind_plot_in ))],'FontSize',9);
         colormap(hot)
         freezeColors(gca)
-        
-        
-        if sum(ind_plot_in) && sum(ind_plot_out) && sum(ind_plot_out_man) 
-            legend('Rejected Spots','Rejected Spots [man]','Selected Spots');  
-        elseif sum(ind_plot_in) && sum(ind_plot_out) && not(sum(ind_plot_out_man))   
-            legend('Rejected Spots','Selected Spots');  
-        elseif not(sum(ind_plot_in)) && sum(ind_plot_out) && not(sum(ind_plot_out_man))   
-            legend('Rejected Spots'); 
-         elseif not(sum(ind_plot_in)) && not(sum(ind_plot_out)) && (sum(ind_plot_out_man))   
-            legend('Rejected Spots [man]');    
-        elseif sum(ind_plot_in) && not(sum(ind_plot_out)) && not(sum(ind_plot_out_man)) 
+
+
+        if sum(ind_plot_in) && sum(ind_plot_out) && sum(ind_plot_out_man)
+            legend('Rejected Spots','Rejected Spots [man]','Selected Spots');
+        elseif sum(ind_plot_in) && sum(ind_plot_out) && not(sum(ind_plot_out_man))
+            legend('Rejected Spots','Selected Spots');
+        elseif not(sum(ind_plot_in)) && sum(ind_plot_out) && not(sum(ind_plot_out_man))
+            legend('Rejected Spots');
+         elseif not(sum(ind_plot_in)) && not(sum(ind_plot_out)) && (sum(ind_plot_out_man))
+            legend('Rejected Spots [man]');
+        elseif sum(ind_plot_in) && not(sum(ind_plot_out)) && not(sum(ind_plot_out_man))
             legend('Selected Spots');
-        end 
-    end   
+        end
+    end
 end
 
 %- 3. Plot outline if specified
 if flag_outline
-    
+
     %- Plot outline of cell and TS
     hold on
-    %if isfield(handles.img,'cell_prop')    
-           
-        if not(isempty(cell_prop))  
+    %if isfield(handles.img,'cell_prop')
+
+        if not(isempty(cell_prop))
             for i_cell = 1:size(cell_prop,2)
                 x = cell_prop(i_cell).x;
                 y = cell_prop(i_cell).y;
-                plot([x,x(1)],[y,y(1)],'b','Linewidth', 2)  
-                            
+                plot([x,x(1)],[y,y(1)],'b','Linewidth', 2)
+
                 %- Nucleus
-                pos_Nuc   = cell_prop(i_cell).pos_Nuc;   
-                if not(isempty(pos_Nuc))  
+                pos_Nuc   = cell_prop(i_cell).pos_Nuc;
+                if not(isempty(pos_Nuc))
                     for i_nuc = 1:size(pos_Nuc,2)
                         x = pos_Nuc(i_nuc).x;
                         y = pos_Nuc(i_nuc).y;
-                        plot([x,x(1)],[y,y(1)],':b','Linewidth', 2)  
-                   end                
-                end                    
-                
+                        plot([x,x(1)],[y,y(1)],':b','Linewidth', 2)
+                   end
+                end
+
                 %- TS
-                pos_TS   = cell_prop(i_cell).pos_TS;   
-                if not(isempty(pos_TS))  
+                pos_TS   = cell_prop(i_cell).pos_TS;
+                if not(isempty(pos_TS))
                     for i_TS = 1:size(pos_TS,2)
                         x = pos_TS(i_TS).x;
                         y = pos_TS(i_TS).y;
-                        plot([x,x(1)],[y,y(1)],'b','Linewidth', 2)  
+                        plot([x,x(1)],[y,y(1)],'b','Linewidth', 2)
 
-                    end                
-                end            
-  
+                    end
+                end
+
             end
 
             %- Plot selected cell in different color
             ind_cell = get(handles.pop_up_outline_sel_cell,'Value');
             x = cell_prop(ind_cell).x;
             y = cell_prop(ind_cell).y;
-            plot([x,x(1)],[y,y(1)],'y','Linewidth', 2)  
+            plot([x,x(1)],[y,y(1)],'y','Linewidth', 2)
 
             %- Nucleus
-            pos_Nuc   = cell_prop(ind_cell).pos_Nuc;   
-            if not(isempty(pos_Nuc))  
+            pos_Nuc   = cell_prop(ind_cell).pos_Nuc;
+            if not(isempty(pos_Nuc))
                 for i_nuc = 1:size(pos_Nuc,2)
                     x = pos_Nuc(i_nuc).x;
                     y = pos_Nuc(i_nuc).y;
-                    plot([x,x(1)],[y,y(1)],':y','Linewidth', 2)  
-               end                
-            end           
-            
+                    plot([x,x(1)],[y,y(1)],':y','Linewidth', 2)
+               end
+            end
+
             %- TS
-            pos_TS   = cell_prop(ind_cell).pos_TS;   
-            if not(isempty(pos_TS))  
+            pos_TS   = cell_prop(ind_cell).pos_TS;
+            if not(isempty(pos_TS))
                 for i = 1:size(pos_TS,2)
                     x = pos_TS(i).x;
                     y = pos_TS(i).y;
-                    plot([x,x(1)],[y,y(1)],'g','Linewidth', 2)  
-            
-                end                
-            end            
-        end        
+                    plot([x,x(1)],[y,y(1)],'g','Linewidth', 2)
+
+                end
+            end
+        end
     %end
     hold off
-    
+
 end
-    
+
 
 %=== Plot-histogram of all values
 function handles = plot_hist_all(handles,axes_select,values_for_th)
@@ -2185,19 +2199,19 @@ thresh     = handles.img.cell_prop(ind_cell).thresh;
 
 if isempty(axes_select)
     figure
-    hist(values_for_th,25); 
+    hist(values_for_th,25);
     v = axis;
     hold on
          plot([thresh.min_th thresh.min_th] , [0 1e5],'r');
          plot([thresh.max_th thresh.max_th] , [0 1e5],'r');
     hold off
     axis(v);
-    colormap jet; 
-    
-% Handles for min and max line are returned for slider callback function    
+    colormap jet;
+
+% Handles for min and max line are returned for slider callback function
 else
-    axes(axes_select); 
-    hist(values_for_th,25); 
+    axes(axes_select);
+    hist(values_for_th,25);
     h = findobj(axes_select);
     v = axis;
     hold on
@@ -2209,9 +2223,9 @@ else
     freezeColors;
     set(h,'ButtonDownFcn',@axes_histogram_all_ButtonDownFcn);   % Button-down function has to be set again
 end
- 
-title(strcat('Total # of spots: ',sprintf('%d' ,length(thresh.in) )),'FontSize',9);    
-    
+
+title(strcat('Total # of spots: ',sprintf('%d' ,length(thresh.in) )),'FontSize',9);
+
 
 %=== Plot-histogram of thresholded parameters
 function handles = plot_hist_th(handles,axes_select,values_for_th)
@@ -2221,19 +2235,19 @@ thresh     = handles.img.cell_prop(ind_cell).thresh;
 
 if isempty(axes_select)
     figure
-    hist(values_for_th(handles.thresh.in_display),25); 
+    hist(values_for_th(handles.thresh.in_display),25);
     v = axis;
     hold on
          plot([thresh.min_th thresh.min_th] , [0 1e5],'r');
          plot([thresh.max_th thresh.max_th] , [0 1e5],'r');
     hold off
     axis(v);
-    colormap jet; 
-    
-% Handles for min and max line are returned for slider callback function    
+    colormap jet;
+
+% Handles for min and max line are returned for slider callback function
 else
-    axes(axes_select); 
-    hist(values_for_th(thresh.in_display),25); 
+    axes(axes_select);
+    hist(values_for_th(thresh.in_display),25);
     h = findobj(axes_select);
     v = axis;
     hold on
@@ -2245,8 +2259,8 @@ else
     freezeColors;
     set(h,'ButtonDownFcn',@axes_histogram_th_ButtonDownFcn);   % Button-down function has to be set again
 end
-    
-title(strcat('Selected # of spots:',sprintf(' %d' ,sum(thresh.in_display) )),'FontSize',9);     
+
+title(strcat('Selected # of spots:',sprintf(' %d' ,sum(thresh.in_display) )),'FontSize',9);
 
 
 %=== Projection in xy
@@ -2263,8 +2277,8 @@ if length(thresh.in == 1) < 1000
     if sum(spots_proj.xy(:))
         if isempty(axes_select)
             figure
-            montage(spots_proj.xy(:,:,:,thresh.in == 1),'DisplayRange', []);    
-            set(gcf,'Position', [300   300   500   400])       
+            montage(spots_proj.xy(:,:,:,thresh.in == 1),'DisplayRange', []);
+            set(gcf,'Position', [300   300   500   400])
             set(gca,'Units','normalized')
             set(gca,'Position', [0.1   0.1   0.8   0.8])
             colormap(jet);
@@ -2275,11 +2289,11 @@ if length(thresh.in == 1) < 1000
             colormap(jet);
             freezeColors;
         end
-        title('Max-projection XY','FontSize',9)  
+        title('Max-projection XY','FontSize',9)
     else
-       set(handles.axes_proj_xy,'Visible','off');     
+       set(handles.axes_proj_xy,'Visible','off');
     end
-end  
+end
 
 %=== Projection in xz
 function plot_proj_xz(handles,axes_select)
@@ -2292,11 +2306,11 @@ spots_proj = handles.img.cell_prop(ind_cell).spots_proj;
 if length(thresh.in == 1) < 1000
 
     %- Plot only if data is present
-    if sum(spots_proj.xz(:))  
+    if sum(spots_proj.xz(:))
         if isempty(axes_select)
             figure
-            montage(spots_proj.xz(:,:,:,thresh.in == 1),'DisplayRange', []);    
-            set(gcf,'Position', [300   300   500   400])       
+            montage(spots_proj.xz(:,:,:,thresh.in == 1),'DisplayRange', []);
+            set(gcf,'Position', [300   300   500   400])
             set(gca,'Units','normalized')
             set(gca,'Position', [0.1   0.1   0.8   0.8])
             colormap(jet);
@@ -2307,9 +2321,9 @@ if length(thresh.in == 1) < 1000
             colormap(jet);
             freezeColors;
         end
-        title('Max-projection XZ','FontSize',9) 
+        title('Max-projection XZ','FontSize',9)
     else
-       set(handles.axes_proj_xz,'Visible','off');     
+       set(handles.axes_proj_xz,'Visible','off');
     end
 end
 
@@ -2322,17 +2336,17 @@ spots_proj = handles.img.cell_prop(ind_cell).spots_proj;
 
 %- Show mosaic only if there are fewer than 1000 spots
 if length(thresh.in == 1) < 1000
-    
+
     %- Plot only if data is present
     if isfield(spots_proj,'res_xy')
-        if sum(spots_proj.res_xy(:))     
+        if sum(spots_proj.res_xy(:))
             if isempty(axes_select)
                 figure
-                montage(spots_proj.res_xy(:,:,:,thresh.in == 1),'DisplayRange', []);    
-                set(gcf,'Position', [300   300   500   400])       
+                montage(spots_proj.res_xy(:,:,:,thresh.in == 1),'DisplayRange', []);
+                set(gcf,'Position', [300   300   500   400])
                 set(gca,'Units','normalized')
                 set(gca,'Position', [0.1   0.1   0.8   0.8])
-                colormap(jet);    
+                colormap(jet);
             else
                 axes(axes_select);
                 h_xy = montage(spots_proj.res_xy(:,:,:,thresh.in_display),'DisplayRange', []);
@@ -2342,23 +2356,23 @@ if length(thresh.in == 1) < 1000
             end
             title('RESID: Max-proj XY','FontSize',9)
         else
-            set(handles.axes_resid_xy,'Visible','off');       
-        end    
+            set(handles.axes_resid_xy,'Visible','off');
+        end
     else
-       set(handles.axes_resid_xy,'Visible','off');     
+       set(handles.axes_resid_xy,'Visible','off');
     end
 end
 
 
 
 %==========================================================================
-%===  Functions for double clicks on plots 
+%===  Functions for double clicks on plots
 
 
 %=== 2D plot
 function axes_image_ButtonDownFcn(hObject, eventdata, handles)
 sel_type = get(gcf,'selectiontype');    % Normal for single click, Open for double click
-   
+
 if strcmp(sel_type,'open')
     handles = guidata(hObject);        % Appears that handles are not always input parameter for function call
     plot_image(handles,[]);
@@ -2368,7 +2382,7 @@ end
 %=== Projections in xy
 function axes_proj_xy_ButtonDownFcn(hObject, eventdata, handles)
 sel_type = get(gcf,'selectiontype');    % Normal for single click, Open for double click
-    
+
 if strcmp(sel_type,'open')
     handles = guidata(hObject);        % Appears that handles are not always input parameter for function call
     plot_proj_xy(handles,[]);
@@ -2378,7 +2392,7 @@ end
 %=== Projections in xy
 function axes_proj_xz_ButtonDownFcn(hObject, eventdata, handles)
 sel_type = get(gcf,'selectiontype');    % Normal for single click, Open for double click
-    
+
 if strcmp(sel_type,'open')
     handles = guidata(hObject);        % Appears that handles are not always input parameter for function call
     plot_proj_xz(handles,[]);
@@ -2388,7 +2402,7 @@ end
 %=== Residuals
 function axes_resid_xy_ButtonDownFcn(hObject, eventdata, handles)
 sel_type = get(gcf,'selectiontype');    % Normal for single click, Open for double click
-    
+
 if strcmp(sel_type,'open')
     handles = guidata(hObject);        % Appears that handles are not always input parameter for function call
     plot_resid_xy(handles,[]);
@@ -2398,7 +2412,7 @@ end
 %=== Histogram
 function axes_histogram_all_ButtonDownFcn(hObject, eventdata, handles)
 sel_type = get(gcf,'selectiontype');    % Normal for single click, Open for double click
-    
+
 if strcmp(sel_type,'open')
     handles = guidata(hObject);        % Appears that handles are not always input parameter for function call
     plot_hist_all(handles,[]);
@@ -2408,7 +2422,7 @@ end
 %=== Thresholded histogram
 function axes_histogram_th_ButtonDownFcn(hObject, eventdata, handles)
 sel_type = get(gcf,'selectiontype');    % Normal for single click, Open for double click
-    
+
 if strcmp(sel_type,'open')
     handles = guidata(hObject);        % Appears that handles are not always input parameter for function call
     plot_hist_th(handles,[]);
@@ -2427,27 +2441,27 @@ plot_image(handles,handles.axes_image);
 %=== Show figures in Matlab
 function button_visualize_matlab_Callback(hObject, eventdata, handles)
 
-global image_struct    
+global image_struct
 
 %== Select visualization open
 vis_sel_str = get(handles.popup_vis_sel,'String');
 vis_sel_val = get(handles.popup_vis_sel,'Value');
-    
+
 switch vis_sel_str{vis_sel_val}
 
-    case 'Spot inspector'        
-       FISH_QUANT_spots('HandlesMainGui',handles);  
+    case 'Spot inspector'
+       FISH_QUANT_spots('HandlesMainGui',handles);
 
 
-    case 'ImageJ'        
+    case 'ImageJ'
 
         MIJ_start(hObject, eventdata, handles)
-        
+
         %- Get path of image
         if not(isempty(handles.img.path_names.img))
            path_image = handles.img.path_names.img;
         elseif not(isempty(handles.img.path_names.root))
-           path_image = handles.img.path_names.root; 
+           path_image = handles.img.path_names.root;
         end
 
         % Generate temporary result file
@@ -2458,18 +2472,18 @@ switch vis_sel_str{vis_sel_val}
         parameters.file_names.raw           = handles.img.file_names;
         parameters.path_save                = path_image;
         parameters.flag_type                = 'spots';
-        
-        FQ_save_results_v1(file_name_temp,parameters);                
+
+        FQ_save_results_v1(file_name_temp,parameters);
 
         %- Call macro
-        ij.IJ.runMacroFile(handles.imagej_macro_name,file_name_temp);                   
+        ij.IJ.runMacroFile(handles.imagej_macro_name,file_name_temp);
 end
 
 
 %== Change settings for rendering
 function menu_settings_rendering_Callback(hObject, eventdata, handles)
 handles.settings_rendering = FQ_change_setting_VTK_v1(handles.settings_rendering);
-status_update(hObject, eventdata, handles,{'  ';'## Settings for RENDERING are modified'});         
+status_update(hObject, eventdata, handles,{'  ';'## Settings for RENDERING are modified'});
 guidata(hObject, handles);
 
 
@@ -2484,21 +2498,21 @@ end
 function menu_spot_avg_imagej_ns_Callback(hObject, eventdata, handles)
 MIJ_start(hObject, eventdata, handles)
 ind_cell  = get(handles.pop_up_outline_sel_cell,'Value');
-MIJ.createImage('Matlab: PSF with normal sampling', uint32(handles.img.spot_avg),1);    
+MIJ.createImage('Matlab: PSF with normal sampling', uint32(handles.img.spot_avg),1);
 
 
 %=== Menu: show averaged spot with over-sampling in ImageJ
 function menu_spot_avg_imagej_os_Callback(hObject, eventdata, handles)
 MIJ_start(hObject, eventdata, handles)
 ind_cell  = get(handles.pop_up_outline_sel_cell,'Value');
-MIJ.createImage('Matlab: over-sampled PSF', uint32(handles.img.spot_avg_os),1);    
+MIJ.createImage('Matlab: over-sampled PSF', uint32(handles.img.spot_avg_os),1);
 
 
 %=== Menu: show radial averaged curve in ImageJ
 function menu_spot_avg_imagej_radial_Callback(hObject, eventdata, handles)
 MIJ_start(hObject, eventdata, handles)
 ind_cell  = get(handles.pop_up_outline_sel_cell,'Value');
-MIJ.createImage('Matlab: radial PSF', uint32(handles.img.cell_prop(ind_cell).psf_radial_bin_os),1);    
+MIJ.createImage('Matlab: radial PSF', uint32(handles.img.cell_prop(ind_cell).psf_radial_bin_os),1);
 
 
 %= Function to start MIJ
@@ -2506,7 +2520,7 @@ function MIJ_start(hObject, eventdata, handles)
 if isfield(handles,'flag_MIJ')
     if handles.flag_MIJ == 0
        Miji;                          % Start MIJ/ImageJ by running the Matlab command: MIJ.start("imagej-path")
-       handles.flag_MIJ = 1;       
+       handles.flag_MIJ = 1;
     end
 else
    Miji;                          % Start MIJ/ImageJ by running the Matlab command: MIJ.start("imagej-path")
@@ -2521,7 +2535,7 @@ if handles.flag_MIJ == 1
     MIJ.exit;
     MIJ_start(hObject, eventdata, handles);
 else
-    MIJ_start(hObject, eventdata, handles);  
+    MIJ_start(hObject, eventdata, handles);
 end
 
 
@@ -2536,7 +2550,7 @@ if ~isempty(handles.img.path_names.root)
 end
 FQ_seg;
 
-%== Batch filtering 
+%== Batch filtering
 function menu_batch_filter_Callback(hObject, eventdata, handles)
 global FQ_main_folder par_microscope_FQ settings_filter_FQ
 FQ_main_folder.root    =  handles.img.path_names.root;
@@ -2594,7 +2608,7 @@ if not(isempty(handles.img.path_names.root))
 elseif not(isempty(handles.img.path_names.outlines))
    path_name = handles.img.path_names.outlines;
 else
-   path_name = pwd; 
+   path_name = pwd;
 end
 
 FISH_QUANT_list_folder(par_main,path_name);
@@ -2621,13 +2635,13 @@ flag_parallel = get(handles.checkbox_parallel_computing,'Value');
 
 if exist('gcp','file')
 
-    %- Parallel computing - open MATLAB session for parallel computation 
-    if flag_parallel == 1    
-        
+    %- Parallel computing - open MATLAB session for parallel computation
+    if flag_parallel == 1
+
         p = gcp('nocreate'); % If no pool, do not create new one.
 
         if isempty(p)
-            
+
             %- Update status
             set(handles.h_fishquant,'Pointer','watch');
             status_text = {' ';'== STARTING matlabpool for parallel computing ... please wait ... '};
@@ -2637,17 +2651,17 @@ if exist('gcp','file')
 
             %- Update status
             status_text = {' ';'    ... STARTED'};
-            status_update(hObject, eventdata, handles,status_text);        
+            status_update(hObject, eventdata, handles,status_text);
             set(handles.h_fishquant,'Pointer','arrow');
         end
 
-    %- Parallel computing - close MATLAB session for parallel computation     
+    %- Parallel computing - close MATLAB session for parallel computation
     else
-        
+
         p = gcp('nocreate'); % If no pool, do not create new one.
-        
+
         if ~isempty(p)
-            
+
             %- Update status
             set(handles.h_fishquant,'Pointer','watch');
             status_text = {' ';'== STOPPING matlabpool for parallel computing ... please wait ... '};
@@ -2661,7 +2675,7 @@ if exist('gcp','file')
             set(handles.h_fishquant,'Pointer','arrow');
         end
     end
-    
+
 else
     warndlg('Parallel toolbox not available','FISH_QUANT')
     set(handles.checkbox_parallel_computing,'Value',0);
@@ -2718,17 +2732,17 @@ function menu_GUI_reset_Callback(hObject, eventdata, handles)
 button = questdlg('Are you sure that you want to reset the GUI?','RESET GUI','Yes','No','No');
 
 global FQ_open
-if strcmp(button,'Yes')    
+if strcmp(button,'Yes')
     FQ_open = 0;
-    FISH_QUANT_OpeningFcn(hObject, eventdata, handles);    
+    FISH_QUANT_OpeningFcn(hObject, eventdata, handles);
 end
 
 
 %=== Pop-up to select which estimates should be shown
 function pop_up_select_psf_Callback(hObject, eventdata, handles)
 
-PSF_exp = handles.img.PSF_exp;      
-    
+PSF_exp = handles.img.PSF_exp;
+
 %- Thresholding parameter
 str = get(handles.pop_up_select_psf,'String');
 val = get(handles.pop_up_select_psf,'Value');
@@ -2736,8 +2750,8 @@ popup_parameter = str{val};
 
 
 switch (popup_parameter)
-    
-    case 'All spots'           
+
+    case 'All spots'
 
         set(handles.text_psf_fit_sigmaX,'String', num2str(PSF_exp.sigmax_all,'%.0f'));
         set(handles.text_psf_fit_sigmaY,'String', num2str(PSF_exp.sigmay_all,'%.0f'));
@@ -2746,39 +2760,39 @@ switch (popup_parameter)
         set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_all,'%.0f'));
 
         disp(' ')
-        disp('FIT TO 3D GAUSSIAN: avg of ALL spots ')
+        disp('FIT TO 3D GAUSSIAN: ALL spots ')
         disp(['Sigma (xy): ', num2str(round(PSF_exp.sigmax_all)), ' +/- ', num2str(round(PSF_exp.sigmax_all_std))])
         disp(['Sigma (z) : ', num2str(round(PSF_exp.sigmaz_all)), ' +/- ', num2str(round(PSF_exp.sigmaz_all_std))])
         disp(['Amplitude : ', num2str(round(PSF_exp.amp_all)), ' +/- ', num2str(round(PSF_exp.amp_all_std))])
         disp(['BGD       : ', num2str(round(PSF_exp.bgd_all)), ' +/- ', num2str(round(PSF_exp.bgd_all_std))])
         disp(' ')
 
-        
-    case 'Thresholded'
-                
+
+    case 'Thresholded '
+
         set(handles.text_psf_fit_sigmaX,'String', num2str(PSF_exp.sigmax_th,'%.0f'));
         set(handles.text_psf_fit_sigmaY,'String', num2str(PSF_exp.sigmay_th,'%.0f'));
         set(handles.text_psf_fit_sigmaZ,'String', num2str(PSF_exp.sigmaz_th,'%.0f'));
         set(handles.text_psf_fit_amp,'String',    num2str(PSF_exp.amp_th,'%.0f'));
-        set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_th,'%.0f'));  
+        set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_th,'%.0f'));
 
         disp(' ')
-        disp('FIT TO 3D GAUSSIAN: avg of ALL spots ')
+        disp('FIT TO 3D GAUSSIAN: thresholded spots ')
         disp(['Sigma (xy): ', num2str(round(PSF_exp.sigmax_th)), ' +/- ', num2str(round(PSF_exp.sigmax_th_std))])
         disp(['Sigma (z) : ', num2str(round(PSF_exp.sigmaz_th)), ' +/- ', num2str(round(PSF_exp.sigmaz_th_std))])
         disp(['Amplitude : ', num2str(round(PSF_exp.amp_th)), ' +/- ', num2str(round(PSF_exp.amp_th_std))])
         disp(['BGD       : ', num2str(round(PSF_exp.bgd_th)), ' +/- ', num2str(round(PSF_exp.bgd_th_std))])
         disp(' ')
 
-                
+
     case 'Averaged spot'
-        
+
         set(handles.text_psf_fit_sigmaX,'String', num2str(PSF_exp.sigmax_avg,'%.0f'));
         set(handles.text_psf_fit_sigmaY,'String', num2str(PSF_exp.sigmay_avg,'%.0f'));
         set(handles.text_psf_fit_sigmaZ,'String', num2str(PSF_exp.sigmaz_avg,'%.0f'));
         set(handles.text_psf_fit_amp,'String',    num2str(PSF_exp.amp_avg,'%.0f'));
-        set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_avg,'%.0f'));   
-     
+        set(handles.text_psf_fit_bgd,'String',    num2str(PSF_exp.bgd_avg,'%.0f'));
+
 end
 
 
@@ -2818,15 +2832,15 @@ status_new = [status_old;status_text];
 set(handles.list_box_status,'String',status_new)
 set(handles.list_box_status,'ListboxTop',round(size(status_new,1)))
 drawnow
-guidata(hObject, handles); 
+guidata(hObject, handles);
 
 
 %== Close GUI
 function h_fishquant_CloseRequestFcn(hObject, eventdata, handles)
 button = questdlg('Are you sure that you want to close the GUI?','CLOSE GUI','Yes','No','No');
 
-if strcmp(button,'Yes')    
-   delete(hObject);   
+if strcmp(button,'Yes')
+   delete(hObject);
    clear global image_struct FQ_open
 
 end
@@ -2854,11 +2868,11 @@ if not(isempty(handles.img.cell_prop))
     if not(isempty(spots_fit))
         set(handles.menu_save_spots,'Enable','on')
         set(handles.menu_save_spots_th,'Enable','on')
-        
+
     else
-        set(handles.menu_save_spots,'Enable','off')   
-        set(handles.menu_save_spots_th,'Enable','off')   
-        
+        set(handles.menu_save_spots,'Enable','off')
+        set(handles.menu_save_spots_th,'Enable','off')
+
     end
 else
     set(handles.menu_save_spots,'Enable','off')
@@ -2868,7 +2882,7 @@ end
 %== Display help file
 function menu_help_show_help_file_Callback(hObject, eventdata, handles)
 dir_FQ = fileparts(which(mfilename));
-file_name_pdf = 'FISH_QUANT_v3.pdf'; 
+file_name_pdf = 'FISH_QUANT_v3.pdf';
 
 %- Replacement for development version
 dir_doc = strrep(dir_FQ,'GUI','Documentation');
@@ -2885,7 +2899,7 @@ function menu_about_Callback(hObject, eventdata, handles)
 dir_FQ = fileparts(which(mfilename));
 
 if exist(fullfile(dir_FQ,'FQ_version.txt'))
-    
+
     %- Open file
     fid  =  fopen(fullfile(dir_FQ,'FQ_version.txt'),'r');
 
@@ -2895,16 +2909,16 @@ if exist(fullfile(dir_FQ,'FQ_version.txt'))
     str_date = fgetl(fid);
     str_time = fgetl(fid);
     fclose(fid);
-    
+
     msgbox({'Compilation information          ' ['Date ',str_date] ['Time ',str_time]},'FISH-quant           ','help');
-    
+
 end
-    
+
 %== Change between 2D and 3D detection
 function menu_sett_2D_Callback(hObject, eventdata, handles)
 
 %- Get current status
-if handles.img.status_3D 
+if handles.img.status_3D
     text_status = '3D';
 else
     text_status = '2D';
@@ -2918,17 +2932,17 @@ switch choice
         handles.img.status_3D = 0;
         handles.img.settings.detect.flags.region_smaller = 1;
         display('FISH-quant - analysis will be performed in 2D');
-            
+
     case '3D'
         handles.img.status_3D = 1;
         display('FISH-quant - analysis will be performed in 3D');
 end
-guidata(hObject, handles); 
+guidata(hObject, handles);
 
 
 % ===== CREATE FUNCTIONS and CALL BACKS with no additional code
 function menu_spot_avg_imagej_Callback(hObject, eventdata, handles)
-    
+
 function text_psf_theo_xy_Callback(hObject, eventdata, handles)
 
 function text_psf_theo_z_Callback(hObject, eventdata, handles)
