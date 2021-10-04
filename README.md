@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5544017.svg)](https://doi.org/10.5281/zenodo.5544017)
+
 Matlab toolbox to analyze single molecule mRNA FISH data. 
 
 1. Counting the number of mature and nascent transcripts in 3D images.
@@ -6,7 +8,7 @@ Matlab toolbox to analyze single molecule mRNA FISH data.
 
 For more details see **publications**: 
 
-* Mueller F, Senecal A, Tantale K, Marie-Nelly H, Ly N, Collin O, Basyuk E, Bertrand E, Darzacq X, Zimmer C. FISH-quant: automatic counting of transcripts in 3D FISH images. Nature Methods 2013; 10(4): 277–278.
+* Mueller F, Senecal A, Tantale K, Marie-Nelly H, Ly N, Collin O, Basyuk E, Bertrand E, Darzacq X, Zimmer C. FISH-quant: automatic counting of transcripts in 3D FISH images. Nature Methods 2013; 10(4): 277â€“278.
 * Samacoits A, Chouaib R,  Safieddine A, Traboulsi AM, Ouyang W, Zimmer C, Peter M, Bertrand E, Walter T, Mueller F. A computational framework to study sub-cellular RNA localization. In preparation.
 
 You can also sign up to the FISH-quant email list to receive emails about updates and new developments (http://groups.google.com/group/fish-quant-discuss).
@@ -44,7 +46,7 @@ Please report bugs via the Issues menu item or email Florian Mueller (Contact se
 Development team
 
 ## Development team ##
-* RNA detection: Florian Mueller (ENS Paris, Institut Pasteur) based on work of Hervé Marie-Nelly (Institut Pasteur). 
+* RNA detection: Florian Mueller (ENS Paris, Institut Pasteur) based on work of HervÃ© Marie-Nelly (Institut Pasteur). 
 * Focus projection & RNA localization: Aubin Samacoits (Institut Pasteur) under the supervision of Florian Mueller (Institut Pasteur) and Thomas Walter (Institut Curie)
 
 
